@@ -1,0 +1,15 @@
+*~
+*.iml
+
+.gradle
+.DS_Store
+.externalNativeBuild
+
+/app/src/main/res/values/version_info.xml
+/local.properties
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/build
+/captures
+/cellscanner.apk
