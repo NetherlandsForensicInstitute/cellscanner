@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="cellscanner.wowtor.github.com.cellscanner">
 
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -27,6 +28,12 @@
         <service
             android:name=".LocationService"
             android:label="location service">
+        </service>
+
+        <service
+            android:name=".recorder.ForegroundService"
+            android:enabled="true"
+            android:exported="true">
         </service>
 
         <activity android:name=".MainActivity">
