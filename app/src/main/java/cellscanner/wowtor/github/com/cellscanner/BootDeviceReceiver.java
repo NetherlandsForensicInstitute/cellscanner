@@ -7,6 +7,13 @@ import android.widget.Toast;
 
 import cellscanner.wowtor.github.com.cellscanner.recorder.Recorder;
 
+
+/**
+ * Responsible for starting the App after device boot
+ *
+ * Checks if the application is was left in a recording state before the reboot, if true
+ * starts the application after the boot sequence has been completed
+ */
 public class BootDeviceReceiver extends BroadcastReceiver {
 
     @Override
