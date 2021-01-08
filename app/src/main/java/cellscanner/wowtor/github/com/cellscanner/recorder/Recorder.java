@@ -3,13 +3,15 @@ package cellscanner.wowtor.github.com.cellscanner.recorder;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import cellscanner.wowtor.github.com.cellscanner.App;
+
 
 /**
  * Responsible for controlling the recording functionality
  */
 public class Recorder {
     // TODO: PICK A NAME NOT `MY_PREFS_NAME`
-    final private static String PREFS_NAME = "MY_PREFS_NAME";
+    final private static String PREFS_NAME = App.TITLE;
 
     public static boolean inRecordingState(Context context) {
         return context
