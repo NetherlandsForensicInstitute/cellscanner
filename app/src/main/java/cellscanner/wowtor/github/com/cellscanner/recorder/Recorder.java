@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 
+/**
+ * Responsible for controlling the recording functionality
+ */
 public class Recorder {
     final private static String PREFS_NAME = "MY_PREFS_NAME";
 
