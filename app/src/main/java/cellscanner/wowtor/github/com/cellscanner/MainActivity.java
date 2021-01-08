@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
         recorderSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                // TODO: ADD LOGIC FOR PERMISSION CHECK
                 exportButton.setEnabled(!isChecked);
                 clearButton.setEnabled(!isChecked);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
