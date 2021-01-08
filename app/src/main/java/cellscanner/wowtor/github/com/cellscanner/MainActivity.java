@@ -7,7 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Handler;
+import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -36,7 +36,6 @@ public class MainActivity extends AppCompatActivity {
     private Switch recorderSwitch;
     private static final int PERMISSION_REQUEST_START_RECORDING = 1;
     private static final int PERMISSION_REQUEST_EXPORT_DATA = 2;
-    //private static final int CDMA_COORDINATE_DIVISOR = 3600 * 4;
 
     /**
      * Fires when the system first creates the activity
@@ -45,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(cellscanner.wowtor.github.com.cellscanner.R.layout.activity_main);
 
         exportButton = findViewById(cellscanner.wowtor.github.com.cellscanner.R.id.exportButton);
@@ -59,24 +59,22 @@ public class MainActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 exportButton.setEnabled(!isChecked);
                 clearButton.setEnabled(!isChecked);
-                if (isChecked)
-                    startRecording();
-                else
-                    stopRecording();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    if (isChecked)
+                        Recorder.startService(getApplicationContext());
+                    else
+                        Recorder.stopService(getApplicationContext());
+                } else {
+                    if (isChecked)
+                        startRecording();
+                    else
+                        stopRecording();
+
+                }
             }
         });
 
         Toast.makeText(getApplicationContext(), String.format("Cellscanner service is %srunning.", Recorder.inRecordingState(getApplicationContext()) ? "" : "not "), Toast.LENGTH_SHORT).show();
-
-        final Handler handler = new Handler();
-        Runnable timer = new Runnable() {
-            @Override
-            public void run() {
-                updateLogViewer();;
-                handler.postDelayed(this, 1000);
-            }
-        };
-        handler.post(timer);
     }
 
     @Override

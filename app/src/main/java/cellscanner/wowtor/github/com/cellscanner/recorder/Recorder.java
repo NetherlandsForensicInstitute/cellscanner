@@ -1,9 +1,14 @@
 package cellscanner.wowtor.github.com.cellscanner.recorder;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
+import android.support.v4.content.ContextCompat;
+import android.util.Log;
 
 import cellscanner.wowtor.github.com.cellscanner.App;
+import cellscanner.wowtor.github.com.cellscanner.MainActivity;
 
 
 /**
@@ -23,6 +28,29 @@ public class Recorder {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean("RECORDING", state);
         editor.apply();
+    }
+
+    public static void startService(Context context) {
+        Log.i("RECORDER", "START");
+        // after API-26 the service should be a Foreground Service
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startAPI26UpService(context);
+        } else {
+            // TODO: SHOULD BE IMPLEMENTED
+        }
+    }
+
+    public static void stopService(Context context) {
+        Log.i("RECORDER", "STOP");
+        // TODO: make this intent dependent on API LVL
+        Intent serviceIntent = new Intent(context, ForegroundService.class);
+        context.stopService(serviceIntent);
+        setRecordingState(context, false);
+    }
+
+    private static void startAPI26UpService(Context context) {
+        ContextCompat.startForegroundService(context, new Intent(context, ForegroundService.class));
+        setRecordingState(context, true);
     }
 
 }
