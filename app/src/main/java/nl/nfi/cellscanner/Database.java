@@ -7,11 +7,6 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.Settings;
-import android.telephony.CellInfo;
-import android.telephony.CellInfoCdma;
-import android.telephony.CellInfoGsm;
-import android.telephony.CellInfoLte;
-import android.telephony.CellInfoWcdma;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -28,7 +23,6 @@ public class Database {
     private static final String META_ANDROID_ID = "android_id";
 
     private SQLiteDatabase db;
-    private Date previous_date = null;
 
     public static File getDataPath(Context ctx) {
         return new File(ctx.getExternalFilesDir(null), "cellinfo.sqlite3");
@@ -85,49 +79,25 @@ public class Database {
         return s.toString();
     }
 
-    public boolean isValid(CellInfo info) {
-        // TODO: improve by example https://github.com/zamojski/TowerCollector/tree/master/app/src/main/java/info/zamojski/soft/towercollector/collector/validators
-        return info.isRegistered();
-    }
-
-    public String[] storeCellInfo(List<CellInfo> lst) {
-        Date date = new Date();
-
-        List<String> cells = new ArrayList<String>();
-        for (CellInfo info : lst) {
-            if (isValid(info))
-                cells.add(storeCellInfo(date, info));
-        }
-
-        previous_date = date;
-        return cells.toArray(new String[0]);
-    }
-
-    public String storeCellInfo(Date date, CellInfo info) {
-        if (info instanceof CellInfoGsm) {
-            return storeCellInfoGsm(date, (CellInfoGsm)info);
-        } else if (info instanceof CellInfoCdma) {
-            return storeCellInfoCdma(date, (CellInfoCdma)info);
-        } else if (info instanceof CellInfoWcdma) {
-            return storeCellInfoWcdma(date, (CellInfoWcdma)info);
-        } else if (info instanceof CellInfoLte) {
-            return storeCellInfoLte(date, (CellInfoLte) info);
-        } else {
-            Log.w(App.TITLE, "Unrecognized cell info object");
-            return "unrecognized";
-        }
-    }
-
-    private void updateCellInfo(String table, Date date, ContentValues values) {
+    /**
+     * Update the current cellular connection status.
+     *
+     * @param date the current date
+     * @param status the cellular connection status
+     */
+    public void updateCellStatus(Date date, CellStatus status) {
+        Date previous_date = getTimestampFromSQL("SELECT MAX(date_end) FROM cellinfo");
         boolean contiguous = previous_date != null && date.getTime() < previous_date.getTime() + App.EVENT_VALIDITY_MILLIS;
+
+        ContentValues values = status.getContentValues();
 
         // if the previous registration has the same values, update the end time only
         if (contiguous) {
             ContentValues update = new ContentValues();
             update.put("date_end", date.getTime());
 
-            ArrayList<String> qwhere = new ArrayList<String>();
-            ArrayList<String> qargs = new ArrayList<String>();
+            ArrayList<String> qwhere = new ArrayList<>();
+            ArrayList<String> qargs = new ArrayList<>();
             qwhere.add("date_end = ?");
             qargs.add(Long.toString(previous_date.getTime()));
             for (String key : values.keySet()) {
@@ -135,7 +105,7 @@ public class Database {
                 qargs.add(values.getAsString(key));
             }
 
-            int nrows = db.update(table, update, TextUtils.join(" AND ", qwhere), qargs.toArray(new String[0]));
+            int nrows = db.update("cellinfo", update, TextUtils.join(" AND ", qwhere), qargs.toArray(new String[0]));
             if (nrows > 0)
                 return;
         }
@@ -144,81 +114,8 @@ public class Database {
         ContentValues insert = new ContentValues(values);
         insert.put("date_start", date.getTime());
         insert.put("date_end", date.getTime());
-        Log.v(App.TITLE, "new cell: "+insert);
-        db.insert(table, null, insert);
-    }
-
-    private static String toString(CellInfoGsm info) {
-        return String.format("%sGSM: %d-%d-%d-%d", info.isRegistered() ? "" : "unregistered: ", info.getCellIdentity().getMcc(), info.getCellIdentity().getMnc(), info.getCellIdentity().getLac(), info.getCellIdentity().getCid());
-    }
-
-    private static String toString(CellInfoCdma info) {
-        return String.format("%scdma:%d-%d", info.isRegistered() ? "" : "unregistered: ", info.getCellIdentity().getBasestationId(), info.getCellIdentity().getNetworkId());
-    }
-
-    private static String toString(CellInfoWcdma info) {
-        return String.format("%sUMTS: %d-%d-%d-%d", info.isRegistered() ? "" : "unregistered: ", info.getCellIdentity().getMcc(), info.getCellIdentity().getMnc(), info.getCellIdentity().getLac(), info.getCellIdentity().getCid());
-    }
-
-    private static String toString(CellInfoLte info) {
-        return String.format("%sLTE: %d-%d-%d-%d", info.isRegistered() ? "" : "unregistered: ", info.getCellIdentity().getMcc(), info.getCellIdentity().getMnc(), info.getCellIdentity().getTac(), info.getCellIdentity().getCi());
-    }
-
-    private String storeCellInfoGsm(Date date, CellInfoGsm info) {
-        ContentValues content = new ContentValues();
-        content.put("registered", info.isRegistered() ? 1 : 0);
-        content.put("radio", "GSM");
-        content.put("mcc", info.getCellIdentity().getMcc());
-        content.put("mnc", info.getCellIdentity().getMnc());
-        content.put("area", info.getCellIdentity().getLac());
-        content.put("cid", info.getCellIdentity().getCid());
-        content.put("bsic", info.getCellIdentity().getBsic());
-        content.put("arfcn", info.getCellIdentity().getArfcn());
-        updateCellInfo("cellinfo", date, content);
-
-        return toString(info);
-    }
-
-    private String storeCellInfoCdma(Date date, CellInfoCdma info) {
-        ContentValues content = new ContentValues();
-        content.put("registered", info.isRegistered() ? 1 : 0);
-        content.put("basestationid", info.getCellIdentity().getBasestationId());
-        content.put("latitude", info.getCellIdentity().getLatitude());
-        content.put("longitude", info.getCellIdentity().getLongitude());
-        content.put("networkid", info.getCellIdentity().getNetworkId());
-        content.put("systemid", info.getCellIdentity().getSystemId());
-        updateCellInfo("cellinfocdma", date, content);
-
-        return toString(info);
-    }
-
-    private String storeCellInfoWcdma(Date date, CellInfoWcdma info) {
-        ContentValues content = new ContentValues();
-        content.put("registered", info.isRegistered() ? 1 : 0);
-        content.put("radio", "UMTS");
-        content.put("mcc", info.getCellIdentity().getMcc());
-        content.put("mnc", info.getCellIdentity().getMnc());
-        content.put("area", info.getCellIdentity().getLac());
-        content.put("cid", info.getCellIdentity().getCid());
-        content.put("psc", info.getCellIdentity().getPsc());
-        content.put("uarfcn", info.getCellIdentity().getUarfcn());
-        updateCellInfo("cellinfo", date, content);
-
-        return toString(info);
-    }
-
-    private String storeCellInfoLte(Date date, CellInfoLte info) {
-        ContentValues content = new ContentValues();
-        content.put("registered", info.isRegistered() ? 1 : 0);
-        content.put("radio", "LTE");
-        content.put("mcc", info.getCellIdentity().getMcc());
-        content.put("mnc", info.getCellIdentity().getMnc());
-        content.put("area", info.getCellIdentity().getTac());
-        content.put("cid", info.getCellIdentity().getCi());
-        content.put("pci", info.getCellIdentity().getPci());
-        updateCellInfo("cellinfo", date, content);
-
-        return toString(info);
+        Log.v(App.TITLE, "new cell: "+insert.toString());
+        db.insert("cellinfo", null, insert);
     }
 
     protected String getMetaEntry(String name) {
@@ -254,7 +151,7 @@ public class Database {
     }
 
     protected int getVersionCode() {
-        String versionCode = getMetaEntry("versionCode");
+        String versionCode = getMetaEntry(META_VERSION_CODE);
         if (versionCode == null)
             return -1;
         else
@@ -263,7 +160,18 @@ public class Database {
 
     protected void storePhoneID(Context ctx) {
         String android_id = Settings.Secure.getString(ctx.getContentResolver(), Settings.Secure.ANDROID_ID);
-        setMetaEntry("android_id", android_id);
+        setMetaEntry(META_ANDROID_ID, android_id);
+    }
+
+    public void storeMessage(String msg) {
+        // message should not exceed maximum length
+        if (msg.length() > 250)
+            msg = msg.substring(0, 250);
+
+        ContentValues content = new ContentValues();
+        content.put("date", new Date().getTime());
+        content.put("message", msg);
+        db.insert("message", null, content);
     }
 
     protected static void upgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -274,6 +182,11 @@ public class Database {
         db.execSQL("CREATE TABLE IF NOT EXISTS meta ("+
                 "  entry VARCHAR(200) NOT NULL PRIMARY KEY,"+
                 "  value TEXT NOT NULL"+
+                ")");
+
+        db.execSQL("CREATE TABLE IF NOT EXISTS message ("+
+                "  date INT NOT NULL,"+
+                "  message VARCHAR(250) NOT NULL"+
                 ")");
 
         db.execSQL("CREATE TABLE IF NOT EXISTS cellinfo ("+
@@ -292,21 +205,11 @@ public class Database {
                 "  pci INT"+ // Physical Cell Id 0..503, Integer.MAX_VALUE if unknown (LTE only)
                 ")");
 
-        db.execSQL("CREATE TABLE IF NOT EXISTS cellinfocdma ("+
-                "  date_start INT NOT NULL,"+
-                "  date_end INT NOT NULL,"+
-                "  registered INT NOT NULL,"+
-                "  basestationid INT NOT NULL,"+
-                "  latitude INT NOT NULL,"+
-                "  longitude INT NOT NULL,"+
-                "  networkid INT NOT NULL,"+
-                "  systemid INT NOT NULL"+
-                ")");
+        db.execSQL("CREATE INDEX IF NOT EXISTS cellinfo_date_end ON cellinfo(date_end)");
     }
 
     public void dropTables() {
         db.execSQL("DROP TABLE IF EXISTS meta");
         db.execSQL("DROP TABLE IF EXISTS cellinfo");
-        db.execSQL("DROP TABLE IF EXISTS cellinfocdma");
     }
 }
