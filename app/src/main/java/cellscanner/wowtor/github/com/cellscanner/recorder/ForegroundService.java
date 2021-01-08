@@ -1,5 +1,6 @@
 package cellscanner.wowtor.github.com.cellscanner.recorder;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -10,19 +11,19 @@ import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
-import android.telephony.CellInfo;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import cellscanner.wowtor.github.com.cellscanner.App;
 import cellscanner.wowtor.github.com.cellscanner.MainActivity;
 import cellscanner.wowtor.github.com.cellscanner.R;
 
 public class ForegroundService extends Service {
 
+    private static final int NOTIF_ID = 123;
     private static final String CHANNEL_ID = "ForegroundServiceChannel";
     private static final String SERVICE_TAG = "FOREGROUND_SERVICE_TAG";
     private Timer mTimer;
@@ -38,32 +39,16 @@ public class ForegroundService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(SERVICE_TAG, "on start command");
-        String input = intent.getStringExtra("inputExtra");
-
-        createNotificationChannel();
-
-        // what to start when you click the notification
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-
-        PendingIntent pendingIntent = PendingIntent.getActivity(this,
-                0, notificationIntent, 0);
-
-        NotificationCompat.Builder notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("Foreground Service")
-                .setContentText(input)
-                .setSmallIcon(R.drawable.ic_symbol24)
-                .setContentIntent(pendingIntent);
-//                .build();
-
-        startForeground(1, notification.build());
+        startForeground(NOTIF_ID, getActivityNotification("started"));
 
         // start the times, schedule for every second
         mTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-
+                NotificationManager mngr =  (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                mngr.notify(NOTIF_ID, getActivityNotification("massive"));
             }
-        }, 0, 10000);
+        }, 0, App.UPDATE_DELAY_MILLIS);
 
         return START_NOT_STICKY;
     }
@@ -81,16 +66,16 @@ public class ForegroundService extends Service {
         return null;
     }
 
+    private Notification getActivityNotification(String text) {
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
 
-    private void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel serviceChannel = new NotificationChannel(
-                    CHANNEL_ID,
-                    "Foreground Service Channel",
-                    NotificationManager.IMPORTANCE_DEFAULT
-            );
-            NotificationManager manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(serviceChannel);
-        }
+        return new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle("Cellscanner")
+                .setContentText(text)
+                .setSmallIcon(R.drawable.ic_symbol24)
+                .setContentIntent(pendingIntent)
+                .setOnlyAlertOnce(true)
+                .build();
+
     }
 }
