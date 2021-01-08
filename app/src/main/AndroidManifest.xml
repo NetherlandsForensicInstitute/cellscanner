@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="cellscanner.wowtor.github.com.cellscanner">
+    package="nl.nfi.cellscanner">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
-        android:name=".App"
+        android:name="nl.nfi.cellscanner.App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -16,7 +16,7 @@
         android:theme="@style/AppTheme">
 
         <receiver
-            android:name=".BootDeviceReceiver"
+            android:name="nl.nfi.cellscanner.BootDeviceReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -25,11 +25,11 @@
         </receiver>
 
         <service
-            android:name=".LocationService"
+            android:name="nl.nfi.cellscanner.LocationService"
             android:label="location service" >
         </service>
 
-        <activity android:name=".MainActivity">
+        <activity android:name="nl.nfi.cellscanner.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -1,4 +1,4 @@
-package cellscanner.wowtor.github.com.cellscanner;
+package nl.nfi.cellscanner;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -39,11 +39,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(cellscanner.wowtor.github.com.cellscanner.R.layout.activity_main);
+        setContentView(nl.nfi.cellscanner.R.layout.activity_main);
 
-        exportButton = findViewById(cellscanner.wowtor.github.com.cellscanner.R.id.exportButton);
-        clearButton = findViewById(cellscanner.wowtor.github.com.cellscanner.R.id.clearButton);
-        recorderSwitch = findViewById(cellscanner.wowtor.github.com.cellscanner.R.id.recorderSwitch);
+        exportButton = findViewById(nl.nfi.cellscanner.R.id.exportButton);
+        clearButton = findViewById(nl.nfi.cellscanner.R.id.clearButton);
+        recorderSwitch = findViewById(nl.nfi.cellscanner.R.id.recorderSwitch);
 
         recorderSwitch.setChecked(LocationService.isRunning());
         exportButton.setEnabled(!LocationService.isRunning());
@@ -197,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateLogViewer() {
-        TextView userMessages = findViewById(cellscanner.wowtor.github.com.cellscanner.R.id.userMessages);
+        TextView userMessages = findViewById(nl.nfi.cellscanner.R.id.userMessages);
         Database db = App.getDatabase();
         userMessages.setText(db.getUpdateStatus());
     }

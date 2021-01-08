@@ -1,4 +1,4 @@
-package cellscanner.wowtor.github.com.cellscanner;
+package nl.nfi.cellscanner;
 
 import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
@@ -89,7 +89,7 @@ public class LocationService extends Service {
 
         mBuilder = new NotificationCompat.Builder(this, "default-channel")
                 .setContentTitle(App.TITLE)
-                .setSmallIcon(cellscanner.wowtor.github.com.cellscanner.R.drawable.ic_launcher_foreground)
+                .setSmallIcon(nl.nfi.cellscanner.R.drawable.ic_launcher_foreground)
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_MIN);
 
@@ -145,7 +145,7 @@ public class LocationService extends Service {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
         mBuilder = mBuilder
-                .setSmallIcon(cellscanner.wowtor.github.com.cellscanner.R.drawable.ic_launcher_foreground)
+                .setSmallIcon(nl.nfi.cellscanner.R.drawable.ic_launcher_foreground)
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_MIN);
 
