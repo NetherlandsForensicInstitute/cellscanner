@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
@@ -25,6 +24,8 @@ import android.widget.Toast;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class LocationService extends Service {
     private static int NOTIFICATION_ERROR = 2;
@@ -35,6 +36,7 @@ public class LocationService extends Service {
     private NotificationCompat.Builder mBuilder;
 
     private static boolean running = false;
+    private Timer mTimer;
 
     public static void start(Context ctx) {
         running = true;
@@ -52,6 +54,16 @@ public class LocationService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        // start the times, schedule for every second
+        mTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                updateCellInfo();
+            }
+        }, 0, App.UPDATE_DELAY_MILLIS);
+
+        // request to recreate the service after it has enough memory and call
+        // onStartCommand() again with a null intent.
         return Service.START_STICKY;
     }
 
@@ -103,25 +115,14 @@ public class LocationService extends Service {
         Toast.makeText(this, "using db: "+getDataPath(), Toast.LENGTH_SHORT);
 
         mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        mTimer = new Timer();
 
-        // schedule a periodic update
-        final Handler handler = new Handler();
-        Runnable timer = new Runnable() {
-            @Override
-            public void run() {
-                if (running) {
-                    updateCellInfo();
-                    handler.postDelayed(this, App.UPDATE_DELAY_MILLIS);
-                }
-            }
-        };
-        handler.post(timer);
     }
 
     @Override
     public void onDestroy() {
         Log.v(App.TITLE, getClass().getName()+".onDestroy()");
-
+        mTimer.cancel();
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
         notificationManager.cancel(NOTIFICATION_STATUS);
     }
