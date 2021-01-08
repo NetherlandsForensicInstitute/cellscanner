@@ -31,7 +31,6 @@ public class Recorder {
     }
 
     public static void startService(Context context) {
-        Log.i("RECORDER", "START");
         // after API-26 the service should be a Foreground Service
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startAPI26UpService(context);
@@ -41,7 +40,6 @@ public class Recorder {
     }
 
     public static void stopService(Context context) {
-        Log.i("RECORDER", "STOP");
         // TODO: make this intent dependent on API LVL
         Intent serviceIntent = new Intent(context, ForegroundService.class);
         context.stopService(serviceIntent);
@@ -49,10 +47,8 @@ public class Recorder {
     }
 
     private static void startAPI26UpService(Context context) {
-        Log.i("RECORDER", "starting api 26+ version begin");
         ContextCompat.startForegroundService(context, new Intent(context, ForegroundService.class));
         setRecordingState(context, true);
-        Log.i("RECORDER", "starting api 26+ version end");
     }
 
 }

@@ -3,10 +3,10 @@ package cellscanner.wowtor.github.com.cellscanner;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.widget.Toast;
 
 import cellscanner.wowtor.github.com.cellscanner.recorder.Recorder;
-
 
 /**
  * Responsible for starting the App after device boot
@@ -25,8 +25,13 @@ public class BootDeviceReceiver extends BroadcastReceiver {
 
         // TODO: @ check if the right application is sending the request
         if (Recorder.inRecordingState(context)){
-            // TODO: make startup version aware
-            LocationService.start(context);
+            // TODO: Move this logic to the Recorder Class
+            // The recorder class should decide to run the service as Android 8 + or not
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Recorder.startService(context);
+            } else {
+                LocationService.start(context);
+            }
         }
     }
 }
