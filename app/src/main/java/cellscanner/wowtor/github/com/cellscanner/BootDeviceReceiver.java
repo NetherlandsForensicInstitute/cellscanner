@@ -3,22 +3,30 @@ package cellscanner.wowtor.github.com.cellscanner;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.widget.Toast;
 
-public class BootDeviceReceiver extends BroadcastReceiver {
+import cellscanner.wowtor.github.com.cellscanner.recorder.Recorder;
 
-    private static final String TAG_BOOT_BROADCAST_RECEIVER = "BOOT_BROADCAST_RECEIVER";
+
+/**
+ * Responsible for starting the App after device boot
+ *
+ * Checks if the application is was left in a recording state before the reboot, if true
+ * starts the application after the boot sequence has been completed
+ */
+public class BootDeviceReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
 
         String action = intent.getAction();
-
         String message = App.TITLE + " on boot action is " + action;
-
         Toast.makeText(context, message, Toast.LENGTH_LONG).show();
 
-        LocationService.start(context);
+        // TODO: @ check if the right application is sending the request
+        if (Recorder.inRecordingState(context)){
+            // TODO: make startup version aware
+            LocationService.start(context);
+        }
     }
 }
