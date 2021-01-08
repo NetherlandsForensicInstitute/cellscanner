@@ -36,6 +36,10 @@ public class MainActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_EXPORT_DATA = 2;
     //private static final int CDMA_COORDINATE_DIVISOR = 3600 * 4;
 
+    /**
+     * Fires when the system first creates the activity
+     * @param savedInstanceState: Bundle object containing the activity's previously saved state
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,11 +82,17 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
     }
 
+    /**
+     * User returns, app was already started
+     */
     @Override
     protected void onResume() {
         super.onResume();
     }
 
+    /**
+     * Starts when the activity is no longer visible
+     * */
     @Override
     protected void onStop() {
         super.onStop();
