@@ -60,7 +60,7 @@ public class LocationService extends Service {
             public void run() {
                 updateCellInfo();
             }
-        }, 0, 10000);
+        }, 0, App.UPDATE_DELAY_MILLIS);
 
         // request to recreate the service after it has enough memory and call
         // onStartCommand() again with a null intent.
