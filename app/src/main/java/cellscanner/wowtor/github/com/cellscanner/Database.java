@@ -241,7 +241,7 @@ public class Database {
             db.insert("meta", null, content);
     }
 
-    protected void storeVersionCode(Context ctx)
+    public void storeVersionCode(Context ctx)
     {
         PackageInfo pInfo = null;
         try {
@@ -264,7 +264,7 @@ public class Database {
             return Integer.parseInt(versionCode);
     }
 
-    protected void storePhoneID(Context ctx) {
+    public void storePhoneID(Context ctx) {
         String android_id = Settings.Secure.getString(ctx.getContentResolver(), Settings.Secure.ANDROID_ID);
         setMetaEntry("android_id", android_id);
     }
