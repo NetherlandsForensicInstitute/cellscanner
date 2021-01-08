@@ -9,8 +9,6 @@ import cellscanner.wowtor.github.com.cellscanner.recorder.Recorder;
 
 public class BootDeviceReceiver extends BroadcastReceiver {
 
-    private static final String TAG_BOOT_BROADCAST_RECEIVER = "BOOT_BROADCAST_RECEIVER";
-
     @Override
     public void onReceive(Context context, Intent intent) {
 
