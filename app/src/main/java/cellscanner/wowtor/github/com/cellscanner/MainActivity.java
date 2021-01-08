@@ -25,6 +25,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import cellscanner.wowtor.github.com.cellscanner.recorder.Recorder;
+
 public class MainActivity extends AppCompatActivity {
     /*
     Activity lifecycle, see: https://developer.android.com/guide/components/activities/activity-lifecycle
@@ -36,6 +38,10 @@ public class MainActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_EXPORT_DATA = 2;
     //private static final int CDMA_COORDINATE_DIVISOR = 3600 * 4;
 
+    /**
+     * Fires when the system first creates the activity
+     * @param savedInstanceState: Bundle object containing the activity's previously saved state
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,9 +51,9 @@ public class MainActivity extends AppCompatActivity {
         clearButton = findViewById(cellscanner.wowtor.github.com.cellscanner.R.id.clearButton);
         recorderSwitch = findViewById(cellscanner.wowtor.github.com.cellscanner.R.id.recorderSwitch);
 
-        recorderSwitch.setChecked(LocationService.isRunning());
-        exportButton.setEnabled(!LocationService.isRunning());
-        clearButton.setEnabled(!LocationService.isRunning());
+        recorderSwitch.setChecked(Recorder.inRecordingState(getApplicationContext()));
+        exportButton.setEnabled(!Recorder.inRecordingState(getApplicationContext()));
+        clearButton.setEnabled(!Recorder.inRecordingState(getApplicationContext()));
 
         recorderSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -60,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Toast.makeText(getApplicationContext(), String.format("Cellscanner service is %srunning.", LocationService.isRunning() ? "" : "not "), Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), String.format("Cellscanner service is %srunning.", Recorder.inRecordingState(getApplicationContext()) ? "" : "not "), Toast.LENGTH_SHORT).show();
 
         final Handler handler = new Handler();
         Runnable timer = new Runnable() {
@@ -78,11 +84,17 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
     }
 
+    /**
+     * User returns, app was already started
+     */
     @Override
     protected void onResume() {
         super.onResume();
     }
 
+    /**
+     * Starts when the activity is no longer visible
+     * */
     @Override
     protected void onStop() {
         super.onStop();

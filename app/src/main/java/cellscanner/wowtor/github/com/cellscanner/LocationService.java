@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static cellscanner.wowtor.github.com.cellscanner.recorder.Recorder.setRecordingState;
+
 public class LocationService extends Service {
     private static int NOTIFICATION_ERROR = 2;
     private static int NOTIFICATION_STATUS = 3;
@@ -34,23 +36,18 @@ public class LocationService extends Service {
     private TelephonyManager mTelephonyManager;
     private Database db;
     private NotificationCompat.Builder mBuilder;
-
-    private static boolean running = false;
     private Timer mTimer;
 
     public static void start(Context ctx) {
-        running = true;
+        setRecordingState(ctx, true);
         ctx.startService(new Intent(ctx, LocationService.class));
     }
 
     public static void stop(Context ctx) {
-        running = false;
+        setRecordingState(ctx, false);
         ctx.stopService(new Intent(ctx, LocationService.class));
     }
 
-    public static boolean isRunning() {
-        return running;
-    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -90,7 +87,7 @@ public class LocationService extends Service {
 
     @Override
     public void onCreate() {
-        running = true;
+        setRecordingState(getApplicationContext(), true);
         ContextCompat.startForegroundService(this, new Intent(this, LocationService.class));
 
         createNotificationChannel();
@@ -116,7 +113,6 @@ public class LocationService extends Service {
 
         mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         mTimer = new Timer();
-
     }
 
     @Override
