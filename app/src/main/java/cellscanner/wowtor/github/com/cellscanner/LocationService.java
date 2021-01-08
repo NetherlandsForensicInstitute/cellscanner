@@ -26,7 +26,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
 
-import static cellscanner.wowtor.github.com.cellscanner.recorder.Recorder.inRecordingState;
 import static cellscanner.wowtor.github.com.cellscanner.recorder.Recorder.setRecordingState;
 
 public class LocationService extends Service {
