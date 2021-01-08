@@ -108,10 +108,8 @@ public class LocationService extends Service {
         Runnable timer = new Runnable() {
             @Override
             public void run() {
-                if (inRecordingState(getApplicationContext())) {
-                    updateCellInfo();
-                    handler.postDelayed(this, App.UPDATE_DELAY_MILLIS);
-                }
+                updateCellInfo();
+                handler.postDelayed(this, App.UPDATE_DELAY_MILLIS);
             }
         };
         handler.post(timer);
