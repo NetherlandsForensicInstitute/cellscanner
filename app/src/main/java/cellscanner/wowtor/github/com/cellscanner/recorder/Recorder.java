@@ -8,7 +8,7 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import cellscanner.wowtor.github.com.cellscanner.App;
-import cellscanner.wowtor.github.com.cellscanner.MainActivity;
+
 
 
 /**
@@ -49,8 +49,10 @@ public class Recorder {
     }
 
     private static void startAPI26UpService(Context context) {
+        Log.i("RECORDER", "starting api 26+ version begin");
         ContextCompat.startForegroundService(context, new Intent(context, ForegroundService.class));
         setRecordingState(context, true);
+        Log.i("RECORDER", "starting api 26+ version end");
     }
 
 }
