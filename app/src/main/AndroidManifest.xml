@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="cellscanner.wowtor.github.com.cellscanner">
+    package="nl.nfi.cellscanner">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -39,7 +39,7 @@
 
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="com.github.wowtor.cellscanner.fileprovider"
+            android:authorities=".fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

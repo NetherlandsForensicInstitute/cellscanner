@@ -1,9 +1,9 @@
-package cellscanner.wowtor.github.com.cellscanner.recorder;
+package nl.nfi.cellscanner.recorder;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import cellscanner.wowtor.github.com.cellscanner.App;
+import nl.nfi.cellscanner.App;
 
 
 /**
