@@ -60,18 +60,11 @@ public class MainActivity extends AppCompatActivity {
                 // TODO: ADD LOGIC FOR PERMISSION CHECK
                 exportButton.setEnabled(!isChecked);
                 clearButton.setEnabled(!isChecked);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    if (isChecked)
-                        Recorder.startService(getApplicationContext());
-                    else
-                        Recorder.stopService(getApplicationContext());
-                } else {
-                    if (isChecked)
-                        startRecording();
-                    else
-                        stopRecording();
+                if (isChecked)
+                    Recorder.startService(getApplicationContext());
+                else
+                    Recorder.stopService(getApplicationContext());
 
-                }
             }
         });
 
