@@ -33,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
      */
 
     private Button exportButton, clearButton;
-    private Switch recorderSwitch;
     private static final int PERMISSION_REQUEST_START_RECORDING = 1;
     private static final int PERMISSION_REQUEST_EXPORT_DATA = 2;
 
@@ -49,8 +48,8 @@ public class MainActivity extends AppCompatActivity {
 
         exportButton = findViewById(cellscanner.wowtor.github.com.cellscanner.R.id.exportButton);
         clearButton = findViewById(cellscanner.wowtor.github.com.cellscanner.R.id.clearButton);
-        recorderSwitch = findViewById(cellscanner.wowtor.github.com.cellscanner.R.id.recorderSwitch);
 
+        Switch recorderSwitch = findViewById(cellscanner.wowtor.github.com.cellscanner.R.id.recorderSwitch);
         recorderSwitch.setChecked(Recorder.inRecordingState(getApplicationContext()));
         exportButton.setEnabled(!Recorder.inRecordingState(getApplicationContext()));
         clearButton.setEnabled(!Recorder.inRecordingState(getApplicationContext()));
@@ -61,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
                 exportButton.setEnabled(!isChecked);
                 clearButton.setEnabled(!isChecked);
                 if (isChecked)
-                    Recorder.startService(getApplicationContext());
+                    startRecording();
                 else
                     Recorder.stopService(getApplicationContext());
 
@@ -71,26 +70,6 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), String.format("Cellscanner service is %srunning.", Recorder.inRecordingState(getApplicationContext()) ? "" : "not "), Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    /**
-     * User returns, app was already started
-     */
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    /**
-     * Starts when the activity is no longer visible
-     * */
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
 
     private boolean requestLocationPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
@@ -183,15 +162,16 @@ public class MainActivity extends AppCompatActivity {
     public void startRecording() {
         Context ctx = getApplicationContext();
         if (requestLocationPermission()) {
-            LocationService.start(this);
+            Recorder.startService(this);
             Toast.makeText(ctx, "Location service started", Toast.LENGTH_SHORT).show();
             Log.v(App.TITLE, "Location service started");
         } else {
             Toast.makeText(ctx, "no permission -- try again", Toast.LENGTH_SHORT).show();
         }
     }
-    
 
+
+    // todo: Reconnect with a timer or listener, to update every x =D
     private void updateLogViewer() {
         TextView userMessages = findViewById(cellscanner.wowtor.github.com.cellscanner.R.id.userMessages);
         Database db = App.getDatabase();
