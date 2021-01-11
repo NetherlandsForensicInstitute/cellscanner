@@ -29,6 +29,9 @@ import java.util.TimerTask;
 
 import static cellscanner.wowtor.github.com.cellscanner.recorder.Recorder.setRecordingState;
 
+/**
+ * @deprecated still here for reference, please use recorder
+ */
 public class LocationService extends Service {
     private static int NOTIFICATION_ERROR = 2;
     private static int NOTIFICATION_STATUS = 3;
