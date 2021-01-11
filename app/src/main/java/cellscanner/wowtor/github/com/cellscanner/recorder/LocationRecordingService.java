@@ -23,7 +23,7 @@ import cellscanner.wowtor.github.com.cellscanner.Database;
 import cellscanner.wowtor.github.com.cellscanner.MainActivity;
 import cellscanner.wowtor.github.com.cellscanner.R;
 
-public class ForegroundService extends Service {
+public class LocationRecordingService extends Service {
 
     private static final int NOTIF_ID = 123;
     private static final String CHANNEL_ID = "ForegroundServiceChannel";
