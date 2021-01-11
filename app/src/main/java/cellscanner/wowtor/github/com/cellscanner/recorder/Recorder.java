@@ -33,10 +33,11 @@ public class Recorder {
     public static void startService(Context context) {
         // after API-26 the service should be a Foreground Service
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startAPI26UpService(context);
+            ContextCompat.startForegroundService(context, new Intent(context, ForegroundService.class));
         } else {
-            // TODO: SHOULD BE IMPLEMENTED
+            context.startService(new Intent(context, ForegroundService.class));
         }
+        setRecordingState(context, true);
     }
 
     public static void stopService(Context context) {
@@ -45,10 +46,4 @@ public class Recorder {
         context.stopService(serviceIntent);
         setRecordingState(context, false);
     }
-
-    private static void startAPI26UpService(Context context) {
-        ContextCompat.startForegroundService(context, new Intent(context, ForegroundService.class));
-        setRecordingState(context, true);
-    }
-
 }
