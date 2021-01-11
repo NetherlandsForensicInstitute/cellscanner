@@ -190,15 +190,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(ctx, "no permission -- try again", Toast.LENGTH_SHORT).show();
         }
     }
-
-    public void stopRecording() {
-        LocationService.stop(this);
-        Context ctx = getApplicationContext();
-        Toast.makeText(ctx, "Location service stopped", Toast.LENGTH_SHORT).show();
-        Log.v(App.TITLE, "Location service stopped");
-        exportButton.setEnabled(true);
-        clearButton.setEnabled(true);
-    }
+    
 
     private void updateLogViewer() {
         TextView userMessages = findViewById(cellscanner.wowtor.github.com.cellscanner.R.id.userMessages);
