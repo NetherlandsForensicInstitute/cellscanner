@@ -2,11 +2,13 @@ package cellscanner.wowtor.github.com.cellscanner.recorder;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
@@ -23,7 +25,7 @@ import cellscanner.wowtor.github.com.cellscanner.Database;
 import cellscanner.wowtor.github.com.cellscanner.MainActivity;
 import cellscanner.wowtor.github.com.cellscanner.R;
 
-public class ForegroundService extends Service {
+public class LocationRecordingService extends Service {
 
     private static final int NOTIF_ID = 123;
     private static final String CHANNEL_ID = "ForegroundServiceChannel";
@@ -77,6 +79,8 @@ public class ForegroundService extends Service {
     }
 
     private Notification getActivityNotification(String text) {
+        createNotificationChannel();
+
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
 
         return new NotificationCompat.Builder(this, CHANNEL_ID)
@@ -87,6 +91,18 @@ public class ForegroundService extends Service {
                 .setOnlyAlertOnce(true)
                 .build();
 
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel serviceChannel = new NotificationChannel(
+                    CHANNEL_ID,
+                    "Foreground Service Channel",
+                    NotificationManager.IMPORTANCE_DEFAULT
+            );
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(serviceChannel);
+        }
     }
 
     @SuppressLint("MissingPermission")

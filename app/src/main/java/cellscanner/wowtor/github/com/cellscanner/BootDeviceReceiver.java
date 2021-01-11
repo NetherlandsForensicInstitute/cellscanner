@@ -24,14 +24,12 @@ public class BootDeviceReceiver extends BroadcastReceiver {
         Toast.makeText(context, message, Toast.LENGTH_LONG).show();
 
         // TODO: @ check if the right application is sending the request
+        /*
+          Call the start of the application if the boot-up state of the application
+          is inRecordingState
+         */
         if (Recorder.inRecordingState(context)){
-            // TODO: Move this logic to the Recorder Class
-            // The recorder class should decide to run the service as Android 8 + or not
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                Recorder.startService(context);
-            } else {
-                LocationService.start(context);
-            }
+            Recorder.startService(context);
         }
     }
 }

@@ -31,7 +31,7 @@
         </service>
 
         <service
-            android:name=".recorder.ForegroundService"
+            android:name=".recorder.LocationRecordingService"
             android:enabled="true"
             android:exported="true">
         </service>
