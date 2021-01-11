@@ -1,4 +1,4 @@
-package cellscanner.wowtor.github.com.cellscanner.recorder;
+package nl.nfi.cellscanner.recorder;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -20,10 +20,10 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import cellscanner.wowtor.github.com.cellscanner.App;
-import cellscanner.wowtor.github.com.cellscanner.Database;
-import cellscanner.wowtor.github.com.cellscanner.MainActivity;
-import cellscanner.wowtor.github.com.cellscanner.R;
+import nl.nfi.cellscanner.App;
+import nl.nfi.cellscanner.Database;
+import nl.nfi.cellscanner.MainActivity;
+import nl.nfi.cellscanner.R;
 
 public class LocationRecordingService extends Service {
 

@@ -1,4 +1,4 @@
-package cellscanner.wowtor.github.com.cellscanner;
+package nl.nfi.cellscanner;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -25,7 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import cellscanner.wowtor.github.com.cellscanner.recorder.Recorder;
+import nl.nfi.cellscanner.recorder.Recorder;
 
 public class MainActivity extends AppCompatActivity {
     /*
@@ -44,13 +44,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(cellscanner.wowtor.github.com.cellscanner.R.layout.activity_main);
+        setContentView(nl.nfi.cellscanner.R.layout.activity_main);
 
-        exportButton = findViewById(cellscanner.wowtor.github.com.cellscanner.R.id.exportButton);
-        clearButton = findViewById(cellscanner.wowtor.github.com.cellscanner.R.id.clearButton);
+        exportButton = findViewById(nl.nfi.cellscanner.R.id.exportButton);
+        clearButton = findViewById(nl.nfi.cellscanner.R.id.clearButton);
 
-        Switch recorderSwitch = findViewById(cellscanner.wowtor.github.com.cellscanner.R.id.recorderSwitch);
-        recorderSwitch.setChecked(Recorder.inRecordingState(getApplicationContext()));
+        Switch recorderSwitch = findViewById(nl.nfi.cellscanner.R.id.recorderSwitch);
         exportButton.setEnabled(!Recorder.inRecordingState(getApplicationContext()));
         clearButton.setEnabled(!Recorder.inRecordingState(getApplicationContext()));
 
@@ -170,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
 
     // todo: Reconnect with a timer or listener, to update every x =D
     private void updateLogViewer() {
-        TextView userMessages = findViewById(cellscanner.wowtor.github.com.cellscanner.R.id.userMessages);
+        TextView userMessages = findViewById(nl.nfi.cellscanner.R.id.userMessages);
         Database db = App.getDatabase();
         userMessages.setText(db.getUpdateStatus());
     }

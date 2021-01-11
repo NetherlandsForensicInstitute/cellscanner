@@ -1,4 +1,4 @@
-package cellscanner.wowtor.github.com.cellscanner;
+package nl.nfi.cellscanner;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.widget.Toast;
 
-import cellscanner.wowtor.github.com.cellscanner.recorder.Recorder;
+import nl.nfi.cellscanner.recorder.Recorder;
 
 /**
  * Responsible for starting the App after device boot

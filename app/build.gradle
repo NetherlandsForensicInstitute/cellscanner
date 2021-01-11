@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 27
     defaultConfig {
-        applicationId "com.github.wowtor.cellscanner"
+        applicationId "nl.nfi.cellscanner"
         minSdkVersion 24
         targetSdkVersion 27
         versionCode 7
