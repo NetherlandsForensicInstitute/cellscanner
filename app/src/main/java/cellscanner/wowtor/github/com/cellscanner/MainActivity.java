@@ -94,15 +94,12 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode) {
             case PERMISSION_REQUEST_START_RECORDING: {
                 if (permissions.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // todo:Tis code starts recording and is started by the start recording.
                     // permission granted
                     startRecording();
-                } else {
-                    // permission denied
-                    LocationService.stop(getApplicationContext());
                 }
                 return;
             }
-
             case PERMISSION_REQUEST_EXPORT_DATA: {
                 if (permissions.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     exportData(null);
