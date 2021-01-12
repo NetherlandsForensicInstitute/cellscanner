@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.CellInfo;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -28,9 +29,12 @@ import nl.nfi.cellscanner.R;
 
 public class LocationRecordingService extends Service {
 
+    public static final String LOCATION_DATA_UPDATE_BROADCAST= "HELLOWORLD";
+
+    private static final String CHANNEL_ID = "ForegroundServiceChannel",
+                                SERVICE_TAG = "FOREGROUND_SERVICE_TAG";
     private static final int NOTIF_ID = 123;
-    private static final String CHANNEL_ID = "ForegroundServiceChannel";
-    private static final String SERVICE_TAG = "FOREGROUND_SERVICE_TAG";
+
     private Timer mTimer;
     private TelephonyManager mTelephonyManager;
     private Database mDB;
@@ -61,6 +65,7 @@ public class LocationRecordingService extends Service {
                 String[] cellstr = storeCellInfo(cellinfo);
                 NotificationManager mngr =  (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                 mngr.notify(NOTIF_ID, getActivityNotification(String.format("%d cells registered (%d visible)", cellstr.length, cellinfo.size())));
+                sendBroadcastMessage();
             }
         }, 0, App.UPDATE_DELAY_MILLIS);
 
@@ -144,4 +149,8 @@ public class LocationRecordingService extends Service {
         return cellstr;
     }
 
+    private void sendBroadcastMessage() {
+        Intent intent = new Intent(LOCATION_DATA_UPDATE_BROADCAST);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
 }
