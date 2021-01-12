@@ -1,4 +1,4 @@
-package cellscanner.wowtor.github.com.cellscanner.recorder;
+package nl.nfi.cellscanner.recorder;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -12,24 +12,29 @@ import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.CellInfo;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import cellscanner.wowtor.github.com.cellscanner.App;
-import cellscanner.wowtor.github.com.cellscanner.Database;
-import cellscanner.wowtor.github.com.cellscanner.MainActivity;
-import cellscanner.wowtor.github.com.cellscanner.R;
+import nl.nfi.cellscanner.App;
+import nl.nfi.cellscanner.Database;
+import nl.nfi.cellscanner.MainActivity;
+import nl.nfi.cellscanner.R;
 
 public class LocationRecordingService extends Service {
 
+    public static final String LOCATION_DATA_UPDATE_BROADCAST= "LOCATION_DATA_UPDATE_MESSAGE";
+
+    private static final String CHANNEL_ID = "ForegroundServiceChannel",
+                                SERVICE_TAG = "FOREGROUND_SERVICE_TAG";
     private static final int NOTIF_ID = 123;
-    private static final String CHANNEL_ID = "ForegroundServiceChannel";
-    private static final String SERVICE_TAG = "FOREGROUND_SERVICE_TAG";
+
     private Timer mTimer;
     private TelephonyManager mTelephonyManager;
     private Database mDB;
@@ -55,10 +60,12 @@ public class LocationRecordingService extends Service {
             @Override
             public void run() {
                 // TODO: Move to own method
+                Log.v(SERVICE_TAG, "triggered");
                 List<CellInfo> cellinfo = getCellInfo();
                 String[] cellstr = storeCellInfo(cellinfo);
                 NotificationManager mngr =  (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                 mngr.notify(NOTIF_ID, getActivityNotification(String.format("%d cells registered (%d visible)", cellstr.length, cellinfo.size())));
+                sendBroadcastMessage();
             }
         }, 0, App.UPDATE_DELAY_MILLIS);
 
@@ -105,15 +112,20 @@ public class LocationRecordingService extends Service {
         }
     }
 
-    @SuppressLint("MissingPermission")
+    @SuppressLint("MissingPermission") // permission check is moved to another part of the app
     private List<CellInfo> getCellInfo() {
-        // TODO: surround wit version aware permission settings and requests
         /*
           - This code should not run if the permissions are not there
           - Code should check and ask for permissions when the 'start recording switch' in the main activity
             is switched to start running when the permissions are not there
          */
-        return mTelephonyManager.getAllCellInfo();
+        if (PermissionSupport.hasAccessCourseLocationPermission(getApplicationContext())) {
+            return mTelephonyManager.getAllCellInfo();
+        } else {
+            // TODO: Shutdown this service ...???
+            return new ArrayList<>();
+        }
+
     }
 
     private String[] storeCellInfo(List<CellInfo> cellinfo) {
@@ -137,4 +149,8 @@ public class LocationRecordingService extends Service {
         return cellstr;
     }
 
+    private void sendBroadcastMessage() {
+        Intent intent = new Intent(LOCATION_DATA_UPDATE_BROADCAST);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
 }

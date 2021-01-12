@@ -1,4 +1,4 @@
-package cellscanner.wowtor.github.com.cellscanner.recorder;
+package nl.nfi.cellscanner.recorder;
 
 import android.content.Context;
 import android.content.Intent;
@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
 
-import cellscanner.wowtor.github.com.cellscanner.App;
+import nl.nfi.cellscanner.App;
 
 
 
