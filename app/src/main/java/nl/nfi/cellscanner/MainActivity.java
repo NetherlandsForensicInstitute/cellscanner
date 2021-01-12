@@ -4,16 +4,10 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Build;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -25,7 +19,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import nl.nfi.cellscanner.recorder.PermissionSupport;
 import nl.nfi.cellscanner.recorder.Recorder;
+
+import static nl.nfi.cellscanner.recorder.Recorder.inRecordingState;
 
 public class MainActivity extends AppCompatActivity {
     /*
@@ -33,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
      */
 
     private Button exportButton, clearButton;
+    private Switch recorderSwitch;
     private static final int PERMISSION_REQUEST_START_RECORDING = 1;
     private static final int PERMISSION_REQUEST_EXPORT_DATA = 2;
 
@@ -48,55 +46,45 @@ public class MainActivity extends AppCompatActivity {
 
         exportButton = findViewById(nl.nfi.cellscanner.R.id.exportButton);
         clearButton = findViewById(nl.nfi.cellscanner.R.id.clearButton);
+        recorderSwitch = findViewById(nl.nfi.cellscanner.R.id.recorderSwitch);
+        toggleButtonsRecordingState();
 
-        Switch recorderSwitch = findViewById(nl.nfi.cellscanner.R.id.recorderSwitch);
-        exportButton.setEnabled(!Recorder.inRecordingState(getApplicationContext()));
-        clearButton.setEnabled(!Recorder.inRecordingState(getApplicationContext()));
-
+        /*
+         Implement checked state listener on the switch that has the ability to start or stop the recording process
+         */
         recorderSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                // TODO: ADD LOGIC FOR PERMISSION CHECK
-                exportButton.setEnabled(!isChecked);
-                clearButton.setEnabled(!isChecked);
-                if (isChecked)
-                    startRecording();
-                else
-                    Recorder.stopService(getApplicationContext());
-
+                if (isChecked) requestStartRecording();
+                else Recorder.stopService(getApplicationContext());
+                toggleButtonsRecordingState();
             }
         });
-
-        Toast.makeText(getApplicationContext(), String.format("Cellscanner service is %srunning.", Recorder.inRecordingState(getApplicationContext()) ? "" : "not "), Toast.LENGTH_SHORT).show();
     }
 
 
-    private boolean requestLocationPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
-            return true;
-        else {
+    /**
+     * Request permission to the end user for Location usage. Please be aware that this request is
+     * done on a separate thread
+     */
+    private void requestLocationPermission() {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_START_RECORDING);
-            return false;
-        }
     }
 
-    private boolean requestFilePermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
-            return true;
-        else {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_EXPORT_DATA);
-            return false;
-        }
-    }
-
+    /**
+     * Callback function for requests
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
             case PERMISSION_REQUEST_START_RECORDING: {
                 if (permissions.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // todo:Tis code starts recording and is started by the start recording.
-                    // permission granted
-                    startRecording();
+                    requestStartRecording();
+                } else {
+                    // explain the app will not be working
+                    Toast.makeText(this,"App will not work without location permissions", Toast.LENGTH_SHORT).show();
+                    toggleButtonsRecordingState();
                 }
+
                 return;
             }
             case PERMISSION_REQUEST_EXPORT_DATA: {
@@ -115,21 +103,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void exportData(View view) {
-        if (requestFilePermission()) {
-            if (!Database.getDataPath(this).exists())
-            {
-                Toast.makeText(getApplicationContext(), "No database present.", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            Uri uri = FileProvider.getUriForFile(getApplicationContext(), "com.github.wowtor.cellscanner.fileprovider", Database.getDataPath(getApplicationContext()));
-
-            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-            sharingIntent.setType("*/*");
-            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getFileTitle());
-            sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
-            startActivity(Intent.createChooser(sharingIntent, "Share via"));
-        }
+//        THIS CODE IS BROKEN
+//        if (requestFilePermission()) {
+//            if (!Database.getDataPath(this).exists())
+//            {
+//                Toast.makeText(getApplicationContext(), "No database present.", Toast.LENGTH_SHORT).show();
+//                return;
+//            }
+//
+//            Uri uri = FileProvider.getUriForFile(getApplicationContext(), "com.github.wowtor.cellscanner.fileprovider", Database.getDataPath(getApplicationContext()));
+//
+//            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+//            sharingIntent.setType("*/*");
+//            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getFileTitle());
+//            sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
+//            startActivity(Intent.createChooser(sharingIntent, "Share via"));
+//        }
     }
 
     public void clearDatabase(View view) {
@@ -155,17 +144,25 @@ public class MainActivity extends AppCompatActivity {
                 .setNegativeButton("No", dialogClickListener).show();
     }
 
-    public void startRecording() {
-        Context ctx = getApplicationContext();
-        if (requestLocationPermission()) {
-            Recorder.startService(this);
-            Toast.makeText(ctx, "Location service started", Toast.LENGTH_SHORT).show();
-            Log.v(App.TITLE, "Location service started");
-        } else {
-            Toast.makeText(ctx, "no permission -- try again", Toast.LENGTH_SHORT).show();
-        }
+    public void requestStartRecording() {
+        if (PermissionSupport.hasAccessCourseLocationPermission(this)) startRecording();
+        else requestLocationPermission();
+        toggleButtonsRecordingState();
     }
 
+    private void startRecording() {
+        Recorder.startService(this);
+    }
+
+    /**
+     * Set the buttons on the screen to recording state, or not recording state
+     * */
+    private void toggleButtonsRecordingState() {
+        boolean isInRecordingState = inRecordingState(this);
+        recorderSwitch.setChecked(isInRecordingState);
+        exportButton.setEnabled(!isInRecordingState);
+        clearButton.setEnabled(!isInRecordingState);
+    }
 
     // todo: Reconnect with a timer or listener, to update every x =D
     private void updateLogViewer() {
