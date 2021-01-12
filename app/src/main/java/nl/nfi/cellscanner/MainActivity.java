@@ -4,7 +4,9 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,13 +17,11 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
 import nl.nfi.cellscanner.recorder.PermissionSupport;
 import nl.nfi.cellscanner.recorder.Recorder;
 
+import static android.support.v4.content.FileProvider.getUriForFile;
+import static nl.nfi.cellscanner.Database.getFileTitle;
 import static nl.nfi.cellscanner.recorder.Recorder.inRecordingState;
 
 public class MainActivity extends AppCompatActivity {
@@ -32,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
     private Button exportButton, clearButton;
     private Switch recorderSwitch;
     private static final int PERMISSION_REQUEST_START_RECORDING = 1;
-    private static final int PERMISSION_REQUEST_EXPORT_DATA = 2;
 
     /**
      * Fires when the system first creates the activity
@@ -87,39 +86,29 @@ public class MainActivity extends AppCompatActivity {
 
                 return;
             }
-            case PERMISSION_REQUEST_EXPORT_DATA: {
-                if (permissions.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    exportData(null);
-                }
+        }
+    }
 
-                return;
+    /**
+     * Export data via email
+     */
+    public void exportData(View view) {
+        if (!Database.getDataFile(this).exists()) Toast.makeText(getApplicationContext(), "No database present.", Toast.LENGTH_SHORT).show();
+        else {
+            Uri contentUri = getUriForFile(this, ".fileprovider", Database.getDataFile(this));
+            Intent sharingIntent = new Intent(Intent.ACTION_SENDTO);
+
+            sharingIntent.setData(Uri.parse("mailto:")); // only email apps should handle this
+//            sharingIntent.putExtra(Intent.EXTRA_EMAIL, "email to send to ");
+            sharingIntent.putExtra(Intent.EXTRA_SUBJECT, "datafile cell-scanner " +  getFileTitle());
+            sharingIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+
+            if (sharingIntent.resolveActivity(getPackageManager()) != null) {
+                startActivity(sharingIntent);
             }
         }
     }
 
-    private static String getFileTitle() {
-        SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.US);
-        return String.format("%s_cellinfo.sqlite3", fmt.format(new Date()));
-    }
-
-    public void exportData(View view) {
-//        THIS CODE IS BROKEN
-//        if (requestFilePermission()) {
-//            if (!Database.getDataPath(this).exists())
-//            {
-//                Toast.makeText(getApplicationContext(), "No database present.", Toast.LENGTH_SHORT).show();
-//                return;
-//            }
-//
-//            Uri uri = FileProvider.getUriForFile(getApplicationContext(), "com.github.wowtor.cellscanner.fileprovider", Database.getDataPath(getApplicationContext()));
-//
-//            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-//            sharingIntent.setType("*/*");
-//            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getFileTitle());
-//            sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
-//            startActivity(Intent.createChooser(sharingIntent, "Share via"));
-//        }
-    }
 
     public void clearDatabase(View view) {
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
