@@ -36,7 +36,7 @@ public class App extends Application {
         // close the existing database connection
         dbhelper.close();
         // TODO: why not: appcontext.deleteDatabase(Database.getDataPath(appcontext).getName());?
-        File path = Database.getDataPath(appcontext);
+        File path = Database.getDataFile(appcontext);
         path.delete();
         dbhelper = new OpenHelper(appcontext);
     }
@@ -49,7 +49,7 @@ public class App extends Application {
      */
     private static class OpenHelper extends SQLiteOpenHelper {
         public OpenHelper(Context context) {
-            super(context, Database.getDataPath(context).toString(), null, DATABASE_VERSION);
+            super(context, Database.getDataFile(context).toString(), null, DATABASE_VERSION);
         }
 
         @Override
