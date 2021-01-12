@@ -29,7 +29,7 @@ import nl.nfi.cellscanner.R;
 
 public class LocationRecordingService extends Service {
 
-    public static final String LOCATION_DATA_UPDATE_BROADCAST= "HELLOWORLD";
+    public static final String LOCATION_DATA_UPDATE_BROADCAST= "LOCATION_DATA_UPDATE_MESSAGE";
 
     private static final String CHANNEL_ID = "ForegroundServiceChannel",
                                 SERVICE_TAG = "FOREGROUND_SERVICE_TAG";
