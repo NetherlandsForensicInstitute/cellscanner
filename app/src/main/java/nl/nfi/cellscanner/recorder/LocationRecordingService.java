@@ -16,6 +16,7 @@ import android.telephony.CellInfo;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -55,6 +56,7 @@ public class LocationRecordingService extends Service {
             @Override
             public void run() {
                 // TODO: Move to own method
+                Log.v(SERVICE_TAG, "triggered");
                 List<CellInfo> cellinfo = getCellInfo();
                 String[] cellstr = storeCellInfo(cellinfo);
                 NotificationManager mngr =  (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -105,15 +107,20 @@ public class LocationRecordingService extends Service {
         }
     }
 
-    @SuppressLint("MissingPermission")
+    @SuppressLint("MissingPermission") // permission check is moved to another part of the app
     private List<CellInfo> getCellInfo() {
-        // TODO: surround wit version aware permission settings and requests
         /*
           - This code should not run if the permissions are not there
           - Code should check and ask for permissions when the 'start recording switch' in the main activity
             is switched to start running when the permissions are not there
          */
-        return mTelephonyManager.getAllCellInfo();
+        if (PermissionSupport.hasAccessCourseLocationPermission(getApplicationContext())) {
+            return mTelephonyManager.getAllCellInfo();
+        } else {
+            // TODO: Shutdown this service ...???
+            return new ArrayList<>();
+        }
+
     }
 
     private String[] storeCellInfo(List<CellInfo> cellinfo) {
