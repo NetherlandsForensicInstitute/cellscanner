@@ -3,10 +3,10 @@ package nl.nfi.cellscanner;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.widget.Toast;
 
 import nl.nfi.cellscanner.recorder.Recorder;
-
 
 /**
  * Responsible for starting the App after device boot
@@ -24,9 +24,12 @@ public class BootDeviceReceiver extends BroadcastReceiver {
         Toast.makeText(context, message, Toast.LENGTH_LONG).show();
 
         // TODO: @ check if the right application is sending the request
+        /*
+          Call the start of the application if the boot-up state of the application
+          is inRecordingState
+         */
         if (Recorder.inRecordingState(context)){
-            // TODO: make startup version aware
-            LocationService.start(context);
+            Recorder.startService(context);
         }
     }
 }

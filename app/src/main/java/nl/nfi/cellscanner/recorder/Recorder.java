@@ -1,9 +1,13 @@
 package nl.nfi.cellscanner.recorder;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
+import android.support.v4.content.ContextCompat;
 
 import nl.nfi.cellscanner.App;
+
 
 
 /**
@@ -25,4 +29,20 @@ public class Recorder {
         editor.apply();
     }
 
+    public static void startService(Context context) {
+        // after API-26 the service should be a Foreground Service
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ContextCompat.startForegroundService(context, new Intent(context, LocationRecordingService.class));
+        } else {
+            context.startService(new Intent(context, LocationRecordingService.class));
+        }
+        setRecordingState(context, true);
+    }
+
+    public static void stopService(Context context) {
+        // TODO: make this intent dependent on API LVL
+        Intent serviceIntent = new Intent(context, LocationRecordingService.class);
+        context.stopService(serviceIntent);
+        setRecordingState(context, false);
+    }
 }
