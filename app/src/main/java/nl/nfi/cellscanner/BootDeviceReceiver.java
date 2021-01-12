@@ -3,9 +3,9 @@ package nl.nfi.cellscanner;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.widget.Toast;
 
+import nl.nfi.cellscanner.recorder.PermissionSupport;
 import nl.nfi.cellscanner.recorder.Recorder;
 
 /**
@@ -29,7 +29,8 @@ public class BootDeviceReceiver extends BroadcastReceiver {
           is inRecordingState
          */
         if (Recorder.inRecordingState(context)){
-            Recorder.startService(context);
+            if (PermissionSupport.hasAccessCourseLocationPermission(context)) Recorder.startService(context);
+            else Recorder.setRecordingState(context, false);
         }
     }
 }
