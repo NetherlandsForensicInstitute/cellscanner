@@ -4,7 +4,6 @@
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-<!--  NOT IN USE  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />-->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
