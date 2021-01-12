@@ -2,12 +2,15 @@ package nl.nfi.cellscanner;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -17,6 +20,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import nl.nfi.cellscanner.recorder.LocationRecordingService;
 import nl.nfi.cellscanner.recorder.PermissionSupport;
 import nl.nfi.cellscanner.recorder.Recorder;
 
@@ -31,6 +35,9 @@ public class MainActivity extends AppCompatActivity {
 
     private Button exportButton, clearButton;
     private Switch recorderSwitch;
+    private TextView appStatus;
+
+
     private static final int PERMISSION_REQUEST_START_RECORDING = 1;
 
     /**
@@ -42,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(nl.nfi.cellscanner.R.layout.activity_main);
+        appStatus = findViewById(nl.nfi.cellscanner.R.id.userMessages);
 
         exportButton = findViewById(nl.nfi.cellscanner.R.id.exportButton);
         clearButton = findViewById(nl.nfi.cellscanner.R.id.clearButton);
@@ -58,6 +66,20 @@ public class MainActivity extends AppCompatActivity {
                 toggleButtonsRecordingState();
             }
         });
+
+        // run initial update to inform the end user
+        updateLogViewer();
+
+        // Setup listener for data updates, so the user can be informed
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                        updateLogViewer();
+                    }
+                }, new IntentFilter(LocationRecordingService.LOCATION_DATA_UPDATE_BROADCAST)
+        );
+
     }
 
 
@@ -133,12 +155,20 @@ public class MainActivity extends AppCompatActivity {
                 .setNegativeButton("No", dialogClickListener).show();
     }
 
+    /**
+     * Request the start of recording user data
+     *
+     * test for the right permissions, if ok, start recording. Otherwise request permissions
+     */
     public void requestStartRecording() {
         if (PermissionSupport.hasAccessCourseLocationPermission(this)) startRecording();
         else requestLocationPermission();
         toggleButtonsRecordingState();
     }
 
+    /**
+     * Start the recording service
+     */
     private void startRecording() {
         Recorder.startService(this);
     }
@@ -155,8 +185,7 @@ public class MainActivity extends AppCompatActivity {
 
     // todo: Reconnect with a timer or listener, to update every x =D
     private void updateLogViewer() {
-        TextView userMessages = findViewById(nl.nfi.cellscanner.R.id.userMessages);
         Database db = App.getDatabase();
-        userMessages.setText(db.getUpdateStatus());
+        appStatus.setText(db.getUpdateStatus());
     }
 }
