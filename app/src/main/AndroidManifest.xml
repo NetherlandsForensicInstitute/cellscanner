@@ -4,7 +4,7 @@
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+<!--  NOT IN USE  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />-->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
@@ -19,21 +19,17 @@
         <receiver
             android:name=".BootDeviceReceiver"
             android:enabled="true"
-            android:exported="true">
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
         <service
-            android:name=".LocationService"
-            android:label="location service">
-        </service>
-
-        <service
             android:name=".recorder.LocationRecordingService"
             android:enabled="true"
-            android:exported="true">
+            android:exported="false"
+            android:permission="ACCESS_COARSE_LOCATION">
         </service>
 
         <activity android:name=".MainActivity">
