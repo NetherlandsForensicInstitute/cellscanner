@@ -17,9 +17,11 @@ import android.util.Log;
 
 import java.io.File;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class Database {
     protected static final int VERSION = 2;
@@ -30,7 +32,12 @@ public class Database {
     private SQLiteDatabase db;
     private Date previous_date = null;
 
-    public static File getDataPath(Context ctx) {
+    public static String getFileTitle() {
+        SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss", Locale.US);
+        return String.format("%s_cellinfo.sqlite3", fmt.format(new Date()));
+    }
+
+    public static File getDataFile(Context ctx) {
         return new File(ctx.getExternalFilesDir(null), "cellinfo.sqlite3");
     }
 
