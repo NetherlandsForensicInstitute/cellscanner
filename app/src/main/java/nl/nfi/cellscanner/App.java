@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import java.io.File;
+import java.util.Locale;
 
 /**
  * Main application state
@@ -37,10 +38,9 @@ public class App extends Application {
     public static void resetDatabase(Context appcontext) {
         // close the existing database connection
         dbhelper.close();
-        // TODO: why not: appcontext.deleteDatabase(Database.getDataPath(appcontext).getName());?
         File path = Database.getDataFile(appcontext);
-        Log.i("App", path.toString());
-        path.delete();
+        Log.i("App", String.format(Locale.ROOT, "deleting database at path: %s", path.toString()));
+        appcontext.deleteDatabase(path.toString());
         dbhelper = new OpenHelper(appcontext);
     }
 
