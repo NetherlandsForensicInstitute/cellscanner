@@ -10,12 +10,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
-import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.LocalBroadcastManager;
+
 import android.telephony.CellInfo;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+
+import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +35,7 @@ public class LocationRecordingService extends Service {
 
     private static final String CHANNEL_ID = "ForegroundServiceChannel",
                                 SERVICE_TAG = "FOREGROUND_SERVICE_TAG";
+
     private static final int NOTIF_ID = 123;
 
     private Timer mTimer;

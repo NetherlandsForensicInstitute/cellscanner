@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.io.File;
 
@@ -24,6 +25,7 @@ public class App extends Application {
      * @return Database
      */
     public static Database getDatabase() {
+        Log.i("APP", "GET DB");
         return new Database(dbhelper.getWritableDatabase());
     }
 
@@ -37,6 +39,7 @@ public class App extends Application {
         dbhelper.close();
         // TODO: why not: appcontext.deleteDatabase(Database.getDataPath(appcontext).getName());?
         File path = Database.getDataFile(appcontext);
+        Log.i("App", path.toString());
         path.delete();
         dbhelper = new OpenHelper(appcontext);
     }
@@ -65,6 +68,7 @@ public class App extends Application {
 
     @Override
     public void onCreate() {
+        Log.i("App", "created");
         super.onCreate();
         dbhelper = new OpenHelper(getApplicationContext());
     }
