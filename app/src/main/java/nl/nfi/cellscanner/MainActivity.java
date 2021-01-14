@@ -26,6 +26,7 @@ import nl.nfi.cellscanner.recorder.Recorder;
 
 import static android.support.v4.content.FileProvider.getUriForFile;
 import static nl.nfi.cellscanner.Database.getFileTitle;
+import static nl.nfi.cellscanner.recorder.PermissionSupport.hasUserConsent;
 import static nl.nfi.cellscanner.recorder.Recorder.inRecordingState;
 
 public class MainActivity extends AppCompatActivity {
@@ -56,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
         recorderSwitch = findViewById(nl.nfi.cellscanner.R.id.recorderSwitch);
         toggleButtonsRecordingState();
 
+        hasUserConsent(this);
         /*
          Implement checked state listener on the switch that has the ability to start or stop the recording process
          */
