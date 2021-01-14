@@ -25,9 +25,8 @@
         android:id="@+id/exportButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="92dp"
-        android:layout_marginStart="92dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="20dp"
         android:onClick="exportData"
         android:text="Export"
         app:layout_constraintStart_toStartOf="parent"
@@ -51,15 +50,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="20dp"
         android:onClick="clearDatabase"
         android:text="Clear data"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.29"
+        app:layout_constraintEnd_toStartOf="@+id/tac_info_button"
+        app:layout_constraintHorizontal_bias="0.42"
         app:layout_constraintStart_toEndOf="@+id/exportButton"
+        app:layout_constraintTop_toBottomOf="@+id/recorderSwitch" />
+
+    <Button
+        android:id="@+id/tac_info_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="36dp"
+        android:layout_marginTop="20dp"
+        android:onClick="openTermsAndConditions"
+        android:text="Info"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/recorderSwitch" />
 
 </android.support.constraint.ConstraintLayout>

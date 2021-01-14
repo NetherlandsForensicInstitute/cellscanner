@@ -25,29 +25,26 @@ public class PermissionSupport {
         return ContextCompat.checkSelfPermission(ctx, permission) == PackageManager.PERMISSION_GRANTED;
     }
 
+    /**
+     * Returns whether user has given consent to terms and conditions
+     * @param ctx main activity Context
+     * @return boolean
+     */
     public static boolean hasUserConsent(final Context ctx) {
-        boolean agreed = ctx
-                .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .getBoolean("CONSENT", false);
-
-        if (!agreed) {
-            new AlertDialog.Builder(ctx)
-                    .setTitle("License agreement")
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            SharedPreferences prefs = ctx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-                            SharedPreferences.Editor editor = prefs.edit();
-                            editor.putBoolean("CONSENT", true);
-                            editor.apply();
-                        }
-                    })
-                    .setNegativeButton("No", null)
-                    .setMessage("my pretty popup text!")
-                    .show();
-        }
         return ctx
                 .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 .getBoolean("CONSENT", false);
+    }
+
+    /**
+     * Set the user's consent
+     * @param ctx main activity
+     * @param consentGiven boolean reflecting user's consent
+     */
+    public static void setUserConsent(final Context ctx, boolean consentGiven) {
+        SharedPreferences prefs = ctx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean("CONSENT", consentGiven);
+        editor.apply();
     }
 }
