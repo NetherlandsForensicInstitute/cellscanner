@@ -6,6 +6,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.location.Location;
 import android.provider.Settings;
 import android.telephony.CellInfo;
 import android.telephony.CellInfoCdma;
@@ -273,6 +274,19 @@ public class Database {
         setMetaEntry("android_id", android_id);
     }
 
+    public void storeLocationInfo(Location location) {
+        ContentValues values = new ContentValues();
+        values.put("provider", location.getProvider());
+        values.put("timestamp", location.getTime());
+        values.put("accuracy", location.getAccuracy());
+        values.put("latitude", location.getLatitude());
+        values.put("longitude", location.getLongitude());
+
+        db.insert("locationinfo", null, values);
+    }
+
+
+
     protected static void upgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         createTables(db);
     }
@@ -309,11 +323,20 @@ public class Database {
                 "  networkid INT NOT NULL,"+
                 "  systemid INT NOT NULL"+
                 ")");
+
+        db.execSQL("CREATE TABLE IF NOT EXISTS locationinfo ("+
+                "  provider VARCHAR(200)," +
+                "  accuracy INT NOT NULL," +
+                "  timestamp INT NOT NULL," +
+                "  latitude INT NOT NULL,"+
+                "  longitude INT NOT NULL" +
+                ")");
     }
 
     public void dropTables() {
         db.execSQL("DROP TABLE IF EXISTS meta");
         db.execSQL("DROP TABLE IF EXISTS cellinfo");
         db.execSQL("DROP TABLE IF EXISTS cellinfocdma");
+        db.execSQL("DROP TABLE IF EXISTS locationinfo");
     }
 }
