@@ -40,7 +40,7 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities=".fileprovider"
+            android:authorities="nl.nfi.cellscanner.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

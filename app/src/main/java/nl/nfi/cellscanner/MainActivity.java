@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -19,8 +20,10 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -126,19 +129,24 @@ public class MainActivity extends AppCompatActivity {
      * Export data via email
      */
     public void exportData(View view) {
-        if (!Database.getDataFile(this).exists()) Toast.makeText(getApplicationContext(), "No database present.", Toast.LENGTH_SHORT).show();
-        else {
-            Uri contentUri = getUriForFile(this, ".fileprovider", Database.getDataFile(this));
-            Intent sharingIntent = new Intent(Intent.ACTION_SENDTO);
+        if (!Database.getDataFile(this).exists()){
+            Toast.makeText(getApplicationContext(), "No database present.", Toast.LENGTH_SHORT).show();
 
-            sharingIntent.setData(Uri.parse("mailto:")); // only email apps should handle this
-//            sharingIntent.putExtra(Intent.EXTRA_EMAIL, "email to send to ");
-            sharingIntent.putExtra(Intent.EXTRA_SUBJECT, "datafile cell-scanner " +  getFileTitle());
-            sharingIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+        } else {
+            String[] TO = {""};
 
-            if (sharingIntent.resolveActivity(getPackageManager()) != null) {
-                startActivity(sharingIntent);
-            }
+            Uri uri = FileProvider.getUriForFile(getApplicationContext(), "nl.nfi.cellscanner.fileprovider", Database.getDataFile(getApplicationContext()));
+
+            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+
+            sharingIntent.putExtra(Intent.EXTRA_EMAIL, TO);
+            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getFileTitle());
+            sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
+
+            //need this to prompts email client only
+            sharingIntent.setDataAndType(uri, "message/rfc822");
+
+            startActivity(Intent.createChooser(sharingIntent, "Share via"));
         }
     }
 
