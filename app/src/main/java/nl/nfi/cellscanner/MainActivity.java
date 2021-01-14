@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
                 new BroadcastReceiver() {
                     @Override
                     public void onReceive(Context context, Intent intent) {
-                        updateLogViewer();
+                        updateLogViewer(intent);
                     }
                 }, new IntentFilter(LocationRecordingService.LOCATION_DATA_UPDATE_BROADCAST)
         );
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
      * done on a separate thread
      */
     private void requestLocationPermission() {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_START_RECORDING);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_START_RECORDING);
     }
 
     /**
@@ -164,8 +164,13 @@ public class MainActivity extends AppCompatActivity {
      * test for the right permissions, if ok, start recording. Otherwise request permissions
      */
     public void requestStartRecording() {
-        if (PermissionSupport.hasAccessCourseLocationPermission(this)) startRecording();
-        else requestLocationPermission();
+        if (PermissionSupport.hasAccessCourseLocationPermission(this) &&
+                PermissionSupport.hasFineLocationPermission(this)) {
+            startRecording();
+        }
+        else {
+            requestLocationPermission();
+        }
         toggleButtonsRecordingState();
     }
 
@@ -189,7 +194,18 @@ public class MainActivity extends AppCompatActivity {
     // todo: Reconnect with a timer or listener, to update every x =D
     private void updateLogViewer() {
         Database db = App.getDatabase();
-        Log.v("UPDATE",db.getUpdateStatus());
         appStatus.setText(db.getUpdateStatus());
     }
+
+    private void updateLogViewer(Intent intent) {
+        Database db = App.getDatabase();
+        appStatus.setText(db.getUpdateStatus());
+        Bundle a = intent.getExtras();
+        if (a!=null) {
+            Log.i("APP", String.valueOf(a.getDouble("lat", -600)));
+            Log.i("APP", String.valueOf(a.getDouble("lon", -600)));
+            Log.i("APP", String.valueOf(a.getFloat("acc", -600)));
+            Log.i("APP", String.valueOf(a.getString("pro", "none recorded")));
+//        a.getDouble("lon");}
+    }}
 }
