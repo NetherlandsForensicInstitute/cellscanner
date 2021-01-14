@@ -41,11 +41,15 @@ public class Database {
 
     private Long getLongFromSQL(String query) {
         Cursor c = db.rawQuery(query, new String[]{});
-        c.moveToNext();
-        if (c.isNull(0)) {
-            return null;
-        } else {
-            return c.getLong(0);
+        try {
+            c.moveToNext();
+            if (c.isNull(0)) {
+                return null;
+            } else {
+                return c.getLong(0);
+            }
+        } finally {
+            c.close();
         }
     }
 
@@ -53,13 +57,17 @@ public class Database {
         List<String> cells = new ArrayList<String>();
         if (date != null) {
             Cursor c = db.rawQuery("SELECT radio, mcc, mnc, area, cid FROM cellinfo WHERE ? BETWEEN date_start AND date_end", new String[]{Long.toString(date.getTime())});
-            while (c.moveToNext()) {
-                String radio = c.getString(0);
-                int mcc = c.getInt(1);
-                int mnc = c.getInt(2);
-                int lac = c.getInt(3);
-                int cid = c.getInt(4);
-                cells.add(String.format("%s: %d-%d-%d-%d", radio, mcc, mnc, lac, cid));
+            try {
+                while (c.moveToNext()) {
+                    String radio = c.getString(0);
+                    int mcc = c.getInt(1);
+                    int mnc = c.getInt(2);
+                    int lac = c.getInt(3);
+                    int cid = c.getInt(4);
+                    cells.add(String.format("%s: %d-%d-%d-%d", radio, mcc, mnc, lac, cid));
+                }
+            } finally {
+                c.close();
             }
         }
 
@@ -127,10 +135,14 @@ public class Database {
 
     protected String getMetaEntry(String name) {
         Cursor c = db.query("meta", new String[]{"value"}, "entry = ?", new String[]{"versionCode"}, null, null, null);
-        if (!c.moveToNext())
-            return null;
+        try {
+            if (!c.moveToNext())
+                return null;
 
-        return c.getString(0);
+            return c.getString(0);
+        } finally {
+            c.close();
+        }
     }
 
     protected void setMetaEntry(String name, String value) {
