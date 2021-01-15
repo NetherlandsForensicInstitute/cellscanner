@@ -63,11 +63,12 @@ public class MainActivity extends AppCompatActivity {
         close_button.setEnabled(hasUserConsent(context));
 
         /*
-        Only allow (un)checking the consent the first time around. To retract consent an email
+        Only allow (un)checking the consent the first time around. To retract consent, an email
         should be send asking to remove all data.
          */
-        CheckBox accepted_checkbox = findViewById(R.id.tac_checkbox);
-        if (!accepted_checkbox.isChecked()) {
+        final CheckBox accepted_checkbox = findViewById(R.id.tac_checkbox);
+        accepted_checkbox.setChecked(hasUserConsent(context));
+        if (!hasUserConsent(context)) {
             accepted_checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -75,9 +76,14 @@ public class MainActivity extends AppCompatActivity {
                     close_button.setEnabled(isChecked);  // Enabled if agreed to T & C
                 }
             });
-        }
-        else {
-            accepted_checkbox.setEnabled(false);
+        } else {
+            accepted_checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    accepted_checkbox.setChecked(true);
+                    Toast.makeText(context, "To revoke consent, contact the NFI to remove your data and then uninstall the app", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 
@@ -145,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * When closing terms and conditions screen, load the recorder screen
+     *
      * @param view
      */
     public void closeTermsAndConditions(View view) {

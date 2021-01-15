@@ -6,60 +6,66 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/tac_header"
+        android:layout_width="410dp"
+        android:layout_height="43dp"
+        android:fontFamily="sans-serif-medium"
+        android:text="@string/terms_and_conditions_header"
+        android:textAlignment="center"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ScrollView
+        android:id="@+id/scrollView2"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginBottom="3dp"
+        android:layout_marginTop="3dp"
+        android:layout_weight="1"
+        app:layout_constraintBottom_toTopOf="@+id/tac_checkbox"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tac_header">
+
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tac_full_text"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:lineSpacingExtra="4sp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="5dp"
+                android:text="@string/terms_and_conditions"
+                tools:layout_conversion_absoluteHeight="1691dp"
+                tools:layout_conversion_absoluteWidth="411dp"
+                tools:layout_editor_absoluteX="0dp"
+                tools:layout_editor_absoluteY="77dp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <CheckBox
+        android:id="@+id/tac_checkbox"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="47dp"
+        android:text="@string/terms_and_conditions_accept"
+        app:layout_constraintBottom_toTopOf="@+id/tac_close_button" />
 
-        <EditText
-            android:id="@+id/tac_header"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ems="10"
-            android:fontFamily="sans-serif-medium"
-            android:inputType="textPersonName"
-            android:paddingLeft="20dp"
-            android:text="@string/terms_and_conditions_header"
-            android:textSize="24sp" />
-
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="535dp"
-            android:layout_weight="1">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tac_full_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="552dp"
-                    android:lineSpacingExtra="4sp"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp"
-                    android:paddingTop="5dp"
-                    android:text="@string/terms_and_conditions" />
-
-            </LinearLayout>
-        </ScrollView>
-
-        <CheckBox
-            android:id="@+id/tac_checkbox"
-            android:layout_width="match_parent"
-            android:layout_height="47dp"
-            android:text="@string/terms_and_conditions_accept" />
-
-        <Button
-            android:id="@+id/tac_close_button"
-            android:layout_width="421dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/terms_and_conditions_close"
-            android:onClick="closeTermsAndConditions"/>
-
-    </LinearLayout>
+    <Button
+        android:id="@+id/tac_close_button"
+        android:layout_width="421dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:onClick="closeTermsAndConditions"
+        android:text="@string/terms_and_conditions_close"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </android.support.constraint.ConstraintLayout>
