@@ -19,36 +19,146 @@
 
     <ScrollView
         android:id="@+id/scrollView2"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="3dp"
         android:layout_marginTop="3dp"
+        android:layout_marginBottom="3dp"
         android:layout_weight="1"
         app:layout_constraintBottom_toTopOf="@+id/tac_checkbox"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tac_header">
 
-        <LinearLayout
-            android:id="@+id/linearLayout"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/ConstraintLayoutContent"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/rijksoverheidLogo"
+                android:layout_width="50dp"
+                android:layout_height="150dp"
+                android:layout_marginStart="72dp"
+                app:layout_constraintBottom_toTopOf="@+id/tac_generalInformation"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/logo" />
+
+            <ImageView
+                android:id="@+id/NFILogoTextImage"
+                android:layout_width="200dp"
+                android:layout_height="150dp"
+                app:layout_constraintBottom_toBottomOf="@+id/rijksoverheidLogo"
+                app:layout_constraintStart_toEndOf="@+id/rijksoverheidLogo"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="1.0"
+                app:srcCompat="@drawable/nfi_woordlogo_en" />
 
             <TextView
-                android:id="@+id/tac_full_text"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:lineSpacingExtra="4sp"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:paddingTop="5dp"
-                android:text="@string/terms_and_conditions"
-                tools:layout_conversion_absoluteHeight="1691dp"
-                tools:layout_conversion_absoluteWidth="411dp"
-                tools:layout_editor_absoluteX="0dp"
-                tools:layout_editor_absoluteY="77dp" />
+                android:id="@+id/tac_generalInformation"
+                android:layout_width="406dp"
+                android:layout_height="31dp"
+                android:layout_marginBottom="1dp"
+                android:fontFamily="sans-serif-medium"
+                android:paddingStart="3dp"
+                android:text="General information"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textSize="24sp"
+                app:layout_constraintBottom_toTopOf="@+id/tac_generalInformation_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/rijksoverheidLogo" />
 
-        </LinearLayout>
+            <TextView
+                android:id="@+id/tac_generalInformation_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingLeft="3dp"
+                android:paddingRight="3dp"
+                android:text="@string/tac_general_information"
+                app:layout_constraintBottom_toTopOf="@+id/tac_dataCollected"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tac_generalInformation" />
+
+            <TextView
+                android:id="@+id/tac_dataCollected"
+                android:layout_width="406dp"
+                android:layout_height="31dp"
+                android:layout_marginBottom="1dp"
+                android:fontFamily="sans-serif-medium"
+                android:paddingStart="3dp"
+                android:text="Data Collection"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textSize="24sp"
+                app:layout_constraintBottom_toTopOf="@+id/tac_dataCollected_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tac_generalInformation_text" />
+
+            <TextView
+                android:id="@+id/tac_dataCollected_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingLeft="3dp"
+                android:paddingRight="3dp"
+                android:text="@string/tac_data_collection"
+                app:layout_constraintBottom_toTopOf="@+id/tac_contactInformation"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tac_dataCollected" />
+
+            <TextView
+                android:id="@+id/tac_contactInformation"
+                android:layout_width="406dp"
+                android:layout_height="31dp"
+                android:layout_marginBottom="1dp"
+                android:fontFamily="sans-serif-medium"
+                android:paddingStart="3dp"
+                android:text="Contact Information"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textSize="24sp"
+                app:layout_constraintBottom_toTopOf="@+id/tac_contactInformation_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tac_dataCollected_text" />
+
+            <TextView
+                android:id="@+id/tac_contactInformation_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingLeft="3dp"
+                android:paddingRight="3dp"
+                android:text="@string/tac_contact_information"
+                app:layout_constraintBottom_toTopOf="@+id/tac_aboutApp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tac_contactInformation" />
+
+            <TextView
+                android:id="@+id/tac_aboutApp"
+                android:layout_width="406dp"
+                android:layout_height="31dp"
+                android:layout_marginBottom="1dp"
+                android:fontFamily="sans-serif-medium"
+                android:paddingLeft="3dp"
+                android:text="About the app"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textSize="24sp"
+                app:layout_constraintBottom_toTopOf="@+id/tac_aboutApp_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tac_contactInformation_text" />
+
+            <TextView
+                android:id="@+id/tac_aboutApp_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingLeft="3dp"
+                android:paddingRight="3dp"
+                android:text="@string/tac_about_app"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tac_aboutApp" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 
     <CheckBox
