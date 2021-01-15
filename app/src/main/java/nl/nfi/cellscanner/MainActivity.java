@@ -10,22 +10,24 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import nl.nfi.cellscanner.recorder.LocationRecordingService;
 import nl.nfi.cellscanner.recorder.PermissionSupport;
 import nl.nfi.cellscanner.recorder.Recorder;
 
-import static android.support.v4.content.FileProvider.getUriForFile;
+import static androidx.core.content.FileProvider.getUriForFile;
 import static nl.nfi.cellscanner.Database.getFileTitle;
 import static nl.nfi.cellscanner.recorder.PermissionSupport.hasUserConsent;
 import static nl.nfi.cellscanner.recorder.PermissionSupport.setUserConsent;
@@ -37,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
      */
 
     private Button exportButton, clearButton;
-    private Switch recorderSwitch;
+    private SwitchCompat recorderSwitch;
     private TextView appStatus;
 
 
@@ -242,6 +244,7 @@ public class MainActivity extends AppCompatActivity {
     // todo: Reconnect with a timer or listener, to update every x =D
     private void updateLogViewer() {
         Database db = App.getDatabase();
+        Log.v("UPDATE",db.getUpdateStatus());
         appStatus.setText(db.getUpdateStatus());
     }
 }

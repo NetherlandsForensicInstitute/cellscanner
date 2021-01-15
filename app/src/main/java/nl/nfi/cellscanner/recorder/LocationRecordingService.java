@@ -10,19 +10,23 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
-import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.LocalBroadcastManager;
+
 import android.telephony.CellInfo;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import nl.nfi.cellscanner.App;
+import nl.nfi.cellscanner.CellStatus;
 import nl.nfi.cellscanner.Database;
 import nl.nfi.cellscanner.MainActivity;
 import nl.nfi.cellscanner.R;
@@ -33,6 +37,7 @@ public class LocationRecordingService extends Service {
 
     private static final String CHANNEL_ID = "ForegroundServiceChannel",
                                 SERVICE_TAG = "FOREGROUND_SERVICE_TAG";
+
     private static final int NOTIF_ID = 123;
 
     private Timer mTimer;
@@ -138,15 +143,22 @@ public class LocationRecordingService extends Service {
         - turns modified records in a string and reports them back
 
          */
-        String[] cellstr;
-        try {
-            cellstr = mDB.storeCellInfo(cellinfo);
-            if (cellstr.length == 0)
-                cellstr = new String[]{"no data"};
-        } catch(Throwable e) {
-            cellstr = new String[]{"error"};
+        Date date = new Date();
+
+        List<String> cells = new ArrayList<>();
+        for (CellInfo info : cellinfo) {
+            try {
+                CellStatus status = CellStatus.fromCellInfo(info);
+                if (status.isValid()) {
+                    mDB.updateCellStatus(date, status);
+                    cells.add(status.toString());
+                }
+            } catch (CellStatus.UnsupportedTypeException e) {
+                mDB.storeMessage(e.getMessage());
+            }
         }
-        return cellstr;
+
+        return cells.toArray(new String[0]);
     }
 
     private void sendBroadcastMessage() {
