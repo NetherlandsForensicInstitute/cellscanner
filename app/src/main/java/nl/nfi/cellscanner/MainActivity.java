@@ -58,17 +58,18 @@ public class MainActivity extends AppCompatActivity {
     private void showTermsAndConditionsScreen() {
         setContentView(nl.nfi.cellscanner.R.layout.terms_and_conditions);
         final Context context = this;
+        boolean userConsent = hasUserConsent(context);
 
         final Button close_button = findViewById(R.id.tac_close_button);
-        close_button.setEnabled(hasUserConsent(context));
+        close_button.setEnabled(userConsent);
 
         /*
         Only allow (un)checking the consent the first time around. To retract consent, an email
         should be send asking to remove all data.
          */
         final CheckBox accepted_checkbox = findViewById(R.id.tac_checkbox);
-        accepted_checkbox.setChecked(hasUserConsent(context));
-        if (!hasUserConsent(context)) {
+        accepted_checkbox.setChecked(userConsent);
+        if (!userConsent) {
             accepted_checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
