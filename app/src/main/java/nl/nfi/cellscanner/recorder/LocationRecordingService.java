@@ -6,8 +6,10 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.location.Location;
 import android.os.Build;
 import android.os.IBinder;
@@ -56,6 +58,7 @@ public class LocationRecordingService extends Service {
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationCallback locationCallback;
     private Location location;
+    private BroadcastReceiver gpsRecorderListener;
 
     @Override
     public void onCreate() {
@@ -82,6 +85,20 @@ public class LocationRecordingService extends Service {
             }
         };
 
+
+        gpsRecorderListener = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.i("LOC", "received intent to start recording");
+                toggleGPSRecording(context);
+            }
+        };
+
+    }
+
+    private void toggleGPSRecording(Context ctx) {
+        if (Recorder.gpsRecordingState(ctx)) startGPSLocationUpdates();
+        else stopGPSLocationUpdates();
     }
 
 
@@ -97,7 +114,11 @@ public class LocationRecordingService extends Service {
             }
         }, 0, App.UPDATE_DELAY_MILLIS);
 
-        startGPSLocationUpdates();
+        // Start listening for updates on the record GPS switch
+        LocalBroadcastManager.getInstance(this).registerReceiver(gpsRecorderListener, new IntentFilter(MainActivity.RECORD_GPS));
+
+        // Check if the application should start recording GPS
+        toggleGPSRecording(getApplicationContext());
 
         return START_NOT_STICKY;
     }
@@ -107,6 +128,7 @@ public class LocationRecordingService extends Service {
         super.onDestroy();
         // remove the location request timers & updates
         timer.cancel();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(gpsRecorderListener);
         stopGPSLocationUpdates();
     }
 
@@ -184,6 +206,10 @@ public class LocationRecordingService extends Service {
             return telephonyManager.getAllCellInfo();
         } else {
             // TODO: Shutdown this service ...???
+            /*
+            Can only get in this situation when the location permission is revoked
+            Should spawn a notification and kill this is service
+             */
             return new ArrayList<>();
         }
 
