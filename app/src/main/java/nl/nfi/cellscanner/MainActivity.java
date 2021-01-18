@@ -9,9 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -22,6 +20,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 import nl.nfi.cellscanner.recorder.LocationRecordingService;
 import nl.nfi.cellscanner.recorder.PermissionSupport;
@@ -38,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Button exportButton, clearButton;
     private SwitchCompat recorderSwitch;
-    private TextView appStatus;
+    private TextView vlCILastUpdate, vlGPSLastUpdate, vlGPSProvider, vlGPSLat, vlGPSLon, vlGPSAcc, vlGPSAlt, vlGPSSpeed;
 
 
     private static final int PERMISSION_REQUEST_START_RECORDING = 1;
@@ -52,7 +54,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(nl.nfi.cellscanner.R.layout.activity_main);
-        appStatus = findViewById(nl.nfi.cellscanner.R.id.userMessages);
+
+        vlCILastUpdate = findViewById(R.id.vlCILastUpdate);
+        vlGPSLastUpdate = findViewById(R.id.vlGPSLastUpdate);
+        vlGPSProvider = findViewById(R.id.vlGPSProvider);
+        vlGPSLat = findViewById(R.id.vlGPSLat);
+        vlGPSLon = findViewById(R.id.vlGPSLon);
+        vlGPSAcc = findViewById(R.id.vlGPSAcc);
+        vlGPSAlt = findViewById(R.id.vlGPSAlt);
+        vlGPSSpeed = findViewById(R.id.vlGPSSpeed);
 
         exportButton = findViewById(nl.nfi.cellscanner.R.id.exportButton);
         clearButton = findViewById(nl.nfi.cellscanner.R.id.clearButton);
@@ -78,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
                 new BroadcastReceiver() {
                     @Override
                     public void onReceive(Context context, Intent intent) {
-                        updateLogViewer();
+                        updateLogViewer(intent);
                     }
                 }, new IntentFilter(LocationRecordingService.LOCATION_DATA_UPDATE_BROADCAST)
         );
@@ -91,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
      * done on a separate thread
      */
     private void requestLocationPermission() {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_START_RECORDING);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_START_RECORDING);
     }
 
     /**
@@ -164,8 +174,13 @@ public class MainActivity extends AppCompatActivity {
      * test for the right permissions, if ok, start recording. Otherwise request permissions
      */
     public void requestStartRecording() {
-        if (PermissionSupport.hasAccessCourseLocationPermission(this)) startRecording();
-        else requestLocationPermission();
+        if (PermissionSupport.hasAccessCourseLocationPermission(this) &&
+                PermissionSupport.hasFineLocationPermission(this)) {
+            startRecording();
+        }
+        else {
+            requestLocationPermission();
+        }
         toggleButtonsRecordingState();
     }
 
@@ -188,8 +203,32 @@ public class MainActivity extends AppCompatActivity {
 
     // todo: Reconnect with a timer or listener, to update every x =D
     private void updateLogViewer() {
+        updateLogViewer(null);
+    }
+
+    private void updateLogViewer(Intent intent) {
         Database db = App.getDatabase();
-        Log.v("UPDATE",db.getUpdateStatus());
-        appStatus.setText(db.getUpdateStatus());
+        vlCILastUpdate.setText(db.getUpdateStatus());
+
+        if (intent != null) {
+            Bundle a = intent.getExtras();
+            if (a != null && a.getBoolean("hasLoc", false)) {
+                vlGPSLastUpdate.setText(getDateTimeFromTimeStamp(a.getLong("lts"), "yyyy-MM-dd HH:mm:ss"));
+                vlGPSProvider.setText(String.valueOf(a.getString("pro")));
+                vlGPSLat.setText(String.valueOf(a.getDouble("lat")));
+                vlGPSLon.setText(String.valueOf(a.getDouble("lon")));
+                vlGPSAcc.setText(String.valueOf(a.getFloat("acc")));
+                vlGPSAlt.setText(String.valueOf(a.getDouble("alt")));
+                vlGPSSpeed.setText(String.valueOf(a.getFloat("spd")));
+            }
+        }
+    }
+
+    private static String getDateTimeFromTimeStamp(Long time, String requestedDateFormat) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(requestedDateFormat);
+        dateFormat.setTimeZone(TimeZone.getDefault());
+        Date dateTime = new Date(time);
+        return dateFormat.format(dateTime);
     }
 }
+

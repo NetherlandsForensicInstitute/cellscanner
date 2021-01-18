@@ -6,6 +6,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.location.Location;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
@@ -181,6 +182,21 @@ public class Database {
         db.insert("message", null, content);
     }
 
+    public void storeLocationInfo(Location location) {
+        ContentValues values = new ContentValues();
+        values.put("provider", location.getProvider());
+        values.put("timestamp", location.getTime());
+        values.put("accuracy", location.getAccuracy());
+        values.put("latitude", location.getLatitude());
+        values.put("longitude", location.getLongitude());
+        values.put("altitude", location.getAltitude());
+        values.put("speed", location.getSpeed());
+
+        db.insert("locationinfo", null, values);
+    }
+
+
+
     protected static void upgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         createTables(db);
     }
@@ -213,10 +229,21 @@ public class Database {
                 ")");
 
         db.execSQL("CREATE INDEX IF NOT EXISTS cellinfo_date_end ON cellinfo(date_end)");
+
+        db.execSQL("CREATE TABLE IF NOT EXISTS locationinfo ("+
+                "  provider VARCHAR(200)," +
+                "  accuracy INT NOT NULL," +
+                "  timestamp INT NOT NULL," +
+                "  latitude INT NOT NULL,"+
+                "  longitude INT NOT NULL," +
+                "  altitude INT NOT NULL," +
+                "  speed INT NOT NULL" +
+                ")");
     }
 
     public void dropTables() {
         db.execSQL("DROP TABLE IF EXISTS meta");
         db.execSQL("DROP TABLE IF EXISTS cellinfo");
+        db.execSQL("DROP TABLE IF EXISTS locationinfo");
     }
 }
