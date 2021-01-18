@@ -44,8 +44,7 @@ public class LocationRecordingService extends Service {
 
     public static final String LOCATION_DATA_UPDATE_BROADCAST= "LOCATION_DATA_UPDATE_MESSAGE";
 
-    private static final String CHANNEL_ID = "ForegroundServiceChannel",
-                                SERVICE_TAG = "FOREGROUND_SERVICE_TAG";
+    private static final String CHANNEL_ID = "ForegroundServiceChannel";
 
     private static final int NOTIF_ID = 123;
     private static final int GPS_LOCATION_INTERVAL = 5;
@@ -88,7 +87,6 @@ public class LocationRecordingService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(SERVICE_TAG, "on start command");
         startForeground(NOTIF_ID, getActivityNotification("started"));
 
         // start the times, schedule for every second
@@ -99,7 +97,7 @@ public class LocationRecordingService extends Service {
             }
         }, 0, App.UPDATE_DELAY_MILLIS);
 
-        startLocationUpdates();
+        startGPSLocationUpdates();
 
         return START_NOT_STICKY;
     }
@@ -107,10 +105,9 @@ public class LocationRecordingService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        // remove the location request timers
+        // remove the location request timers & updates
         timer.cancel();
-        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
-        Log.i(SERVICE_TAG, "on destroy");
+        stopGPSLocationUpdates();
     }
 
     @Nullable
@@ -161,14 +158,18 @@ public class LocationRecordingService extends Service {
 
 
     @SuppressLint("MissingPermission")
-    private void startLocationUpdates() {
-        Log.i("LOCATION", "REQUESTING");
+    private void startGPSLocationUpdates() {
         // start the request for location updates
         fusedLocationProviderClient.requestLocationUpdates(
                 createLocationRequest(),
                 locationCallback,
                 null
         );
+    }
+
+    private void stopGPSLocationUpdates() {
+        // stop the active request for location updates
+        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
     }
 
 
