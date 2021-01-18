@@ -48,4 +48,5 @@ Before exporting, the collected data is stored in a sqlite database on the devic
     </string>
     <string name="terms_and_conditions_accept">I understand and accept the terms and conditions as listed above</string>
     <string name="terms_and_conditions_close">Close</string>
+    <string name="valueBaseText">searching</string>
 </resources>

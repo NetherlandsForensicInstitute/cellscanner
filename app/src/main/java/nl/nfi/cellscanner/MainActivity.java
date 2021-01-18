@@ -10,7 +10,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -21,13 +20,17 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 import nl.nfi.cellscanner.recorder.LocationRecordingService;
 import nl.nfi.cellscanner.recorder.PermissionSupport;
 import nl.nfi.cellscanner.recorder.Recorder;
 
-import static androidx.core.content.FileProvider.getUriForFile;
 import static nl.nfi.cellscanner.Database.getFileTitle;
 import static nl.nfi.cellscanner.recorder.PermissionSupport.hasUserConsent;
 import static nl.nfi.cellscanner.recorder.PermissionSupport.setUserConsent;
@@ -40,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Button exportButton, clearButton;
     private SwitchCompat recorderSwitch;
-    private TextView appStatus;
+    private TextView vlCILastUpdate, vlGPSLastUpdate, vlGPSProvider, vlGPSLat, vlGPSLon, vlGPSAcc, vlGPSAlt, vlGPSSpeed;
 
 
     private static final int PERMISSION_REQUEST_START_RECORDING = 1;
@@ -92,7 +95,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void showRecorderScreen() {
         setContentView(nl.nfi.cellscanner.R.layout.activity_main);
-        appStatus = findViewById(nl.nfi.cellscanner.R.id.userMessages);
+
+        vlCILastUpdate = findViewById(R.id.vlCILastUpdate);
+        vlGPSLastUpdate = findViewById(R.id.vlGPSLastUpdate);
+        vlGPSProvider = findViewById(R.id.vlGPSProvider);
+        vlGPSLat = findViewById(R.id.vlGPSLat);
+        vlGPSLon = findViewById(R.id.vlGPSLon);
+        vlGPSAcc = findViewById(R.id.vlGPSAcc);
+        vlGPSAlt = findViewById(R.id.vlGPSAlt);
+        vlGPSSpeed = findViewById(R.id.vlGPSSpeed);
 
         exportButton = findViewById(nl.nfi.cellscanner.R.id.exportButton);
         clearButton = findViewById(nl.nfi.cellscanner.R.id.clearButton);
@@ -118,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
                 new BroadcastReceiver() {
                     @Override
                     public void onReceive(Context context, Intent intent) {
-                        updateLogViewer();
+                        updateLogViewer(intent);
                     }
                 }, new IntentFilter(LocationRecordingService.LOCATION_DATA_UPDATE_BROADCAST)
         );
@@ -130,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
      * done on a separate thread
      */
     private void requestLocationPermission() {
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_START_RECORDING);
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_START_RECORDING);
     }
 
     /**
@@ -172,20 +183,24 @@ public class MainActivity extends AppCompatActivity {
      * Export data via email
      */
     public void exportData(View view) {
-        if (!Database.getDataFile(this).exists())
+        if (!Database.getDataFile(this).exists()) {
             Toast.makeText(getApplicationContext(), "No database present.", Toast.LENGTH_SHORT).show();
-        else {
-            Uri contentUri = getUriForFile(this, ".fileprovider", Database.getDataFile(this));
-            Intent sharingIntent = new Intent(Intent.ACTION_SENDTO);
 
-            sharingIntent.setData(Uri.parse("mailto:")); // only email apps should handle this
-//            sharingIntent.putExtra(Intent.EXTRA_EMAIL, "email to send to ");
-            sharingIntent.putExtra(Intent.EXTRA_SUBJECT, "datafile cell-scanner " + getFileTitle());
-            sharingIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+        } else {
+            String[] TO = {""};
 
-            if (sharingIntent.resolveActivity(getPackageManager()) != null) {
-                startActivity(sharingIntent);
-            }
+            Uri uri = FileProvider.getUriForFile(getApplicationContext(), "nl.nfi.cellscanner.fileprovider", Database.getDataFile(getApplicationContext()));
+
+            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+
+            sharingIntent.putExtra(Intent.EXTRA_EMAIL, TO);
+            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getFileTitle());
+            sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
+
+            //need this to prompts email client only
+            sharingIntent.setDataAndType(uri, "message/rfc822");
+
+            startActivity(Intent.createChooser(sharingIntent, "Share via"));
         }
     }
 
@@ -219,8 +234,12 @@ public class MainActivity extends AppCompatActivity {
      * test for the right permissions, if ok, start recording. Otherwise request permissions
      */
     public void requestStartRecording() {
-        if (PermissionSupport.hasAccessCourseLocationPermission(this)) startRecording();
-        else requestLocationPermission();
+        if (PermissionSupport.hasAccessCourseLocationPermission(this) &&
+                PermissionSupport.hasFineLocationPermission(this)) {
+            startRecording();
+        } else {
+            requestLocationPermission();
+        }
         toggleButtonsRecordingState();
     }
 
@@ -243,8 +262,32 @@ public class MainActivity extends AppCompatActivity {
 
     // todo: Reconnect with a timer or listener, to update every x =D
     private void updateLogViewer() {
+        updateLogViewer(null);
+    }
+
+    private void updateLogViewer(Intent intent) {
         Database db = App.getDatabase();
-        Log.v("UPDATE",db.getUpdateStatus());
-        appStatus.setText(db.getUpdateStatus());
+        vlCILastUpdate.setText(db.getUpdateStatus());
+
+        if (intent != null) {
+            Bundle a = intent.getExtras();
+            if (a != null && a.getBoolean("hasLoc", false)) {
+                vlGPSLastUpdate.setText(getDateTimeFromTimeStamp(a.getLong("lts"), "yyyy-MM-dd HH:mm:ss"));
+                vlGPSProvider.setText(String.valueOf(a.getString("pro")));
+                vlGPSLat.setText(String.valueOf(a.getDouble("lat")));
+                vlGPSLon.setText(String.valueOf(a.getDouble("lon")));
+                vlGPSAcc.setText(String.valueOf(a.getFloat("acc")));
+                vlGPSAlt.setText(String.valueOf(a.getDouble("alt")));
+                vlGPSSpeed.setText(String.valueOf(a.getFloat("spd")));
+            }
+        }
+    }
+
+    private static String getDateTimeFromTimeStamp(Long time, String requestedDateFormat) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(requestedDateFormat);
+        dateFormat.setTimeZone(TimeZone.getDefault());
+        Date dateTime = new Date(time);
+        return dateFormat.format(dateTime);
     }
 }
+

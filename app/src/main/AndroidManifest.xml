@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
@@ -28,8 +29,7 @@
             android:name=".recorder.LocationRecordingService"
             android:enabled="true"
             android:exported="false"
-            android:permission="ACCESS_COARSE_LOCATION">
-        </service>
+            android:permission="ACCESS_COARSE_LOCATION|ACCESS_FINE_LOCATION"></service>
 
         <activity android:name=".MainActivity">
             <intent-filter>
@@ -40,7 +40,7 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities=".fileprovider"
+            android:authorities="nl.nfi.cellscanner.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
