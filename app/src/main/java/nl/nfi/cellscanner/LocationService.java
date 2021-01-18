@@ -1,5 +1,6 @@
 package nl.nfi.cellscanner;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -11,13 +12,13 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.IBinder;
-
 import android.telephony.CellInfo;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
@@ -26,6 +27,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -170,12 +173,33 @@ public class LocationService extends Service {
         updateNotification(NOTIFICATION_ERROR, mBuilder);
     }
 
-    @SuppressLint("MissingPermission")
+    private String[] storeCellInfo(List<CellInfo> lst) {
+        Date date = new Date();
+
+        List<String> cells = new ArrayList<>();
+        for (CellInfo info : lst) {
+            try {
+                CellStatus status = CellStatus.fromCellInfo(info);
+                if (status.isValid()) {
+                    db.updateCellStatus(date, status);
+                    cells.add(status.toString());
+                }
+            } catch (CellStatus.UnsupportedTypeException e) {
+                db.storeMessage(e.getMessage());
+            }
+        }
+
+        return cells.toArray(new String[0]);
+    }
+
     private void updateCellInfo() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            return;
+
         List<CellInfo> cellinfo = mTelephonyManager.getAllCellInfo();
         String[] cellstr;
         try {
-            cellstr = db.storeCellInfo(cellinfo);
+            cellstr = storeCellInfo(cellinfo);
             if (cellstr.length == 0)
                 cellstr = new String[]{"no data"};
         } catch(Throwable e) {
