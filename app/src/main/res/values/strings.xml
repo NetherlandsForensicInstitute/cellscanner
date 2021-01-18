@@ -18,4 +18,5 @@ Section 1.10.33 of "de Finibus Bonorum et Malorum", written by Cicero in 45 BC
     </string>
     <string name="terms_and_conditions_accept">I understand and accept the terms and conditions as listed above</string>
     <string name="terms_and_conditions_close">Close</string>
+    <string name="valueBaseText">searching</string>
 </resources>

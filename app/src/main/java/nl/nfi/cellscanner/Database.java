@@ -6,6 +6,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.location.Location;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
@@ -41,11 +42,15 @@ public class Database {
 
     private Long getLongFromSQL(String query) {
         Cursor c = db.rawQuery(query, new String[]{});
-        c.moveToNext();
-        if (c.isNull(0)) {
-            return null;
-        } else {
-            return c.getLong(0);
+        try {
+            c.moveToNext();
+            if (c.isNull(0)) {
+                return null;
+            } else {
+                return c.getLong(0);
+            }
+        } finally {
+            c.close();
         }
     }
 
@@ -53,13 +58,17 @@ public class Database {
         List<String> cells = new ArrayList<String>();
         if (date != null) {
             Cursor c = db.rawQuery("SELECT radio, mcc, mnc, area, cid FROM cellinfo WHERE ? BETWEEN date_start AND date_end", new String[]{Long.toString(date.getTime())});
-            while (c.moveToNext()) {
-                String radio = c.getString(0);
-                int mcc = c.getInt(1);
-                int mnc = c.getInt(2);
-                int lac = c.getInt(3);
-                int cid = c.getInt(4);
-                cells.add(String.format("%s: %d-%d-%d-%d", radio, mcc, mnc, lac, cid));
+            try {
+                while (c.moveToNext()) {
+                    String radio = c.getString(0);
+                    int mcc = c.getInt(1);
+                    int mnc = c.getInt(2);
+                    int lac = c.getInt(3);
+                    int cid = c.getInt(4);
+                    cells.add(String.format("%s: %d-%d-%d-%d", radio, mcc, mnc, lac, cid));
+                }
+            } finally {
+                c.close();
             }
         }
 
@@ -127,10 +136,14 @@ public class Database {
 
     protected String getMetaEntry(String name) {
         Cursor c = db.query("meta", new String[]{"value"}, "entry = ?", new String[]{"versionCode"}, null, null, null);
-        if (!c.moveToNext())
-            return null;
+        try {
+            if (!c.moveToNext())
+                return null;
 
-        return c.getString(0);
+            return c.getString(0);
+        } finally {
+            c.close();
+        }
     }
 
     protected void setMetaEntry(String name, String value) {
@@ -181,6 +194,21 @@ public class Database {
         db.insert("message", null, content);
     }
 
+    public void storeLocationInfo(Location location) {
+        ContentValues values = new ContentValues();
+        values.put("provider", location.getProvider());
+        values.put("timestamp", location.getTime());
+        values.put("accuracy", location.getAccuracy());
+        values.put("latitude", location.getLatitude());
+        values.put("longitude", location.getLongitude());
+        values.put("altitude", location.getAltitude());
+        values.put("speed", location.getSpeed());
+
+        db.insert("locationinfo", null, values);
+    }
+
+
+
     protected static void upgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         createTables(db);
     }
@@ -213,10 +241,21 @@ public class Database {
                 ")");
 
         db.execSQL("CREATE INDEX IF NOT EXISTS cellinfo_date_end ON cellinfo(date_end)");
+
+        db.execSQL("CREATE TABLE IF NOT EXISTS locationinfo ("+
+                "  provider VARCHAR(200)," +
+                "  accuracy INT NOT NULL," +
+                "  timestamp INT NOT NULL," +
+                "  latitude INT NOT NULL,"+
+                "  longitude INT NOT NULL," +
+                "  altitude INT NOT NULL," +
+                "  speed INT NOT NULL" +
+                ")");
     }
 
     public void dropTables() {
         db.execSQL("DROP TABLE IF EXISTS meta");
         db.execSQL("DROP TABLE IF EXISTS cellinfo");
+        db.execSQL("DROP TABLE IF EXISTS locationinfo");
     }
 }

@@ -16,6 +16,10 @@ public class PermissionSupport {
         return hasPermission(ctx, Manifest.permission.ACCESS_COARSE_LOCATION);
     }
 
+    public static boolean hasFineLocationPermission(Context ctx) {
+        return hasPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION);
+    }
+
     public static boolean hasFilePermission(Context ctx) {
         return hasPermission(ctx, Manifest.permission.READ_EXTERNAL_STORAGE);
     }
