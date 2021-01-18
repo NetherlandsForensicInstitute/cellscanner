@@ -281,6 +281,8 @@ public class Database {
         values.put("accuracy", location.getAccuracy());
         values.put("latitude", location.getLatitude());
         values.put("longitude", location.getLongitude());
+        values.put("altitude", location.getAltitude());
+        values.put("speed", location.getSpeed());
 
         db.insert("locationinfo", null, values);
     }
@@ -329,7 +331,9 @@ public class Database {
                 "  accuracy INT NOT NULL," +
                 "  timestamp INT NOT NULL," +
                 "  latitude INT NOT NULL,"+
-                "  longitude INT NOT NULL" +
+                "  longitude INT NOT NULL," +
+                "  altitude INT NOT NULL," +
+                "  speed INT NOT NULL" +
                 ")");
     }
 

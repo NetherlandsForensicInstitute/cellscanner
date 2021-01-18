@@ -250,6 +250,8 @@ public class LocationRecordingService extends Service {
             intent.putExtra("lts", location.getTime());
             intent.putExtra("acc", location.getAccuracy());
             intent.putExtra("pro", location.getProvider());
+            intent.putExtra("alt", location.getAltitude());
+            intent.putExtra("spd", location.getSpeed());
         } else {
             intent.putExtra("hasLoc", false);
         }

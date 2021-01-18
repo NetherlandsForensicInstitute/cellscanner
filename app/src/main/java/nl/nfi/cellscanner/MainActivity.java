@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Button exportButton, clearButton;
     private SwitchCompat recorderSwitch;
-    private TextView vlCILastUpdate, vlGPSLastUpdate, vlGPSProvider, vlGPSLat, vlGPSLon, vlGPSAcc;
+    private TextView vlCILastUpdate, vlGPSLastUpdate, vlGPSProvider, vlGPSLat, vlGPSLon, vlGPSAcc, vlGPSAlt, vlGPSSpeed;
 
 
     private static final int PERMISSION_REQUEST_START_RECORDING = 1;
@@ -61,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
         vlGPSLat = findViewById(R.id.vlGPSLat);
         vlGPSLon = findViewById(R.id.vlGPSLon);
         vlGPSAcc = findViewById(R.id.vlGPSAcc);
+        vlGPSAlt = findViewById(R.id.vlGPSAlt);
+        vlGPSSpeed = findViewById(R.id.vlGPSSpeed);
 
         exportButton = findViewById(nl.nfi.cellscanner.R.id.exportButton);
         clearButton = findViewById(nl.nfi.cellscanner.R.id.clearButton);
@@ -216,6 +218,8 @@ public class MainActivity extends AppCompatActivity {
                 vlGPSLat.setText(String.valueOf(a.getDouble("lat")));
                 vlGPSLon.setText(String.valueOf(a.getDouble("lon")));
                 vlGPSAcc.setText(String.valueOf(a.getFloat("acc")));
+                vlGPSAlt.setText(String.valueOf(a.getDouble("alt")));
+                vlGPSSpeed.setText(String.valueOf(a.getFloat("spd")));
             }
         }
     }
