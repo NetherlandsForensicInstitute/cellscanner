@@ -25,7 +25,6 @@ public class App extends Application {
      * @return Database
      */
     public static Database getDatabase() {
-        Log.i("APP", "GET DB");
         return new Database(dbhelper.getWritableDatabase());
     }
 
