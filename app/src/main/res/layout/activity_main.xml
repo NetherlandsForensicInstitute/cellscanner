@@ -14,7 +14,7 @@
             android:layout_marginTop="32dp"
             android:layout_marginEnd="8dp"
             android:checked="false"
-            android:text="recording"
+            android:text="Recording Off/On"
             android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -24,12 +24,11 @@
             android:id="@+id/swGPSRecord"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
             android:checked="false"
-            android:text="capture"
+            android:text="Add GPS recording"
             android:visibility="visible"
             app:layout_constraintEnd_toEndOf="@+id/recorderSwitch"
-            app:layout_constraintTop_toBottomOf="@+id/editTextTextPersonName" />
+            app:layout_constraintTop_toBottomOf="@+id/recorderSwitch" />
 
         <Button
             android:id="@+id/exportButton"
@@ -40,7 +39,7 @@
             android:onClick="exportData"
             android:text="Export"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/recorderSwitch" />
+            app:layout_constraintTop_toBottomOf="@+id/swGPSRecord" />
 
 
         <Button
@@ -55,7 +54,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.368"
             app:layout_constraintStart_toEndOf="@+id/exportButton"
-            app:layout_constraintTop_toBottomOf="@+id/recorderSwitch" />
+            app:layout_constraintTop_toBottomOf="@+id/swGPSRecord" />
 
         <View
             android:id="@+id/divideruno"
@@ -108,7 +107,7 @@
             android:layout_marginTop="16dp"
             android:text="Last updated:"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/swGPSRecord" />
+            app:layout_constraintTop_toBottomOf="@+id/editTextTextPersonName" />
 
         <TextView
             android:id="@+id/textView4"

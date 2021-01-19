@@ -10,7 +10,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -23,7 +22,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -32,8 +30,8 @@ import nl.nfi.cellscanner.recorder.LocationRecordingService;
 import nl.nfi.cellscanner.recorder.PermissionSupport;
 import nl.nfi.cellscanner.recorder.Recorder;
 
-import static androidx.core.content.FileProvider.getUriForFile;
 import static nl.nfi.cellscanner.Database.getFileTitle;
+import static nl.nfi.cellscanner.recorder.Recorder.gpsRecordingState;
 import static nl.nfi.cellscanner.recorder.Recorder.inRecordingState;
 
 public class MainActivity extends AppCompatActivity {
@@ -44,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     public static String RECORD_GPS = "1";  // field used for communicating
 
     private Button exportButton, clearButton;
-    private SwitchCompat recorderSwitch, swGPSRecord;
+    private SwitchCompat swRecordingMaster, swGPSRecord;
     private TextView vlCILastUpdate, vlGPSLastUpdate, vlGPSProvider, vlGPSLat, vlGPSLon, vlGPSAcc, vlGPSAlt, vlGPSSpeed;
 
     private static final int PERMISSION_REQUEST_START_RECORDING = 1;
@@ -70,13 +68,13 @@ public class MainActivity extends AppCompatActivity {
 
         exportButton = findViewById(nl.nfi.cellscanner.R.id.exportButton);
         clearButton = findViewById(nl.nfi.cellscanner.R.id.clearButton);
-        recorderSwitch = findViewById(nl.nfi.cellscanner.R.id.recorderSwitch);
+        swRecordingMaster = findViewById(nl.nfi.cellscanner.R.id.recorderSwitch);
         swGPSRecord = findViewById(R.id.swGPSRecord);
 
         /*
          Implement checked state listener on the switch that has the ability to start or stop the recording process
          */
-        recorderSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        swRecordingMaster.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) requestStartRecording();
                 else Recorder.stopService(getApplicationContext());
@@ -215,11 +213,11 @@ public class MainActivity extends AppCompatActivity {
      * */
     private void toggleButtonsRecordingState() {
         boolean isInRecordingState = inRecordingState(this);
-        recorderSwitch.setChecked(isInRecordingState);
+        swRecordingMaster.setChecked(isInRecordingState);
         exportButton.setEnabled(!isInRecordingState);
         clearButton.setEnabled(!isInRecordingState);
 
-        swGPSRecord.setChecked(Recorder.gpsRecordingState(this));
+        swGPSRecord.setChecked(gpsRecordingState(this));
     }
 
     // todo: Reconnect with a timer or listener, to update every x =D

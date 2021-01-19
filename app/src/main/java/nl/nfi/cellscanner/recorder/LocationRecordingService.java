@@ -16,7 +16,6 @@ import android.os.IBinder;
 
 import android.telephony.CellInfo;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -89,7 +88,6 @@ public class LocationRecordingService extends Service {
         gpsRecorderListener = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                Log.i("LOC", "received intent to start recording");
                 toggleGPSRecording(context);
             }
         };
