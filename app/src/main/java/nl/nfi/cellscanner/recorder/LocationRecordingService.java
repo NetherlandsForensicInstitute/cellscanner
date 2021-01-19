@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import nl.nfi.cellscanner.App;
+import nl.nfi.cellscanner.CellScannerApp;
 import nl.nfi.cellscanner.CellStatus;
 import nl.nfi.cellscanner.Database;
 import nl.nfi.cellscanner.MainActivity;
@@ -67,7 +67,7 @@ public class LocationRecordingService extends Service {
         createNotificationChannel();
         timer = new Timer();
         telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        mDB = App.getDatabase();
+        mDB = CellScannerApp.getDatabase();
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -110,7 +110,7 @@ public class LocationRecordingService extends Service {
             public void run() {
                 preformCellInfoRetrievalRequest();
             }
-        }, 0, App.UPDATE_DELAY_MILLIS);
+        }, 0, CellScannerApp.UPDATE_DELAY_MILLIS);
 
         // Start listening for updates on the record GPS switch
         LocalBroadcastManager.getInstance(this).registerReceiver(gpsRecorderListener, new IntentFilter(MainActivity.RECORD_GPS));

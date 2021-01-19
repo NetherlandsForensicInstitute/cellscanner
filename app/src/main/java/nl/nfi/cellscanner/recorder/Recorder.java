@@ -8,7 +8,7 @@ import android.os.Build;
 
 import androidx.core.content.ContextCompat;
 
-import nl.nfi.cellscanner.App;
+import nl.nfi.cellscanner.CellScannerApp;
 
 
 
@@ -16,7 +16,7 @@ import nl.nfi.cellscanner.App;
  * Responsible for controlling the recording functionality
  */
 public class Recorder {
-    final private static String PREFS_NAME = App.TITLE;
+    final private static String PREFS_NAME = CellScannerApp.TITLE;
     final private static String APP_RECORDING = "APP_RECORDING";
     final private static String GPS_RECORDING = "GPS_RECORDING";
 

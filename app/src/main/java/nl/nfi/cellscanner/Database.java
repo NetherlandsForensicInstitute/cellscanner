@@ -103,7 +103,7 @@ public class Database {
      */
     public void updateCellStatus(Date date, CellStatus status) {
         Date previous_date = getTimestampFromSQL("SELECT MAX(date_end) FROM cellinfo");
-        boolean contiguous = previous_date != null && date.getTime() < previous_date.getTime() + App.EVENT_VALIDITY_MILLIS;
+        boolean contiguous = previous_date != null && date.getTime() < previous_date.getTime() + CellScannerApp.EVENT_VALIDITY_MILLIS;
 
         ContentValues values = status.getContentValues();
 
@@ -130,7 +130,7 @@ public class Database {
         ContentValues insert = new ContentValues(values);
         insert.put("date_start", date.getTime());
         insert.put("date_end", date.getTime());
-        Log.v(App.TITLE, "new cell: "+insert.toString());
+        Log.v(CellScannerApp.TITLE, "new cell: "+insert.toString());
         db.insert("cellinfo", null, insert);
     }
 

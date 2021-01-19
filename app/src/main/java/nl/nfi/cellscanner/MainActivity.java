@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
                 Context ctx = getApplicationContext();
                 switch (which){
                     case DialogInterface.BUTTON_POSITIVE:
-                        App.resetDatabase(getApplicationContext());
+                        CellScannerApp.resetDatabase(getApplicationContext());
                         clearGPSLocationFields();
                         Toast.makeText(ctx, "database deleted", Toast.LENGTH_SHORT).show();
                         break;
@@ -227,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateLogViewer(Intent intent) {
-        Database db = App.getDatabase();
+        Database db = CellScannerApp.getDatabase();
         vlCILastUpdate.setText(db.getUpdateStatus());
 
         if (intent != null) {

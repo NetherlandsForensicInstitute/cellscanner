@@ -20,7 +20,7 @@ public class BootDeviceReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 
         String action = intent.getAction();
-        String message = App.TITLE + " on boot action is " + action;
+        String message = CellScannerApp.TITLE + " on boot action is " + action;
         Toast.makeText(context, message, Toast.LENGTH_LONG).show();
 
         // TODO: @ check if the right application is sending the request
