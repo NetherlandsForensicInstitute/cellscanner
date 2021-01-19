@@ -12,7 +12,7 @@ import java.util.Locale;
 /**
  * Main application state
  */
-public class App extends Application {
+public class CellScannerApp extends Application {
     public static final String TITLE = "cellscanner";
     public static int UPDATE_DELAY_MILLIS = 1000;
     public static int EVENT_VALIDITY_MILLIS = UPDATE_DELAY_MILLIS+20000;
@@ -20,6 +20,19 @@ public class App extends Application {
     private static SQLiteOpenHelper dbhelper;
 
     private static final int DATABASE_VERSION = Database.VERSION;
+
+    private static CellScannerApp singleton;
+
+    public CellScannerApp getInstance() {
+        return singleton;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        singleton = this;
+        dbhelper = new OpenHelper(getApplicationContext());
+    }
 
     /**
      * get or create a database to use within the application
@@ -65,10 +78,5 @@ public class App extends Application {
         }
     }
 
-    @Override
-    public void onCreate() {
-        Log.i("App", "created");
-        super.onCreate();
-        dbhelper = new OpenHelper(getApplicationContext());
-    }
+
 }
