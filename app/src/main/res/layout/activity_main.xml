@@ -14,40 +14,47 @@
             android:layout_marginTop="32dp"
             android:layout_marginEnd="8dp"
             android:checked="false"
-            android:text="recording"
+            android:text="Recording Off/On"
             android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/swGPSRecord"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="Add GPS recording"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="@+id/recorderSwitch"
+            app:layout_constraintTop_toBottomOf="@+id/recorderSwitch" />
+
         <Button
             android:id="@+id/exportButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="92dp"
-            android:layout_marginStart="92dp"
-            android:layout_marginTop="12dp"
+            android:layout_marginStart="88dp"
+            android:layout_marginTop="16dp"
             android:onClick="exportData"
             android:text="Export"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/recorderSwitch" />
+            app:layout_constraintTop_toBottomOf="@+id/swGPSRecord" />
+
 
         <Button
             android:id="@+id/clearButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="8dp"
             android:onClick="clearDatabase"
             android:text="Clear data"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.29"
+            app:layout_constraintHorizontal_bias="0.368"
             app:layout_constraintStart_toEndOf="@+id/exportButton"
-            app:layout_constraintTop_toBottomOf="@+id/recorderSwitch" />
-
+            app:layout_constraintTop_toBottomOf="@+id/swGPSRecord" />
 
         <View
             android:id="@+id/divideruno"
@@ -97,7 +104,7 @@
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="25dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="16dp"
             android:text="Last updated:"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/editTextTextPersonName" />
