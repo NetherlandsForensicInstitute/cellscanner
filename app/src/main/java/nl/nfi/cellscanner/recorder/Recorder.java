@@ -17,17 +17,30 @@ import nl.nfi.cellscanner.App;
  */
 public class Recorder {
     final private static String PREFS_NAME = App.TITLE;
+    final private static String APP_RECORDING = "APP_RECORDING";
+    final private static String GPS_RECORDING = "GPS_RECORDING";
 
     public static boolean inRecordingState(Context context) {
         return context
                 .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .getBoolean("RECORDING", false);
+                .getBoolean(APP_RECORDING, false);
     }
 
-    public static void setRecordingState(Context context, Boolean state) {
+    public static boolean gpsRecordingState(Context context) {
+        return context
+                .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getBoolean(GPS_RECORDING, true);
+    }
+
+    public static void setRecordingState(Context context, Boolean state) { putBoolean(context, APP_RECORDING, state); };
+
+    public static void setGPSRecordingState(Context context, Boolean state) { putBoolean(context, GPS_RECORDING, state); };
+
+
+    private static void putBoolean(Context context, String target, Boolean state ) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putBoolean("RECORDING", state);
+        editor.putBoolean(target, state);
         editor.apply();
     }
 
