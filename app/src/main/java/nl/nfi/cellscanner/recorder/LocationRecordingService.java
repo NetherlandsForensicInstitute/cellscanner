@@ -48,7 +48,9 @@ public class LocationRecordingService extends Service {
     private static final String CHANNEL_ID = "ForegroundServiceChannel";
 
     private static final int NOTIF_ID = 123;
-    private static final int GPS_LOCATION_INTERVAL = 5;
+
+    /* Settings for storing GPS related data */
+    private static final int GPS_LOCATION_INTERVAL = 5; // requested interval in seconds
 
     private Timer timer;
     private TelephonyManager telephonyManager;
