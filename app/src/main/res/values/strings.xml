@@ -16,7 +16,21 @@ Section 1.10.33 of "de Finibus Bonorum et Malorum", written by Cicero in 45 BC
         This app is created by the Netherlands Forensic Institute to collect data for research and development purposes.
     </string>
     <string name="tac_data_collection">
+By using this app you consent to the following:
 
+The app collects two types of location data, namely information about the nearest cell towers and GPS data.
+
+The collected data:
+    - is sent to the NFI
+    - is stored on the internal NFI servers
+    - is temporarily stored on a cloud service while being transported to the NFI internal servers
+    - is used in research and development
+    - may be used as reference data* in legal cases
+    - is stored for a period of 10 years. This period can be prolonged if the data is used as reference data in a legal case.
+
+something about data removal
+
+* Reference data somethingsomething
     </string>
     <string name="tac_contact_information">
         <![CDATA[
