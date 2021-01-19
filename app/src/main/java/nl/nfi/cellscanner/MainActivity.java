@@ -9,7 +9,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -65,6 +67,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void showTermsAndConditionsScreen() {
         setContentView(nl.nfi.cellscanner.R.layout.terms_and_conditions);
+
+        // Set textview with string containing HTML for URLs and phonenumbers
+        String contactInformation = getString(R.string.tac_contact_information);
+        TextView tvContactInfo = findViewById(R.id.tac_contactInformation_text);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            tvContactInfo.setText(Html.fromHtml(contactInformation, Html.FROM_HTML_MODE_LEGACY));
+        } else {
+            tvContactInfo.setText(Html.fromHtml(contactInformation));
+        }
+
         final Context context = this;
         boolean userConsent = hasUserConsent(context);
 

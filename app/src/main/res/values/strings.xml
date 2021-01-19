@@ -19,11 +19,13 @@ Section 1.10.33 of "de Finibus Bonorum et Malorum", written by Cicero in 45 BC
 
     </string>
     <string name="tac_contact_information">
-        <b>Main contact person:</b><br/>
-        TBD<br/>
+        <![CDATA[
+        <b>Contact person</b><br/>
+        Wauter Bosma<br/>
+        <a href="mailto:fbda@holmes.nl">fbda@holmes.nl</a><br/>
 <br/>
-<address>
-<b>Visiting Address:</b>
+<b>Contact information NFI</b><br>
+<i>Visiting Address:</i>
 <br/>
 Laan van Ypenburg 6<br/>
 2497 GB Den Haag<br/>
@@ -34,11 +36,11 @@ Laan van Ypenburg 6<br/>
 Tel.:    <a href="tel:+31708886750">(070) 88 86 750</a><br/>
 Fax:     <a href="fax:+31708886555">(070) 88 86 555</a><br/>
 <br/>
-<b>Postal Address:</b>
+<i>Postal Address:</i>
 <br/>
 Postbus 24044,<br/>
 2490 AA Den Haag<br/>
-</address>
+]]>
     </string>
     <string name="tac_about_app">"
 The app requires consent for collecting location data.
