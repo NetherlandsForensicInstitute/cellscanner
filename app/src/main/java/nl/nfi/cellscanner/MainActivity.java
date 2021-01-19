@@ -161,11 +161,12 @@ public class MainActivity extends AppCompatActivity {
                 switch (which){
                     case DialogInterface.BUTTON_POSITIVE:
                         App.resetDatabase(getApplicationContext());
+                        clearGPSLocationFields();
                         Toast.makeText(ctx, "database deleted", Toast.LENGTH_SHORT).show();
                         break;
 
                     case DialogInterface.BUTTON_NEGATIVE:
-                        Toast.makeText(ctx, "pfew", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ctx, "Clear database cancelled", Toast.LENGTH_SHORT).show();
                         break;
                 }
             }
@@ -230,6 +231,16 @@ public class MainActivity extends AppCompatActivity {
                 vlGPSSpeed.setText(String.valueOf(a.getFloat("spd")));
             }
         }
+    }
+
+    private void clearGPSLocationFields() {
+        vlGPSLastUpdate.setText(R.string.valueBaseText);
+        vlGPSProvider.setText(R.string.valueBaseText);
+        vlGPSLat.setText(R.string.valueBaseText);
+        vlGPSLon.setText(R.string.valueBaseText);
+        vlGPSAcc.setText(R.string.valueBaseText);
+        vlGPSAlt.setText(R.string.valueBaseText);
+        vlGPSSpeed.setText(R.string.valueBaseText);
     }
 
     private static String getDateTimeFromTimeStamp(Long time, String requestedDateFormat) {
