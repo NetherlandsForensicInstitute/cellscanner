@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.text.Html;
 import android.view.View;
 import android.widget.Button;
@@ -68,16 +69,23 @@ public class MainActivity extends AppCompatActivity {
     private void showTermsAndConditionsScreen() {
         setContentView(nl.nfi.cellscanner.R.layout.terms_and_conditions);
 
+        final Context context = this;
+
+        // Show the android ID to the user
+        String androidId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        TextView tvAndroidId = findViewById(R.id.tac_android_id_text);
+        tvAndroidId.setText(androidId);
+
         // Set textview with string containing HTML for URLs and phonenumbers
         String contactInformation = getString(R.string.tac_contact_information);
-        TextView tvContactInfo = findViewById(R.id.tac_contactInformation_text);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            tvContactInfo.setText(Html.fromHtml(contactInformation, Html.FROM_HTML_MODE_LEGACY));
-        } else {
-            tvContactInfo.setText(Html.fromHtml(contactInformation));
-        }
+        String dataCollection = getString(R.string.tac_data_collection);
 
-        final Context context = this;
+        TextView tvContactInfo = findViewById(R.id.tac_contactInformation_text);
+        TextView tvDataCollection = findViewById(R.id.tac_dataCollected_text);
+
+        setHtmlVersionDependent(contactInformation, tvContactInfo);
+        setHtmlVersionDependent(dataCollection, tvDataCollection);
+
         boolean userConsent = hasUserConsent(context);
 
         final Button close_button = findViewById(R.id.tac_close_button);
@@ -105,6 +113,14 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(context, "To revoke consent, contact the NFI to remove your data and then uninstall the app", Toast.LENGTH_SHORT).show();
                 }
             });
+        }
+    }
+
+    private void setHtmlVersionDependent(String htmlString, TextView tvObject) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            tvObject.setText(Html.fromHtml(htmlString, Html.FROM_HTML_MODE_LEGACY));
+        } else {
+            tvObject.setText(Html.fromHtml(htmlString));
         }
     }
 

@@ -46,7 +46,7 @@
                 android:layout_width="50dp"
                 android:layout_height="150dp"
                 android:layout_marginStart="72dp"
-                app:layout_constraintBottom_toTopOf="@+id/tac_generalInformation"
+                app:layout_constraintBottom_toTopOf="@+id/tac_android_id_header"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/logo" />
@@ -62,31 +62,32 @@
                 app:srcCompat="@drawable/nfi_woordlogo_en" />
 
             <TextView
-                android:id="@+id/tac_generalInformation"
+                android:id="@+id/tac_android_id_header"
                 android:layout_width="match_parent"
                 android:layout_height="31dp"
                 android:layout_marginBottom="1dp"
                 android:fontFamily="sans-serif-medium"
                 android:paddingLeft="3dp"
                 android:paddingRight="3dp"
-                android:text="General information"
+                android:text="Your Android ID"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textSize="24sp"
-                app:layout_constraintBottom_toTopOf="@+id/tac_generalInformation_text"
+                app:layout_constraintBottom_toTopOf="@+id/tac_android_id_text"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/rijksoverheidLogo" />
 
             <TextView
-                android:id="@+id/tac_generalInformation_text"
-                android:layout_width="0dp"
+                android:id="@+id/tac_android_id_text"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingLeft="3dp"
                 android:paddingRight="3dp"
-                android:text="@string/tac_general_information"
+                android:text="Android ID placeholder"
+                android:textIsSelectable="true"
                 app:layout_constraintBottom_toTopOf="@+id/tac_dataCollected"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tac_generalInformation" />
+                app:layout_constraintTop_toBottomOf="@+id/tac_android_id_header" />
 
             <TextView
                 android:id="@+id/tac_dataCollected"
@@ -102,7 +103,7 @@
                 app:layout_constraintBottom_toTopOf="@+id/tac_dataCollected_text"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tac_generalInformation_text" />
+                app:layout_constraintTop_toBottomOf="@+id/tac_android_id_text" />
 
             <TextView
                 android:id="@+id/tac_dataCollected_text"
