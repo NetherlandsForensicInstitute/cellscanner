@@ -6,7 +6,9 @@ import android.content.pm.PackageManager;
 
 import androidx.core.content.ContextCompat;
 
-
+/**
+ * Utility class used to check if permissions are set
+ */
 public class PermissionSupport {
 
     public static boolean hasAccessCourseLocationPermission(Context ctx) {
@@ -16,7 +18,7 @@ public class PermissionSupport {
     public static boolean hasFineLocationPermission(Context ctx) {
         return hasPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION);
     }
-    
+
     private static boolean hasPermission(Context ctx, String permission) {
         return ContextCompat.checkSelfPermission(ctx, permission) == PackageManager.PERMISSION_GRANTED;
     }
