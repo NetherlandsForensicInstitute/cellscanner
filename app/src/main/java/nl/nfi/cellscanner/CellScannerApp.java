@@ -21,19 +21,6 @@ public class CellScannerApp extends Application {
 
     private static final int DATABASE_VERSION = Database.VERSION;
 
-    private static CellScannerApp singleton;
-
-    public CellScannerApp getInstance() {
-        return singleton;
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        singleton = this;
-        dbhelper = new OpenHelper(getApplicationContext());
-    }
-
     /**
      * get or create a database to use within the application
      * @return Database
@@ -78,5 +65,10 @@ public class CellScannerApp extends Application {
         }
     }
 
-
+    @Override
+    public void onCreate() {
+        Log.i("App", "created");
+        super.onCreate();
+        dbhelper = new OpenHelper(getApplicationContext());
+    }
 }
