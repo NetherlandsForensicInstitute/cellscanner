@@ -10,17 +10,10 @@ import java.io.File;
 import java.util.Locale;
 
 /**
- * Global application state
- *
- * Singleton object to store global variables, where needed
- *
- * NOTE: Android can drop the app when it needs memory etc, possibly resulting in the loss of state
- *
+ * Main application state
  */
 public class CellScannerApp extends Application {
-
     public static final String TITLE = "cellscanner";
-
     public static int UPDATE_DELAY_MILLIS = 1000;
     public static int EVENT_VALIDITY_MILLIS = UPDATE_DELAY_MILLIS+20000;
 
