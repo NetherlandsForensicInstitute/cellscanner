@@ -41,6 +41,9 @@ public class MainActivity extends AppCompatActivity {
      */
     public static String RECORD_GPS = "1";  // field used for communicating
 
+    private static final String TAG = MainActivity.class.getSimpleName();
+
+    // ui
     private Button exportButton, clearButton;
     private SwitchCompat swRecordingMaster, swGPSRecord;
     private TextView vlCILastUpdate, vlGPSLastUpdate, vlGPSProvider, vlGPSLat, vlGPSLon, vlGPSAcc, vlGPSAlt, vlGPSSpeed;

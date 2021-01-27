@@ -16,6 +16,9 @@ import nl.nfi.cellscanner.recorder.RecorderUtils;
  */
 public class BootDeviceReceiver extends BroadcastReceiver {
 
+    private static final String TAG = BootDeviceReceiver.class.getSimpleName();
+
+
     @Override
     public void onReceive(Context context, Intent intent) {
 
