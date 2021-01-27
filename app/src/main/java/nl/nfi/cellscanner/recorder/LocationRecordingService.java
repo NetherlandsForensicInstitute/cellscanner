@@ -110,7 +110,7 @@ public class LocationRecordingService extends Service {
      * @param ctx: Context of the running service
      */
     private void toggleGPSRecording(Context ctx) {
-        if (Recorder.gpsRecordingState(ctx)) startGPSLocationUpdates();
+        if (RecorderUtils.gpsRecordingState(ctx)) startGPSLocationUpdates();
         else stopGPSLocationUpdates();
     }
 

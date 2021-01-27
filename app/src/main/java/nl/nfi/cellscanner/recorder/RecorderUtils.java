@@ -18,7 +18,7 @@ import nl.nfi.cellscanner.CellScannerApp;
  * Class gives access to the state of the recording service and allows for the user to start and
  * stop the service
  */
-public class Recorder {
+public class RecorderUtils {
     final private static String PREFS_NAME = CellScannerApp.TITLE;
     final private static String APP_RECORDING = "APP_RECORDING";  // APP should be recording data
     final private static String GPS_RECORDING = "GPS_RECORDING";  // APP should record GPS data when in Recording state
