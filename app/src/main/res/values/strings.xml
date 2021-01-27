@@ -28,33 +28,23 @@ When using this app you are free to start/stop recording at any time using the s
 In addition, GPS logging is optional and can be enabled or disabled at any time.
 When the app is recording and GPS logging is turned off, only cell tower addresses are registered.
 </p><p>
-If at any point you wish to revoke your consent and have your data removed completely, please email your request to <a href="mailto:fbda@holmes.nl">fbda@holmes.nl</a>.
-In this email you should mention the name of this app (Cellscanner) and your device identifier, which is shown on the main screen.
+If at any point you wish to revoke your consent and have your data removed from NFI servers, please email your request to <a href="mailto:fbda@nfi.nl">fbda@nfi.nl</a>.
+In this email you should mention the name of this app (Cellscanner) and your device identifier, which is shown below.
 </p>
 ]]>
     </string>
     <string name="tac_contact_information">
         <![CDATA[
-        <b>Contact person</b><br/>
-        Team Forensic Big Data Analysis (FBDA)<br/>
-        <a href="mailto:fbda@nfi.nl">fbda@nfi.nl</a><br/>
+Netherlands Forensic Institute<br/>
+Forensic Big Data Analysis<br/>
+<a href="http://www.forensischinstituut.nl">www.forensischinstituut.nl</a><br/>
+<a href="mailto:info@nfi.nl">fbda@nfi.nl</a><br/>
+Tel.:    <a href="tel:+31708886750">+31 70 88 86 750</a><br/>
 <br/>
-<b>Contact information NFI</b><br>
-<i>Visiting Address:</i>
-<br/>
+<i>Visiting Address:</i><br/>
 Laan van Ypenburg 6<br/>
 2497 GB Den Haag<br/>
-<br/>
-<a href="http://www.forensischinstituut.nl">www.forensischinstituut.nl</a><br/>
-<a href="mailto:info@nfi.nl">info@nfi.nl</a><br/>
-<br/>
-Tel.:    <a href="tel:+31708886750">(070) 88 86 750</a><br/>
-Fax:     <a href="fax:+31708886555">(070) 88 86 555</a><br/>
-<br/>
-<i>Postal Address:</i>
-<br/>
-Postbus 24044,<br/>
-2490 AA Den Haag<br/>
+The Netherlands<br/>
 ]]>
     </string>
     <string name="tac_about_app">"
