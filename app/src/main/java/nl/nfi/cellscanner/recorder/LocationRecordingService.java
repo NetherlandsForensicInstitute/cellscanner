@@ -64,12 +64,12 @@ public class LocationRecordingService extends Service {
         super.onCreate();
 
         /* construct required constants */
-        createNotificationChannel();
         timer = new Timer();
         telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         mDB = App.getDatabase();
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        createNotificationChannel();
 
         // TODO: FIND OUT WHY HERE
         mDB.storePhoneID(getApplicationContext());
@@ -146,6 +146,7 @@ public class LocationRecordingService extends Service {
                 .setSmallIcon(R.drawable.ic_symbol24)
                 .setContentIntent(pendingIntent)
                 .setOnlyAlertOnce(true)
+                .setPriority(NotificationCompat.PRIORITY_LOW) // forground service requires priority "low" or more
                 .build();
 
     }
@@ -155,10 +156,10 @@ public class LocationRecordingService extends Service {
             NotificationChannel serviceChannel = new NotificationChannel(
                     CHANNEL_ID,
                     "Foreground Service Channel",
-                    NotificationManager.IMPORTANCE_DEFAULT
+                    NotificationManager.IMPORTANCE_LOW
             );
-            NotificationManager manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(serviceChannel);
+            notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(serviceChannel);
         }
     }
 
