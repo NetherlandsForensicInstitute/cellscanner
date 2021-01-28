@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
     // ui
     private Button exportButton, clearButton;
-    private SwitchCompat swRecordingMaster, swGPSRecord;
+    private SwitchCompat swRecordingMaster, swGPSRecord, swGPSPrecision;
     private TextView vlCILastUpdate, vlGPSLastUpdate, vlGPSProvider, vlGPSLat, vlGPSLon, vlGPSAcc, vlGPSAlt, vlGPSSpeed;
 
     private static final int PERMISSION_REQUEST_START_RECORDING = 1;
