@@ -55,6 +55,7 @@ public class LocationRecordingService extends Service {
 
     /* Settings for storing GPS related data */
     private static final int GPS_LOCATION_INTERVAL = 5; // requested interval in seconds
+    private static final float SMALLEST_DISPLACEMENT_BEFORE_LOGGING_MTRS = 50;
 
     private Database mDB;
     private FusedLocationProviderClient fusedLocationProviderClient;
@@ -186,6 +187,7 @@ public class LocationRecordingService extends Service {
         locationRequest.setInterval(1000 * GPS_LOCATION_INTERVAL);
         locationRequest.setFastestInterval(1000);
         locationRequest.setPriority(recordingPriorityValue(this));
+        locationRequest.setSmallestDisplacement(SMALLEST_DISPLACEMENT_BEFORE_LOGGING_MTRS);
         return locationRequest;
     }
 
