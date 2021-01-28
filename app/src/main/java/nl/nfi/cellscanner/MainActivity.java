@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,12 +28,16 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import nl.nfi.cellscanner.recorder.LocationRecordingService;
-import nl.nfi.cellscanner.recorder.PermissionSupport;
 import nl.nfi.cellscanner.recorder.RecorderUtils;
 
 import static nl.nfi.cellscanner.Database.getFileTitle;
+import static nl.nfi.cellscanner.recorder.PermissionSupport.hasAccessCourseLocationPermission;
+import static nl.nfi.cellscanner.recorder.PermissionSupport.hasFineLocationPermission;
+import static nl.nfi.cellscanner.recorder.PermissionSupport.hasUserConsent;
+import static nl.nfi.cellscanner.recorder.PermissionSupport.setUserConsent;
 import static nl.nfi.cellscanner.recorder.RecorderUtils.gpsRecordingState;
 import static nl.nfi.cellscanner.recorder.RecorderUtils.inRecordingState;
+
 
 public class MainActivity extends AppCompatActivity {
     /*
@@ -52,12 +57,50 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Fires when the system first creates the activity
+     *
      * @param savedInstanceState: Bundle object containing the activity's previously saved state
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (!hasUserConsent(this)) showTermsAndConditionsScreen();
+        else showRecorderScreen();
+    }
 
+    private void showTermsAndConditionsScreen() {
+        setContentView(nl.nfi.cellscanner.R.layout.terms_and_conditions);
+        final Context context = this;
+        boolean userConsent = hasUserConsent(context);
+
+        final Button close_button = findViewById(R.id.tac_close_button);
+        close_button.setEnabled(userConsent);
+
+        /*
+        Only allow (un)checking the consent the first time around. To retract consent, an email
+        should be send asking to remove all data.
+         */
+        final CheckBox accepted_checkbox = findViewById(R.id.tac_checkbox);
+        accepted_checkbox.setChecked(userConsent);
+        if (!userConsent) {
+            accepted_checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    setUserConsent(context, isChecked);
+                    close_button.setEnabled(isChecked);  // Enabled if agreed to T & C
+                }
+            });
+        } else {
+            accepted_checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    accepted_checkbox.setChecked(true);
+                    Toast.makeText(context, "To revoke consent, contact the NFI to remove your data and then uninstall the app", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
+    private void showRecorderScreen() {
         setContentView(nl.nfi.cellscanner.R.layout.activity_main);
 
         vlCILastUpdate = findViewById(R.id.vlCILastUpdate);
@@ -107,7 +150,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }, new IntentFilter(LocationRecordingService.LOCATION_DATA_UPDATE_BROADCAST)
         );
-
     }
 
 
@@ -116,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
      * done on a separate thread
      */
     private void requestLocationPermission() {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_START_RECORDING);
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_START_RECORDING);
     }
 
     /**
@@ -130,20 +172,35 @@ public class MainActivity extends AppCompatActivity {
                     requestStartRecording();
                 } else {
                     // explain the app will not be working
-                    Toast.makeText(this,"App will not work without location permissions", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "App will not work without location permissions", Toast.LENGTH_SHORT).show();
                     toggleButtonsRecordingState();
                 }
-
-                return;
             }
         }
+    }
+
+
+    /**
+     * When closing terms and conditions screen, load the recorder screen
+     *
+     * @param view
+     */
+    public void closeTermsAndConditions(View view) {
+        showRecorderScreen();
+    }
+
+    /**
+     * Open the terms and conditions screen on clicking the Info button
+     */
+    public void openTermsAndConditions(View view) {
+        showTermsAndConditionsScreen();
     }
 
     /**
      * Export data via email
      */
     public void exportData(View view) {
-        if (!Database.getDataFile(this).exists()){
+        if (!Database.getDataFile(this).exists()) {
             Toast.makeText(getApplicationContext(), "No database present.", Toast.LENGTH_SHORT).show();
 
         } else {
@@ -170,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Context ctx = getApplicationContext();
-                switch (which){
+                switch (which) {
                     case DialogInterface.BUTTON_POSITIVE:
                         CellScannerApp.resetDatabase(getApplicationContext());
                         clearGPSLocationFields();
@@ -191,15 +248,14 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Request the start of recording user data
-     *
+     * <p>
      * test for the right permissions, if ok, start recording. Otherwise request permissions
      */
     public void requestStartRecording() {
-        if (PermissionSupport.hasAccessCourseLocationPermission(this) &&
-                PermissionSupport.hasFineLocationPermission(this)) {
+        if (hasAccessCourseLocationPermission(this) &&
+                hasFineLocationPermission(this)) {
             startRecording();
-        }
-        else {
+        } else {
             requestLocationPermission();
         }
         toggleButtonsRecordingState();
@@ -214,7 +270,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Set the buttons on the screen to recording state, or not recording state
-     * */
+     */
     private void toggleButtonsRecordingState() {
         boolean isInRecordingState = inRecordingState(this);
         swRecordingMaster.setChecked(isInRecordingState);
