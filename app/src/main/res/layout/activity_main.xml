@@ -30,6 +30,16 @@
             app:layout_constraintEnd_toEndOf="@+id/recorderSwitch"
             app:layout_constraintTop_toBottomOf="@+id/recorderSwitch" />
 
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/swGPSRecordingPrecission"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="GPS recording precission"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="@+id/recorderSwitch"
+            app:layout_constraintTop_toBottomOf="@+id/swGPSRecord" />
+
         <Button
             android:id="@+id/exportButton"
             android:layout_width="wrap_content"
@@ -39,7 +49,7 @@
             android:onClick="exportData"
             android:text="Export"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/swGPSRecord" />
+            app:layout_constraintTop_toBottomOf="@+id/swGPSRecordingPrecission" />
 
 
         <Button
@@ -54,13 +64,13 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.368"
             app:layout_constraintStart_toEndOf="@+id/exportButton"
-            app:layout_constraintTop_toBottomOf="@+id/swGPSRecord" />
+            app:layout_constraintTop_toBottomOf="@+id/swGPSRecordingPrecission" />
 
         <View
             android:id="@+id/divideruno"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginTop="175dp"
+            android:layout_marginTop="190dp"
             android:background="?android:attr/listDivider"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
