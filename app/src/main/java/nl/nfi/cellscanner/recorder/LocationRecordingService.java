@@ -172,6 +172,10 @@ public class LocationRecordingService extends Service {
     }
 
 
+    private static int recordingPriorityValue(Context context) {
+        return RecorderUtils.gpsHighPrecisionRecordingState(context) ? LocationRequest.PRIORITY_HIGH_ACCURACY : LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
+    }
+
     /**
      * Construct the settings for the location requests used by the app
      * used to configure the fusedLocationProviderClient
@@ -181,7 +185,7 @@ public class LocationRecordingService extends Service {
         LocationRequest locationRequest = LocationRequest.create();
         locationRequest.setInterval(1000 * GPS_LOCATION_INTERVAL);
         locationRequest.setFastestInterval(1000);
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setPriority(recordingPriorityValue(this));
         return locationRequest;
     }
 

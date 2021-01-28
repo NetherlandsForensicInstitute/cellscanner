@@ -8,6 +8,8 @@ import android.os.Build;
 
 import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.location.LocationRequest;
+
 import nl.nfi.cellscanner.CellScannerApp;
 
 
