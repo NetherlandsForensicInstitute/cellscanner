@@ -6,10 +6,8 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.location.Location;
 import android.os.Build;
 import android.os.IBinder;
@@ -58,7 +56,6 @@ public class LocationRecordingService extends Service {
     /* Settings for storing GPS related data */
     private static final int GPS_LOCATION_INTERVAL = 5; // requested interval in seconds
 
-    private BroadcastReceiver gpsRecorderListener;
     private Database mDB;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private Location location;
@@ -95,17 +92,6 @@ public class LocationRecordingService extends Service {
             }
         };
 
-        /*
-            setup receiver listening for toggling the request to start recording GPS data
-            Activity could be started and closed while the service is running
-         */
-        gpsRecorderListener = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                toggleGPSRecording(context);
-            }
-        };
-
     }
 
     /**
@@ -130,8 +116,6 @@ public class LocationRecordingService extends Service {
             }
         }, 0, CellScannerApp.UPDATE_DELAY_MILLIS);
 
-        // Start listening for updates on the record GPS switch
-        LocalBroadcastManager.getInstance(this).registerReceiver(gpsRecorderListener, new IntentFilter(MainActivity.RECORD_GPS));
 
         // Check if the application should start recording GPS
         toggleGPSRecording(getApplicationContext());
@@ -144,7 +128,6 @@ public class LocationRecordingService extends Service {
         super.onDestroy();
         // remove the location request timers & updates
         timer.cancel();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(gpsRecorderListener);
         stopGPSLocationUpdates();
     }
 

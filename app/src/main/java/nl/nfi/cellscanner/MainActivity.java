@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        swGPSRecord.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        swGPSPrecision.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 RecorderUtils.setGPSHighPrecisionRecordingState(getApplicationContext(), isChecked);
             }
@@ -225,6 +225,7 @@ public class MainActivity extends AppCompatActivity {
     private void toggleButtonsRecordingState() {
         boolean isInRecordingState = inRecordingState(this);
         swRecordingMaster.setChecked(isInRecordingState);
+
         swGPSRecord.setEnabled(!isInRecordingState);
         swGPSPrecision.setEnabled(!isInRecordingState);
 
@@ -275,9 +276,5 @@ public class MainActivity extends AppCompatActivity {
         return dateFormat.format(dateTime);
     }
 
-    private void sendRecordGPSBroadcastMessage() {
-        Intent intent = new Intent(RECORD_GPS);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
 }
 
