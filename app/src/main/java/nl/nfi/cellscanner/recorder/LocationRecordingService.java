@@ -35,29 +35,37 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import nl.nfi.cellscanner.App;
+import nl.nfi.cellscanner.CellScannerApp;
 import nl.nfi.cellscanner.CellStatus;
 import nl.nfi.cellscanner.Database;
 import nl.nfi.cellscanner.MainActivity;
 import nl.nfi.cellscanner.R;
 
+/**
+ * Service responsible for recording the Location data and storing it in the database
+ * */
 public class LocationRecordingService extends Service {
+
+    private static final String TAG = LocationRecordingService.class.getSimpleName();
+
 
     public static final String LOCATION_DATA_UPDATE_BROADCAST= "LOCATION_DATA_UPDATE_MESSAGE";
 
-    private static final String CHANNEL_ID = "ForegroundServiceChannel";
+    private static final String CHANNEL_ID = "CELL_SCANNER_MAIN_COMMUNICATION_CHANNEL";
 
-    private static final int NOTIF_ID = 123;
-    private static final int GPS_LOCATION_INTERVAL = 5;
+    private static final int NOTIF_ID = 123;  // ID of the notification posted
 
-    private Timer timer;
-    private TelephonyManager telephonyManager;
-    private Database mDB;
-    private NotificationManager notificationManager;
-    private FusedLocationProviderClient fusedLocationProviderClient;
-    private LocationCallback locationCallback;
-    private Location location;
+    /* Settings for storing GPS related data */
+    private static final int GPS_LOCATION_INTERVAL = 5; // requested interval in seconds
+
     private BroadcastReceiver gpsRecorderListener;
+    private Database mDB;
+    private FusedLocationProviderClient fusedLocationProviderClient;
+    private Location location;
+    private LocationCallback locationCallback;
+    private TelephonyManager telephonyManager;
+    private NotificationManager notificationManager;
+    private Timer timer; // Make a cell scan on every tick
 
     @Override
     public void onCreate() {
@@ -66,16 +74,19 @@ public class LocationRecordingService extends Service {
         /* construct required constants */
         timer = new Timer();
         telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        mDB = App.getDatabase();
+        mDB = CellScannerApp.getDatabase();
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         createNotificationChannel();
 
-        // TODO: FIND OUT WHY HERE
+        /* store some constants in the database */
         mDB.storePhoneID(getApplicationContext());
         mDB.storeVersionCode(getApplicationContext());
 
-        // initialize a callback function that listens for location updates
+        /*
+            initialize a callback function that listens for location updates
+            made by the (GPS) location manager
+         */
         locationCallback  = new LocationCallback(){
             @Override
             public void onLocationResult(LocationResult locationResult) {
@@ -84,7 +95,10 @@ public class LocationRecordingService extends Service {
             }
         };
 
-
+        /*
+            setup receiver listening for toggling the request to start recording GPS data
+            Activity could be started and closed while the service is running
+         */
         gpsRecorderListener = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -94,8 +108,12 @@ public class LocationRecordingService extends Service {
 
     }
 
+    /**
+     * start or stop recording GPS data based on the app state
+     * @param ctx: Context of the running service
+     */
     private void toggleGPSRecording(Context ctx) {
-        if (Recorder.gpsRecordingState(ctx)) startGPSLocationUpdates();
+        if (RecorderUtils.gpsRecordingState(ctx)) startGPSLocationUpdates();
         else stopGPSLocationUpdates();
     }
 
@@ -110,7 +128,7 @@ public class LocationRecordingService extends Service {
             public void run() {
                 preformCellInfoRetrievalRequest();
             }
-        }, 0, App.UPDATE_DELAY_MILLIS);
+        }, 0, CellScannerApp.UPDATE_DELAY_MILLIS);
 
         // Start listening for updates on the record GPS switch
         LocalBroadcastManager.getInstance(this).registerReceiver(gpsRecorderListener, new IntentFilter(MainActivity.RECORD_GPS));
@@ -136,6 +154,11 @@ public class LocationRecordingService extends Service {
         return null;
     }
 
+    /**
+     * Build the notification related to the application
+     * @param text: Text to show in the notification
+     * @return: Notification to show
+     */
     private Notification getActivityNotification(String text) {
 
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
@@ -151,6 +174,9 @@ public class LocationRecordingService extends Service {
 
     }
 
+    /**
+     * Build notification channel related to the application
+     */
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel serviceChannel = new NotificationChannel(
@@ -178,6 +204,14 @@ public class LocationRecordingService extends Service {
     }
 
 
+    /**
+     * starts the capture of GPS location updates.
+     *
+     * Method does not need permission checks, these are done in the methods that set the flags
+     * to start and stop recording
+     *
+     * TODO: What if the permission is revoked by the end user?
+     */
     @SuppressLint("MissingPermission")
     private void startGPSLocationUpdates() {
         // start the request for location updates
@@ -269,11 +303,15 @@ public class LocationRecordingService extends Service {
      */
     private void processLocationUpdate(Location lastLocation) {
         location = lastLocation;
-        mDB.storeLocationInfo(location);
         // store it in the database
+        mDB.storeLocationInfo(location);
         sendBroadcastMessage();
     }
 
+    /**
+     * Broadcast an intent, communicating last captured location related data (GPS)
+     * TODO: Might extend with Cell data
+     */
     private void sendBroadcastMessage() {
         Intent intent = new Intent(LOCATION_DATA_UPDATE_BROADCAST);
 

@@ -28,15 +28,16 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import nl.nfi.cellscanner.recorder.LocationRecordingService;
-import nl.nfi.cellscanner.recorder.Recorder;
+import nl.nfi.cellscanner.recorder.RecorderUtils;
 
 import static nl.nfi.cellscanner.Database.getFileTitle;
 import static nl.nfi.cellscanner.recorder.PermissionSupport.hasAccessCourseLocationPermission;
 import static nl.nfi.cellscanner.recorder.PermissionSupport.hasFineLocationPermission;
 import static nl.nfi.cellscanner.recorder.PermissionSupport.hasUserConsent;
 import static nl.nfi.cellscanner.recorder.PermissionSupport.setUserConsent;
-import static nl.nfi.cellscanner.recorder.Recorder.gpsRecordingState;
-import static nl.nfi.cellscanner.recorder.Recorder.inRecordingState;
+import static nl.nfi.cellscanner.recorder.RecorderUtils.gpsRecordingState;
+import static nl.nfi.cellscanner.recorder.RecorderUtils.inRecordingState;
+
 
 public class MainActivity extends AppCompatActivity {
     /*
@@ -45,6 +46,9 @@ public class MainActivity extends AppCompatActivity {
      */
     public static String RECORD_GPS = "1";  // field used for communicating
 
+    private static final String TAG = MainActivity.class.getSimpleName();
+
+    // ui
     private Button exportButton, clearButton;
     private SwitchCompat swRecordingMaster, swGPSRecord;
     private TextView vlCILastUpdate, vlGPSLastUpdate, vlGPSProvider, vlGPSLat, vlGPSLon, vlGPSAcc, vlGPSAlt, vlGPSSpeed;
@@ -119,14 +123,14 @@ public class MainActivity extends AppCompatActivity {
         swRecordingMaster.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) requestStartRecording();
-                else Recorder.stopService(getApplicationContext());
+                else RecorderUtils.stopService(getApplicationContext());
                 toggleButtonsRecordingState();
             }
         });
 
         swGPSRecord.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Recorder.setGPSRecordingState(getApplicationContext(), isChecked);
+                RecorderUtils.setGPSRecordingState(getApplicationContext(), isChecked);
                 sendRecordGPSBroadcastMessage();
             }
         });
@@ -225,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
                 Context ctx = getApplicationContext();
                 switch (which) {
                     case DialogInterface.BUTTON_POSITIVE:
-                        App.resetDatabase(getApplicationContext());
+                        CellScannerApp.resetDatabase(getApplicationContext());
                         clearGPSLocationFields();
                         Toast.makeText(ctx, "database deleted", Toast.LENGTH_SHORT).show();
                         break;
@@ -261,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
      * Start the recording service
      */
     private void startRecording() {
-        Recorder.startService(this);
+        RecorderUtils.startService(this);
     }
 
     /**
@@ -282,7 +286,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateLogViewer(Intent intent) {
-        Database db = App.getDatabase();
+        Database db = CellScannerApp.getDatabase();
         vlCILastUpdate.setText(db.getUpdateStatus());
 
         if (intent != null) {
