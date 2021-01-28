@@ -22,6 +22,7 @@ public class RecorderUtils {
     final private static String PREFS_NAME = CellScannerApp.TITLE;
     final private static String APP_RECORDING = "APP_RECORDING";  // APP should be recording data
     final private static String GPS_RECORDING = "GPS_RECORDING";  // APP should record GPS data when in Recording state
+    final private static String GPS_HIGH_PRECISION_RECORDING = "GPS_HIGH_PRECISION_RECORDING";  // APP should record GPS data when in Recording state
 
     /**
      * Check the state of the Recording key.
@@ -44,6 +45,16 @@ public class RecorderUtils {
                 .getBoolean(GPS_RECORDING, true);
     }
 
+    /**
+     * Check the state of the GPS HIGH precision Recording key.
+     * @return State of the GPS Recording key, when True the app should record GPS data with HIGH precision when
+     *      the recording state is True
+     */
+    public static boolean gpsHighPrecisionRecordingState(Context context) {
+        return context
+                .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getBoolean(GPS_HIGH_PRECISION_RECORDING, false);
+    }
 
     /**
      * Set Recording to State value
