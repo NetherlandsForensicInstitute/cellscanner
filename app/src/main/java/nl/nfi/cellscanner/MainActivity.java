@@ -31,6 +31,7 @@ import nl.nfi.cellscanner.recorder.PermissionSupport;
 import nl.nfi.cellscanner.recorder.RecorderUtils;
 
 import static nl.nfi.cellscanner.Database.getFileTitle;
+import static nl.nfi.cellscanner.recorder.RecorderUtils.gpsHighPrecisionRecordingState;
 import static nl.nfi.cellscanner.recorder.RecorderUtils.gpsRecordingState;
 import static nl.nfi.cellscanner.recorder.RecorderUtils.inRecordingState;
 
@@ -73,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
         clearButton = findViewById(nl.nfi.cellscanner.R.id.clearButton);
         swRecordingMaster = findViewById(nl.nfi.cellscanner.R.id.recorderSwitch);
         swGPSRecord = findViewById(R.id.swGPSRecord);
+        swGPSPrecision = findViewById(R.id.swGPSRecordingPrecision);
 
         /*
          Implement checked state listener on the switch that has the ability to start or stop the recording process
@@ -88,10 +90,15 @@ public class MainActivity extends AppCompatActivity {
         swGPSRecord.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 RecorderUtils.setGPSRecordingState(getApplicationContext(), isChecked);
-                sendRecordGPSBroadcastMessage();
             }
         });
 
+
+        swGPSRecord.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                RecorderUtils.setGPSHighPrecisionRecordingState(getApplicationContext(), isChecked);
+            }
+        });
 
         toggleButtonsRecordingState();
 
@@ -218,10 +225,14 @@ public class MainActivity extends AppCompatActivity {
     private void toggleButtonsRecordingState() {
         boolean isInRecordingState = inRecordingState(this);
         swRecordingMaster.setChecked(isInRecordingState);
+        swGPSRecord.setEnabled(!isInRecordingState);
+        swGPSPrecision.setEnabled(!isInRecordingState);
+
         exportButton.setEnabled(!isInRecordingState);
         clearButton.setEnabled(!isInRecordingState);
 
         swGPSRecord.setChecked(gpsRecordingState(this));
+        swGPSPrecision.setChecked(gpsHighPrecisionRecordingState(this));
     }
 
     // todo: Reconnect with a timer or listener, to update every x =D

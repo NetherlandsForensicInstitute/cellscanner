@@ -68,6 +68,8 @@ public class RecorderUtils {
      * */
     public static void setGPSRecordingState(Context context, Boolean state) { putBoolean(context, GPS_RECORDING, state); };
 
+    public static void setGPSHighPrecisionRecordingState(Context context, Boolean state) { putBoolean(context, GPS_HIGH_PRECISION_RECORDING, state); };
+
 
     /**
      * Sets a boolean key to a given state in local storage
