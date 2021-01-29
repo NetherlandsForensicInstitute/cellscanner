@@ -7,9 +7,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.text.Html;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -31,6 +35,8 @@ import nl.nfi.cellscanner.recorder.LocationRecordingService;
 import nl.nfi.cellscanner.recorder.RecorderUtils;
 
 import static nl.nfi.cellscanner.Database.getFileTitle;
+
+import static nl.nfi.cellscanner.recorder.RecorderUtils.gpsHighPrecisionRecordingState;
 import static nl.nfi.cellscanner.recorder.PermissionSupport.hasAccessCourseLocationPermission;
 import static nl.nfi.cellscanner.recorder.PermissionSupport.hasFineLocationPermission;
 import static nl.nfi.cellscanner.recorder.PermissionSupport.hasUserConsent;
@@ -39,7 +45,7 @@ import static nl.nfi.cellscanner.recorder.RecorderUtils.gpsRecordingState;
 import static nl.nfi.cellscanner.recorder.RecorderUtils.inRecordingState;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
     /*
     Activity lifecycle, see: https://developer.android.com/guide/components/activities/activity-lifecycle
     Communicate Activity <-> Service ... https://www.vogella.com/tutorials/AndroidServices/article.html
@@ -50,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
     // ui
     private Button exportButton, clearButton;
-    private SwitchCompat swRecordingMaster, swGPSRecord;
+    private SwitchCompat swRecordingMaster, swGPSRecord, swGPSPrecision;
     private TextView vlCILastUpdate, vlGPSLastUpdate, vlGPSProvider, vlGPSLat, vlGPSLon, vlGPSAcc, vlGPSAlt, vlGPSSpeed;
 
     private static final int PERMISSION_REQUEST_START_RECORDING = 1;
@@ -67,9 +73,43 @@ public class MainActivity extends AppCompatActivity {
         else showRecorderScreen();
     }
 
+    @Override
+    protected void onStart() {
+        SharedPreferences sharedPreferences = this.getSharedPreferences(CellScannerApp.TITLE, MODE_PRIVATE);
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+        super.onStart();
+    }
+
+    @Override
+    protected void onDestroy() {
+        SharedPreferences sharedPreferences = this.getSharedPreferences(CellScannerApp.TITLE, MODE_PRIVATE);
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+        super.onDestroy();
+    }
+
     private void showTermsAndConditionsScreen() {
         setContentView(nl.nfi.cellscanner.R.layout.terms_and_conditions);
+
         final Context context = this;
+
+        // Show the android ID to the user
+        String androidId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        TextView tvAndroidId = findViewById(R.id.tac_android_id_text);
+        tvAndroidId.setText(androidId);
+
+        // Set textview with string containing HTML for URLs and phonenumbers
+        String contactInformation = getString(R.string.tac_contact_information);
+        String dataCollection = getString(R.string.tac_data_collection);
+        String aboutApp = getString(R.string.tac_about_app);
+
+        TextView tvContactInfo = findViewById(R.id.tac_contactInformation_text);
+        TextView tvDataCollection = findViewById(R.id.tac_dataCollected_text);
+        TextView tvAboutApp = findViewById(R.id.tac_aboutApp_text);
+
+        setHtmlVersionDependent(contactInformation, tvContactInfo);
+        setHtmlVersionDependent(dataCollection, tvDataCollection);
+        setHtmlVersionDependent(aboutApp, tvAboutApp);
+
         boolean userConsent = hasUserConsent(context);
 
         final Button close_button = findViewById(R.id.tac_close_button);
@@ -100,6 +140,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void setHtmlVersionDependent(String htmlString, TextView tvObject) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            tvObject.setText(Html.fromHtml(htmlString, Html.FROM_HTML_MODE_LEGACY));
+        } else {
+            tvObject.setText(Html.fromHtml(htmlString));
+        }
+    }
+
     private void showRecorderScreen() {
         setContentView(nl.nfi.cellscanner.R.layout.activity_main);
 
@@ -116,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
         clearButton = findViewById(nl.nfi.cellscanner.R.id.clearButton);
         swRecordingMaster = findViewById(nl.nfi.cellscanner.R.id.recorderSwitch);
         swGPSRecord = findViewById(R.id.swGPSRecord);
+        swGPSPrecision = findViewById(R.id.swGPSRecordingPrecision);
 
         /*
          Implement checked state listener on the switch that has the ability to start or stop the recording process
@@ -124,17 +173,22 @@ public class MainActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) requestStartRecording();
                 else RecorderUtils.stopService(getApplicationContext());
-                toggleButtonsRecordingState();
+
             }
         });
 
         swGPSRecord.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 RecorderUtils.setGPSRecordingState(getApplicationContext(), isChecked);
-                sendRecordGPSBroadcastMessage();
             }
         });
 
+
+        swGPSPrecision.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                RecorderUtils.setGPSHighPrecisionRecordingState(getApplicationContext(), isChecked);
+            }
+        });
 
         toggleButtonsRecordingState();
 
@@ -173,7 +227,6 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     // explain the app will not be working
                     Toast.makeText(this, "App will not work without location permissions", Toast.LENGTH_SHORT).show();
-                    toggleButtonsRecordingState();
                 }
             }
         }
@@ -258,7 +311,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             requestLocationPermission();
         }
-        toggleButtonsRecordingState();
     }
 
     /**
@@ -274,10 +326,15 @@ public class MainActivity extends AppCompatActivity {
     private void toggleButtonsRecordingState() {
         boolean isInRecordingState = inRecordingState(this);
         swRecordingMaster.setChecked(isInRecordingState);
+
+        swGPSRecord.setEnabled(!isInRecordingState);
+        swGPSPrecision.setEnabled(!isInRecordingState);
+
         exportButton.setEnabled(!isInRecordingState);
         clearButton.setEnabled(!isInRecordingState);
 
         swGPSRecord.setChecked(gpsRecordingState(this));
+        swGPSPrecision.setChecked(gpsHighPrecisionRecordingState(this));
     }
 
     // todo: Reconnect with a timer or listener, to update every x =D
@@ -320,9 +377,9 @@ public class MainActivity extends AppCompatActivity {
         return dateFormat.format(dateTime);
     }
 
-    private void sendRecordGPSBroadcastMessage() {
-        Intent intent = new Intent(RECORD_GPS);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        toggleButtonsRecordingState();
     }
 }
 
