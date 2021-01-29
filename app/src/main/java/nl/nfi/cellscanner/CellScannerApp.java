@@ -12,7 +12,7 @@ import java.util.Locale;
 /**
  * Main application state
  */
-public class App extends Application {
+public class CellScannerApp extends Application {
     public static final String TITLE = "cellscanner";
     public static int UPDATE_DELAY_MILLIS = 1000;
     public static int EVENT_VALIDITY_MILLIS = UPDATE_DELAY_MILLIS+20000;
