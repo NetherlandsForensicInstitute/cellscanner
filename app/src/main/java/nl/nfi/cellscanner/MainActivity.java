@@ -79,12 +79,15 @@ public class MainActivity extends AppCompatActivity {
         // Set textview with string containing HTML for URLs and phonenumbers
         String contactInformation = getString(R.string.tac_contact_information);
         String dataCollection = getString(R.string.tac_data_collection);
+        String aboutApp = getString(R.string.tac_about_app);
 
         TextView tvContactInfo = findViewById(R.id.tac_contactInformation_text);
         TextView tvDataCollection = findViewById(R.id.tac_dataCollected_text);
+        TextView tvAboutApp = findViewById(R.id.tac_aboutApp_text);
 
         setHtmlVersionDependent(contactInformation, tvContactInfo);
         setHtmlVersionDependent(dataCollection, tvDataCollection);
+        setHtmlVersionDependent(aboutApp, tvAboutApp);
 
         boolean userConsent = hasUserConsent(context);
 

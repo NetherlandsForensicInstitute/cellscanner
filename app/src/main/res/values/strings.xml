@@ -4,10 +4,11 @@
     <string name="tac_data_collection">
 <![CDATA[
 <p>Cellscanner is created by the Netherlands Forensic Institute (NFI).
-When activated, it logs two types of location data locally on your device: addresses of <b>cell towers</b> the device connects to, and optionally <b>GPS coordinates</b> along with other GPS data such as their accuracy.
+When activated, it logs two types of location data: addresses of <b>cell towers</b> the device connects to, and optionally <b>GPS coordinates</b> along with other GPS data such as their accuracy.
 We collect these data to learn how cellular networks operate, and how to interpret their traces in criminal cases.
 We will use the data to derive aggregated statistics.
 We will never attempt to reveal the identity of individual users.
+An example of the type of research done with these data in the past can be found here: <a href="http://doi.org/10.1016/j.scijus.2019.10.005">http://doi.org/10.1016/j.scijus.2019.10.005</a>.
 </p><p>
 Cellscanner only collects what is strictly necessary.
 That includes network and (optionally) GPS data.
@@ -15,21 +16,21 @@ Network data may reveal the location of the device to some extent, depending on 
 In addition, a device identifier is stored.
 The device identifier is used to link multiple submissions from the same user.
 </p><p>
-By using this app you understand that:
-<ul>
-    <li>the data collected by this app are stored locally on your device;</li>
-    <li>these data are securely uploaded to and stored on NFI servers if you enable this feature;</li>
-    <li>these data are used by NFI as described above;</li>
-    <li>these data are retained by NFI for a maximum of 30 years;</li>
-    <li>you may revoke your consent at any time (see below).</li>
-</ul>
-</p><p>
 When using this app you are free to start/stop recording at any time using the switch button on the main screen.
 In addition, GPS logging is optional and can be enabled or disabled at any time.
 When the app is recording and GPS logging is turned off, only cell tower addresses are registered.
 </p><p>
-If at any point you wish to revoke your consent and have your data removed from NFI servers, please email your request to <a href="mailto:fbda@nfi.nl">fbda@nfi.nl</a>.
+If at any point you wish to revoke your consent and have your data removed from NFI servers, you can email your request to <a href="mailto:fbda@nfi.nl">fbda@nfi.nl</a>.
 In this email you should mention the name of this app (Cellscanner) and your device identifier, which is shown below.
+</p><p>
+In summary, by using this app you consent and understand that:
+<ul>
+    <li>the data collected by this app are stored locally on your device;</li>
+    <li>these data are securely uploaded to and stored on NFI servers when you enable the upload feature;</li>
+    <li>these data are used by NFI as described above;</li>
+    <li>these data are retained by NFI for a maximum of 30 years;</li>
+    <li>you may revoke your consent at any time.</li>
+</ul>
 </p>
 ]]>
     </string>
@@ -47,11 +48,20 @@ Laan van Ypenburg 6<br/>
 The Netherlands<br/>
 ]]>
     </string>
-    <string name="tac_about_app">"
-The app requires consent for collecting location data.
-\"Cell info\" registers the provider of the sim card and the cell towers the sim card connects with. \"GPS location info\" collects latitude, longitude, accuracy, and altitude data using Google's location service.
-
-Before exporting, the collected data is stored in a sqlite database on the device itself. Data is only collected when the \"recording\" switch is turned on. Currently, the data can only be exported by clicking \"Export data\" and sending it via email (or another available app of choice). The database can be removed from the device by clicking \"Clear data\". If this is done before exporting the data, the data cannot be recovered.
+    <string name="tac_about_app">
+        <![CDATA[
+<p>
+<b>Cell info</b> registers the provider of the sim card and the cell towers the sim card connects with. <b>GPS location info</b> collects latitude, longitude, accuracy, altitude, and speed data using Google\'s location service.
+</p><p>
+Data is only collected when the <b>recording</b> switch is turned on.
+Cell info is always recorded when recording is on.
+Before you start recording you can select whether you want to record GPS data and, if so, whether the GPS precision should be high (for better results) or low (to lower battery use).
+</p><p>
+The data stored on the device can be removed from the device by clicking <b>Clear data</b>. If this is done before the data is exported, the data cannot be recovered.
+</p><p>
+When rebooting your device, the app will continue in the state that you left it in when shutting down your device.
+</p>
+]]>
     </string>
     <string name="terms_and_conditions_accept">I understand and accept the terms and conditions as listed above</string>
     <string name="terms_and_conditions_close">Close</string>
