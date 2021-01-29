@@ -7,10 +7,13 @@ import android.content.pm.PackageManager;
 
 import androidx.core.content.ContextCompat;
 
-import nl.nfi.cellscanner.App;
+import nl.nfi.cellscanner.CellScannerApp;
 
+/**
+ * Utility class used to check if permissions are set
+ */
 public class PermissionSupport {
-    final private static String PREFS_NAME = App.TITLE;
+    final private static String PREFS_NAME = CellScannerApp.TITLE;
 
     public static boolean hasAccessCourseLocationPermission(Context ctx) {
         return hasPermission(ctx, Manifest.permission.ACCESS_COARSE_LOCATION);
@@ -18,10 +21,6 @@ public class PermissionSupport {
 
     public static boolean hasFineLocationPermission(Context ctx) {
         return hasPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION);
-    }
-
-    public static boolean hasFilePermission(Context ctx) {
-        return hasPermission(ctx, Manifest.permission.READ_EXTERNAL_STORAGE);
     }
 
     private static boolean hasPermission(Context ctx, String permission) {

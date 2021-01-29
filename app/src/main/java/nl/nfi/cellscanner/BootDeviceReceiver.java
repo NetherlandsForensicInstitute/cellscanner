@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.widget.Toast;
 
 import nl.nfi.cellscanner.recorder.PermissionSupport;
-import nl.nfi.cellscanner.recorder.Recorder;
+import nl.nfi.cellscanner.recorder.RecorderUtils;
 
 /**
  * Responsible for starting the App after device boot
@@ -16,11 +16,14 @@ import nl.nfi.cellscanner.recorder.Recorder;
  */
 public class BootDeviceReceiver extends BroadcastReceiver {
 
+    private static final String TAG = BootDeviceReceiver.class.getSimpleName();
+
+
     @Override
     public void onReceive(Context context, Intent intent) {
 
         String action = intent.getAction();
-        String message = App.TITLE + " on boot action is " + action;
+        String message = CellScannerApp.TITLE + " on boot action is " + action;
         Toast.makeText(context, message, Toast.LENGTH_LONG).show();
 
         // TODO: @ check if the right application is sending the request
@@ -28,9 +31,9 @@ public class BootDeviceReceiver extends BroadcastReceiver {
           Call the start of the application if the boot-up state of the application
           is inRecordingState
          */
-        if (Recorder.inRecordingState(context)){
-            if (PermissionSupport.hasAccessCourseLocationPermission(context)) Recorder.startService(context);
-            else Recorder.setRecordingState(context, false);
+        if (RecorderUtils.inRecordingState(context)){
+            if (PermissionSupport.hasAccessCourseLocationPermission(context)) RecorderUtils.startService(context);
+            else RecorderUtils.setRecordingState(context, false);
         }
     }
 }
