@@ -1,15 +1,21 @@
 package nl.nfi.cellscanner.recorder;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.preference.PreferenceManager;
 
 
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import nl.nfi.cellscanner.CellScannerApp;
 
+import static nl.nfi.cellscanner.recorder.PermissionSupport.hasAccessCourseLocationPermission;
+import static nl.nfi.cellscanner.recorder.PermissionSupport.hasFineLocationPermission;
 
 
 /**
@@ -29,8 +35,7 @@ public class RecorderUtils {
      * @return State of the Recording key, when True the app should record cell data
      */
     public static boolean inRecordingState(Context context) {
-        return context
-                .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(APP_RECORDING, false);
     }
 
@@ -40,8 +45,7 @@ public class RecorderUtils {
      *      the recording state is True
      */
     public static boolean gpsRecordingState(Context context) {
-        return context
-                .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(GPS_RECORDING, true);
     }
 
@@ -51,8 +55,7 @@ public class RecorderUtils {
      *      the recording state is True
      */
     public static boolean gpsHighPrecisionRecordingState(Context context) {
-        return context
-                .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(GPS_HIGH_PRECISION_RECORDING, false);
     }
 
@@ -79,7 +82,7 @@ public class RecorderUtils {
      * @param state: Boolean state to store
      */
     private static void putBoolean(Context context, String target, Boolean state ) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean(target, state);
         editor.apply();

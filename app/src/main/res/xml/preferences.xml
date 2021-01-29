@@ -9,7 +9,7 @@
             app:key="APP_RECORDING"
             app:title="Enable"
             app:summary="Enable network data logging"
-            app:defaultValue="true"/>
+            app:defaultValue="false"/>
 
         <SwitchPreferenceCompat
             app:key="GPS_RECORDING"
@@ -29,7 +29,7 @@
         app:title="Data management" >
 
         <Preference
-            app:key="view_data"
+            app:key="view_measurements"
             app:title="View data"
             app:summary="View currently recorded data"/>
 

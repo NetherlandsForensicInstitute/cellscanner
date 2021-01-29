@@ -31,7 +31,9 @@
             android:exported="false"
             android:permission="ACCESS_COARSE_LOCATION|ACCESS_FINE_LOCATION" />
 
-        <activity android:name=".ViewMeasurementsActivity">
+        <activity android:name=".ViewMeasurementsActivity" />
+
+        <activity android:name=".PreferencesActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -39,11 +41,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".PreferencesActivity">
-        </activity>
-
-        <activity android:name=".AppInfoActivity">
-        </activity>
+        <activity android:name=".AppInfoActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
