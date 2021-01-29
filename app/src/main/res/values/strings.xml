@@ -1,20 +1,67 @@
 <resources>
     <string name="app_name">Cellscanner</string>
     <string name="terms_and_conditions_header">Terms and Conditions</string>
-    <string name="terms_and_conditions">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-
-Section 1.10.32 of "de Finibus Bonorum et Malorum", written by Cicero in 45 BC
-"Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?"
-
-1914 translation by H. Rackham
-"But I must explain to you how all this mistaken idea of denouncing pleasure and praising pain was born and I will give you a complete account of the system, and expound the actual teachings of the great explorer of the truth, the master-builder of human happiness. No one rejects, dislikes, or avoids pleasure itself, because it is pleasure, but because those who do not know how to pursue pleasure rationally encounter consequences that are extremely painful. Nor again is there anyone who loves or pursues or desires to obtain pain of itself, because it is pain, but because occasionally circumstances occur in which toil and pain can procure him some great pleasure. To take a trivial example, which of us ever undertakes laborious physical exercise, except to obtain some advantage from it? But who has any right to find fault with a man who chooses to enjoy a pleasure that has no annoying consequences, or one who avoids a pain that produces no resultant pleasure?"
-
-Section 1.10.33 of "de Finibus Bonorum et Malorum", written by Cicero in 45 BC
-"At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat."
-
-1914 translation by H. Rackham
-"On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains."
+    <string name="tac_data_collection">
+<![CDATA[
+<p>Cellscanner is created by the Netherlands Forensic Institute (NFI).
+When activated, it logs two types of location data: addresses of <b>cell towers</b> the device connects to, and optionally <b>GPS coordinates</b> along with other GPS data such as their accuracy.
+We collect these data to learn how cellular networks operate, and how to interpret their traces in criminal cases.
+We will use the data to derive aggregated statistics.
+We will never attempt to reveal the identity of individual users.
+An example of the type of research done with these data in the past can be found here: <a href="http://doi.org/10.1016/j.scijus.2019.10.005">http://doi.org/10.1016/j.scijus.2019.10.005</a>.
+</p><p>
+Cellscanner only collects what is strictly necessary.
+That includes network and (optionally) GPS data.
+Network data may reveal the location of the device to some extent, depending on the number of cell towers in the area.
+In addition, a device identifier is stored.
+The device identifier is used to link multiple submissions from the same user.
+</p><p>
+When using this app you are free to start/stop recording at any time using the switch button on the main screen.
+In addition, GPS logging is optional and can be enabled or disabled at any time.
+When the app is recording and GPS logging is turned off, only cell tower addresses are registered.
+</p><p>
+If at any point you wish to revoke your consent and have your data removed from NFI servers, you can email your request to <a href="mailto:fbda@nfi.nl">fbda@nfi.nl</a>.
+In this email you should mention the name of this app (Cellscanner) and your device identifier, which is shown below.
+</p><p>
+In summary, by using this app you consent and understand that:
+<ul>
+    <li>the data collected by this app are stored locally on your device;</li>
+    <li>these data are securely uploaded to and stored on NFI servers when you enable the upload feature;</li>
+    <li>these data are used by NFI as described above;</li>
+    <li>these data are retained by NFI for a maximum of 30 years;</li>
+    <li>you may revoke your consent at any time.</li>
+</ul>
+</p>
+]]>
+    </string>
+    <string name="tac_contact_information">
+        <![CDATA[
+Netherlands Forensic Institute<br/>
+Forensic Big Data Analysis<br/>
+<a href="http://www.forensischinstituut.nl">www.forensischinstituut.nl</a><br/>
+<a href="mailto:info@nfi.nl">fbda@nfi.nl</a><br/>
+Tel.:    <a href="tel:+31708886750">+31 70 88 86 750</a><br/>
+<br/>
+<i>Visiting Address:</i><br/>
+Laan van Ypenburg 6<br/>
+2497 GB Den Haag<br/>
+The Netherlands<br/>
+]]>
+    </string>
+    <string name="tac_about_app">
+        <![CDATA[
+<p>
+<b>Cell info</b> registers the provider of the sim card and the cell towers the sim card connects with. <b>GPS location info</b> collects latitude, longitude, accuracy, altitude, and speed data using Google\'s location service.
+</p><p>
+Data is only collected when the <b>recording</b> switch is turned on.
+Cell info is always recorded when recording is on.
+Before you start recording you can select whether you want to record GPS data and, if so, whether the GPS precision should be high (for better results) or low (to lower battery use).
+</p><p>
+The data stored on the device can be removed from the device by clicking <b>Clear data</b>. If this is done before the data is exported, the data cannot be recovered.
+</p><p>
+When rebooting your device, the app will continue in the state that you left it in when shutting down your device.
+</p>
+]]>
     </string>
     <string name="terms_and_conditions_accept">I understand and accept the terms and conditions as listed above</string>
     <string name="terms_and_conditions_close">Close</string>

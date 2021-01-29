@@ -78,24 +78,25 @@
             android:id="@+id/divideruno"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginTop="190dp"
+            android:layout_marginTop="5dp"
             android:background="?android:attr/listDivider"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/clearButton"
+            app:layout_constraintBottom_toTopOf="@+id/editTextTextPersonName2"/>
 
 
         <View
             android:id="@+id/dividerdeux"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginTop="200dp"
+            android:layout_marginTop="20dp"
             android:background="?android:attr/listDivider"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/divideruno" />
+            app:layout_constraintTop_toBottomOf="@+id/vlCILastUpdate" />
 
         <TextView
             android:id="@+id/textView"
@@ -180,7 +181,7 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/dividerdeux" />
+            app:layout_constraintTop_toBottomOf="@+id/dividerdeux" />
 
         <TextView
             android:id="@+id/editTextTextPersonName2"
@@ -236,27 +237,32 @@
             android:id="@+id/vlGPSAlt"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="9dp"
             android:text="@string/valueBaseText"
-            app:layout_constraintTop_toTopOf="@+id/lblGPSAlt"
-            app:layout_constraintStart_toEndOf="@+id/lblGPSAcc" />
+            app:layout_constraintBottom_toTopOf="@+id/vlGPSSpeed"
+            app:layout_constraintStart_toEndOf="@+id/lblGPSAcc"
+            app:layout_constraintTop_toTopOf="@+id/lblGPSAlt" />
 
         <TextView
             android:id="@+id/lblGPSSpeed"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
+            android:layout_marginStart="24dp"
             android:layout_marginTop="8dp"
             android:text="Speed:"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/lblGPSAlt" />
+            app:layout_constraintTop_toBottomOf="@+id/lblGPSAlt"
+            app:layout_constraintVertical_bias="0.0" />
 
         <TextView
             android:id="@+id/vlGPSSpeed"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:text="@string/valueBaseText"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/lblGPSAcc"
             app:layout_constraintTop_toTopOf="@+id/lblGPSSpeed"
-            app:layout_constraintStart_toEndOf="@+id/lblGPSAcc" />
-
+            app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
