@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="nl.nfi.cellscanner.MainActivity">
+    tools:context="nl.nfi.cellscanner.ViewMeasurementsActivity">
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/recorderSwitch"

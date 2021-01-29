@@ -45,14 +45,14 @@ import static nl.nfi.cellscanner.recorder.RecorderUtils.gpsRecordingState;
 import static nl.nfi.cellscanner.recorder.RecorderUtils.inRecordingState;
 
 
-public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class ViewMeasurementsActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
     /*
     Activity lifecycle, see: https://developer.android.com/guide/components/activities/activity-lifecycle
     Communicate Activity <-> Service ... https://www.vogella.com/tutorials/AndroidServices/article.html
      */
     public static String RECORD_GPS = "1";  // field used for communicating
 
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = ViewMeasurementsActivity.class.getSimpleName();
 
     // ui
     private Button exportButton, clearButton;
@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     }
 
     private void showRecorderScreen() {
-        setContentView(nl.nfi.cellscanner.R.layout.activity_main);
+        setContentView(nl.nfi.cellscanner.R.layout.activity_view_measurements);
 
         vlCILastUpdate = findViewById(R.id.vlCILastUpdate);
         vlGPSLastUpdate = findViewById(R.id.vlGPSLastUpdate);

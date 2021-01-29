@@ -36,7 +36,7 @@ import java.util.TimerTask;
 import nl.nfi.cellscanner.CellScannerApp;
 import nl.nfi.cellscanner.CellStatus;
 import nl.nfi.cellscanner.Database;
-import nl.nfi.cellscanner.MainActivity;
+import nl.nfi.cellscanner.ViewMeasurementsActivity;
 import nl.nfi.cellscanner.R;
 
 /**
@@ -146,7 +146,7 @@ public class LocationRecordingService extends Service {
      */
     private Notification getActivityNotification(String text) {
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, ViewMeasurementsActivity.class), 0);
 
         return new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Cellscanner")

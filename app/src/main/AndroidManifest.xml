@@ -31,19 +31,15 @@
             android:exported="false"
             android:permission="ACCESS_COARSE_LOCATION|ACCESS_FINE_LOCATION" />
 
-        <activity android:name=".MainActivity">
+        <activity android:name=".ViewMeasurementsActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".PreferencesActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        <activity android:name=".PreferencesActivity">
         </activity>
 
         <provider
