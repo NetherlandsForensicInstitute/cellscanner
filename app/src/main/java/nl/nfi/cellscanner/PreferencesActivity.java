@@ -1,6 +1,7 @@
 package nl.nfi.cellscanner;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -77,7 +78,7 @@ public class PreferencesActivity extends AppCompatActivity {
             findPreference("about_cellscanner").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    a.showTermsAndConditionsScreen();
+                    AppInfoActivity.show(a);
                     return true;
                 }
             });
@@ -95,38 +96,13 @@ public class PreferencesActivity extends AppCompatActivity {
                 .beginTransaction()
                 .replace(R.id.settings_content, prefs)
                 .commit();
+
+        AppInfoActivity.showIfNoConsent(this);
     }
 
-    private void showTermsAndConditionsScreen() {
-        setContentView(nl.nfi.cellscanner.R.layout.terms_and_conditions);
-        final Context context = this;
-        boolean userConsent = hasUserConsent(context);
-
-        final Button close_button = findViewById(R.id.tac_close_button);
-        close_button.setEnabled(userConsent);
-
-        /*
-        Only allow (un)checking the consent the first time around. To retract consent, an email
-        should be send asking to remove all data.
-         */
-        final CheckBox accepted_checkbox = findViewById(R.id.tac_checkbox);
-        accepted_checkbox.setChecked(userConsent);
-        if (!userConsent) {
-            accepted_checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    setUserConsent(context, isChecked);
-                    close_button.setEnabled(isChecked);  // Enabled if agreed to T & C
-                }
-            });
-        } else {
-            accepted_checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    accepted_checkbox.setChecked(true);
-                    Toast.makeText(context, "To revoke consent, contact the NFI to remove your data and then uninstall the app", Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AppInfoActivity.showIfNoConsent(this);
     }
 }

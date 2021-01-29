@@ -42,6 +42,9 @@
         <activity android:name=".PreferencesActivity">
         </activity>
 
+        <activity android:name=".AppInfoActivity">
+        </activity>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="nl.nfi.cellscanner.fileprovider"
