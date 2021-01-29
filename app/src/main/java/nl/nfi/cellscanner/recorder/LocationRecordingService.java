@@ -120,6 +120,7 @@ public class LocationRecordingService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        // TODO: this service should probably start sticky and allow for multiple calls to onStartCommand
         startForeground(NOTIF_ID, getActivityNotification("started"));
 
         // start the times, schedule for every second
