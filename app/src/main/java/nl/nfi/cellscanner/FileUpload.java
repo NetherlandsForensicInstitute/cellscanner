@@ -26,18 +26,22 @@ public class FileUpload extends Service {
         return null;
     }
 
-    private class uploadFile implements Runnable {
+    private class FTPUploadFile implements Runnable {
+
+        public static final String HOSTNAME = "192.168.2.6";
+        public static final String USERNAME = "myuser";
+        public static final String MYPASS = "mypass";
 
         @Override
         public void run() {
+
             FTPClient con = null;
 
             try
             {
                 con = new FTPClient();
-                con.connect("192.168.2.6");
-
-                if (con.login("myuser", "mypass"))
+                con.connect(HOSTNAME);
+                if (con.login(USERNAME, MYPASS))
                 {
                     con.enterLocalPassiveMode(); // important!
                     con.setFileType(FTP.BINARY_FILE_TYPE);
@@ -62,7 +66,7 @@ public class FileUpload extends Service {
     }
 
     public void uploadFile(){
-        Runnable action = new uploadFile();
+        Runnable action = new FTPUploadFile();
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(action);
     }
