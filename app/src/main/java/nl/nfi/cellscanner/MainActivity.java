@@ -11,6 +11,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -24,9 +25,17 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import org.apache.commons.net.ftp.FTP;
+import org.apache.commons.net.ftp.FTPClient;
+
+import java.io.File;
+import java.io.FileInputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RunnableFuture;
 
 import nl.nfi.cellscanner.recorder.LocationRecordingService;
 import nl.nfi.cellscanner.recorder.RecorderUtils;
@@ -226,22 +235,65 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             Toast.makeText(getApplicationContext(), "No database present.", Toast.LENGTH_SHORT).show();
 
         } else {
-            String[] TO = {""};
+            goforIt();
 
-            Uri uri = FileProvider.getUriForFile(getApplicationContext(), "nl.nfi.cellscanner.fileprovider", Database.getDataFile(getApplicationContext()));
-
-            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-
-            sharingIntent.putExtra(Intent.EXTRA_EMAIL, TO);
-            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getFileTitle());
-            sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
-
-            //need this to prompts email client only
-            sharingIntent.setDataAndType(uri, "message/rfc822");
-
-            startActivity(Intent.createChooser(sharingIntent, "Share via"));
+//            String[] TO = {""};
+//
+//            Uri uri = FileProvider.getUriForFile(getApplicationContext(), "nl.nfi.cellscanner.fileprovider", Database.getDataFile(getApplicationContext()));
+//
+//            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+//
+//            sharingIntent.putExtra(Intent.EXTRA_EMAIL, TO);
+//            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getFileTitle());
+//            sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
+//
+//            //need this to prompts email client only
+//            sharingIntent.setDataAndType(uri, "message/rfc822");
+//
+//            startActivity(Intent.createChooser(sharingIntent, "Share via"));
         }
     }
+
+    private class uploadFile implements Runnable {
+
+        @Override
+        public void run() {
+            FTPClient con = null;
+
+            try
+            {
+                con = new FTPClient();
+                con.connect("192.168.2.6");
+
+                if (con.login("myuser", "mypass"))
+                {
+                    con.enterLocalPassiveMode(); // important!
+                    con.setFileType(FTP.BINARY_FILE_TYPE);
+                    FileInputStream in = new FileInputStream(Database.getDataFile(getApplicationContext()));
+                    boolean result = con.storeFile("/data.base", in);
+                    in.close();
+                    if (result) {
+                        Log.i(TAG, "upload result: succeeded");
+                    } else {
+                        Log.i(TAG, "upload result: Failed");
+                    }
+
+                    con.logout();
+                    con.disconnect();
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }
+    public void goforIt(){
+        Runnable action = (Runnable)new uploadFile();
+        ExecutorService executor = Executors.newFixedThreadPool(1);
+        executor.execute(action);
+    }
+
 
 
     public void clearDatabase(View view) {

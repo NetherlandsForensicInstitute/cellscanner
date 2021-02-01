@@ -39,6 +39,11 @@ import nl.nfi.cellscanner.Database;
 import nl.nfi.cellscanner.MainActivity;
 import nl.nfi.cellscanner.R;
 
+import org.apache.commons.net.ftp.FTP;
+import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPFile;
+import org.apache.commons.net.ftp.FTPReply;
+
 /**
  * Service responsible for recording the Location data and storing it in the database
  * */
@@ -319,4 +324,6 @@ public class LocationRecordingService extends Service {
         }
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
+
+
 }
