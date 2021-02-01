@@ -1,13 +1,30 @@
 package nl.nfi.cellscanner;
 
+import android.app.Service;
+import android.content.Intent;
+import android.os.IBinder;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
+
+import org.apache.commons.net.ftp.FTP;
+import org.apache.commons.net.ftp.FTPClient;
+
 import java.io.FileInputStream;
+
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class FileUpload {
+public class FileUpload extends Service {
+
+    private static final String TAG = FileUpload.class.getSimpleName();
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
 
     private class uploadFile implements Runnable {
 
