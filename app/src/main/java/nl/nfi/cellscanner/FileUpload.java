@@ -1,19 +1,12 @@
 package nl.nfi.cellscanner;
 
-import android.app.Service;
 import android.content.Context;
-import android.content.Intent;
-import android.os.IBinder;
 import android.util.Log;
-
-import androidx.annotation.Nullable;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 
 import java.io.FileInputStream;
-
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -30,7 +23,7 @@ public class FileUpload {
      */
     private class FTPUpload implements Runnable {
 
-        private static final String HOSTNAME = "10.0.2.2";
+        private static final String HOSTNAME = "192.168.2.29";
         private static final String USERNAME = "myuser";
         private static final String MYPASS = "mypass";
         private final Context ctx;
