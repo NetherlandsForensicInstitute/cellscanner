@@ -2,6 +2,7 @@ package nl.nfi.cellscanner;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.job.JobScheduler;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -26,21 +27,25 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.work.Constraints;
+import androidx.work.NetworkType;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 import nl.nfi.cellscanner.recorder.LocationRecordingService;
 import nl.nfi.cellscanner.recorder.RecorderUtils;
 
 import static nl.nfi.cellscanner.Database.getFileTitle;
-
-import static nl.nfi.cellscanner.recorder.RecorderUtils.gpsHighPrecisionRecordingState;
 import static nl.nfi.cellscanner.recorder.PermissionSupport.hasAccessCourseLocationPermission;
 import static nl.nfi.cellscanner.recorder.PermissionSupport.hasFineLocationPermission;
 import static nl.nfi.cellscanner.recorder.PermissionSupport.hasUserConsent;
 import static nl.nfi.cellscanner.recorder.PermissionSupport.setUserConsent;
+import static nl.nfi.cellscanner.recorder.RecorderUtils.gpsHighPrecisionRecordingState;
 import static nl.nfi.cellscanner.recorder.RecorderUtils.gpsRecordingState;
 import static nl.nfi.cellscanner.recorder.RecorderUtils.inRecordingState;
 
@@ -58,6 +63,12 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     private Button exportButton, clearButton;
     private SwitchCompat swRecordingMaster, swGPSRecord, swGPSPrecision;
     private TextView vlCILastUpdate, vlGPSLastUpdate, vlGPSProvider, vlGPSLat, vlGPSLon, vlGPSAcc, vlGPSAlt, vlGPSSpeed;
+
+    // auto upload...
+    private JobScheduler jobScheduler;
+    private static final int JOB_ID = 0;
+
+
 
     private static final int PERMISSION_REQUEST_START_RECORDING = 1;
 
@@ -278,6 +289,37 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         FileUpload fileupload = new FileUpload();
         fileupload.uploadApplicationDatabase(getApplicationContext());
     }
+
+    public void schedulerTest(View view) {
+        schedulePeriodicDataUpload();
+    }
+
+    public void cancelJobs(View view) {
+        unSchedulePeriodDataUpload();
+    }
+
+    public void schedulePeriodicDataUpload() {
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
+        PeriodicWorkRequest uploadWorkRequest = new PeriodicWorkRequest
+                .Builder(UserDataUploadWorker.class, 15, TimeUnit.MINUTES) // TODO: Make this a useful setting
+                .addTag(UserDataUploadWorker.TAG)
+                .setConstraints(constraints)
+                .build();
+
+        WorkManager
+                .getInstance(getApplicationContext())
+                .enqueue(uploadWorkRequest);
+    }
+
+    public void unSchedulePeriodDataUpload() {
+        WorkManager
+                .getInstance(getApplicationContext())
+                .cancelAllWorkByTag(UserDataUploadWorker.TAG);
+    }
+
 
     public void clearDatabase(View view) {
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
