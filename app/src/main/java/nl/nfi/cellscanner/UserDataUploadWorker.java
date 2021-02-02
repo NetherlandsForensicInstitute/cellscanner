@@ -32,7 +32,7 @@ public class UserDataUploadWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        Log.i(TAG, "I will do my work!!!");
+        Log.i(TAG, "Start upload of data file");
 
         FileInputStream fileInputStream;
         FTPClient con = new FTPClient();
@@ -49,7 +49,6 @@ public class UserDataUploadWorker extends Worker {
                 // get the file and send it. A
                 fileInputStream = new FileInputStream(Database.getDataFile(getApplicationContext()));
                 boolean result = con.storeFile(getFileName("deviceID", ""), fileInputStream);
-                TimeUnit.SECONDS.sleep(15);
                 fileInputStream.close();
 
                 if (result) {
