@@ -33,7 +33,9 @@
             android:name=".recorder.LocationRecordingService"
             android:enabled="true"
             android:exported="false"
-            android:permission="ACCESS_COARSE_LOCATION|ACCESS_FINE_LOCATION"></service>
+            android:permission="ACCESS_COARSE_LOCATION|ACCESS_FINE_LOCATION">
+        </service>
+
 
         <activity android:name=".MainActivity">
             <intent-filter>
