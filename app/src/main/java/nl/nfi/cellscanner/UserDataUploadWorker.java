@@ -1,5 +1,6 @@
 package nl.nfi.cellscanner;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
 
@@ -11,8 +12,7 @@ import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 
 import java.io.FileInputStream;
-import java.util.concurrent.TimeUnit;
-
+import java.util.Date;
 
 public class UserDataUploadWorker extends Worker {
     public static final String TAG = UserDataUploadWorker.class.getSimpleName();
@@ -48,7 +48,7 @@ public class UserDataUploadWorker extends Worker {
 
                 // get the file and send it. A
                 fileInputStream = new FileInputStream(Database.getDataFile(getApplicationContext()));
-                boolean result = con.storeFile(getFileName("deviceID", ""), fileInputStream);
+                boolean result = con.storeFile(getFileName("deviceID", getTimeStamp()), fileInputStream);
                 fileInputStream.close();
 
                 if (result) {
@@ -76,7 +76,12 @@ public class UserDataUploadWorker extends Worker {
     }
 
 
-    private String getFileName(String deviceId, String timeStamp) {
-        return String.format("s{0}.sqlite", deviceId);
+    private long getTimeStamp() {
+        return new Date().getTime() / 1000L;
+    }
+
+    @SuppressLint("DefaultLocale")
+    private String getFileName(String aDeviceId, long aTimeStamp) {
+        return String.format("%s-%d.sqlite", aDeviceId, aTimeStamp);
     }
 }

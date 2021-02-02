@@ -303,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     @NotNull
     private Constraints getWorkManagerConstraints() {
         return new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiredNetworkType(NetworkType.UNMETERED)
                 .build();
     }
 
