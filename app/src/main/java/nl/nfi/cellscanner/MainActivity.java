@@ -33,6 +33,8 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -287,9 +289,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     }
 
     public void exportTest(View view) {
-        Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build();
+        Constraints constraints = getWorkManagerConstraints();
 
         OneTimeWorkRequest uploadWorkRequest = new OneTimeWorkRequest
                 .Builder(UserDataUploadWorker.class)
@@ -302,6 +302,13 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                 .enqueue(uploadWorkRequest);
     }
 
+    @NotNull
+    private Constraints getWorkManagerConstraints() {
+        return new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+    }
+
     public void schedulerTest(View view) {
         schedulePeriodicDataUpload();
     }
@@ -311,9 +318,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     }
 
     public void schedulePeriodicDataUpload() {
-        Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build();
+        Constraints constraints = getWorkManagerConstraints();
 
         PeriodicWorkRequest uploadWorkRequest = new PeriodicWorkRequest
                 .Builder(UserDataUploadWorker.class, 15, TimeUnit.MINUTES) // TODO: Make this a useful setting
