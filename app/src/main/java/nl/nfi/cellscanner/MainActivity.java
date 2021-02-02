@@ -274,6 +274,10 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         }
     }
 
+    public void exportTest(View view) {
+        FileUpload fileupload = new FileUpload();
+        fileupload.uploadApplicationDatabase(getApplicationContext());
+    }
 
     public void clearDatabase(View view) {
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
