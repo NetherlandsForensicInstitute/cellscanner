@@ -16,6 +16,10 @@ import java.io.FileInputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/*
+Check if we can remove the service part... now it is only in
+use to get the application context, and so the file name
+ */
 public class FileUpload extends Service {
 
     private static final String TAG = FileUpload.class.getSimpleName();
@@ -26,34 +30,54 @@ public class FileUpload extends Service {
         return null;
     }
 
-    private class FTPUploadFile implements Runnable {
+    /**
+     * Upload datafile to FTP server.
+     */
+    private class FTPUpload implements Runnable {
 
-        public static final String HOSTNAME = "192.168.2.6";
-        public static final String USERNAME = "myuser";
-        public static final String MYPASS = "mypass";
+        private static final String HOSTNAME = "192.168.2.6";
+        private static final String USERNAME = "myuser";
+        private static final String MYPASS = "mypass";
+
+        String deviceID = "";
+        String pathToDatabase = "";
+
+
+        public FTPUpload(String deviceID, String pathToDataBase) {
+            this.deviceID = deviceID;
+            this.pathToDatabase = pathToDataBase;
+        }
+
 
         @Override
         public void run() {
 
-            FTPClient con = null;
+            FileInputStream fileInputStream;
+            FTPClient con = new FTPClient();
 
             try
             {
-                con = new FTPClient();
                 con.connect(HOSTNAME);
                 if (con.login(USERNAME, MYPASS))
                 {
                     con.enterLocalPassiveMode(); // important!
                     con.setFileType(FTP.BINARY_FILE_TYPE);
-                    FileInputStream in = new FileInputStream(Database.getDataFile(getApplicationContext()));
-                    boolean result = con.storeFile("/data.base", in);
-                    in.close();
+
+                    // get the file and send it. A
+                    fileInputStream = new FileInputStream(Database.getDataFile(getApplicationContext()));
+                    boolean result = con.storeFile(getFileName(deviceID, ""), fileInputStream);
+                    fileInputStream.close();
+
                     if (result) {
                         Log.i(TAG, "upload result: succeeded");
+
+                        /*when file has been uploaded, the old data can be flushed*/
+
                     } else {
                         Log.i(TAG, "upload result: Failed");
                     }
 
+                    // disconnect from the server
                     con.logout();
                     con.disconnect();
                 }
@@ -62,11 +86,22 @@ public class FileUpload extends Service {
             {
                 e.printStackTrace();
             }
+
         }
     }
 
-    public void uploadFile(){
-        Runnable action = new FTPUploadFile();
+    /**
+     * Construct the name of the file, as it should be stored on the external device
+     */
+    private String getFileName(String deviceId, String timeStamp) {
+        return String.format("${0}.sqlite", deviceId);
+    }
+
+    /**
+     * Pickup the database and send it to the FTP
+     */
+    public void uploadApplicationDatabase(){
+        Runnable action = new FTPUpload("123", "omg");
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(action);
     }
