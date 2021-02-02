@@ -29,6 +29,7 @@ import androidx.core.content.FileProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.work.Constraints;
 import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
@@ -286,8 +287,19 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     }
 
     public void exportTest(View view) {
-        FileUpload fileupload = new FileUpload();
-        fileupload.uploadApplicationDatabase(getApplicationContext());
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
+        OneTimeWorkRequest uploadWorkRequest = new OneTimeWorkRequest
+                .Builder(UserDataUploadWorker.class)
+                .addTag(UserDataUploadWorker.TAG)
+                .setConstraints(constraints)
+                .build();
+
+        WorkManager
+                .getInstance(getApplicationContext())
+                .enqueue(uploadWorkRequest);
     }
 
     public void schedulerTest(View view) {
