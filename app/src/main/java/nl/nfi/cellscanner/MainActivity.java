@@ -32,6 +32,7 @@ import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -289,17 +290,14 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     }
 
     public void exportTest(View view) {
-        Constraints constraints = getWorkManagerConstraints();
+        scheduleSingleDataUpload();
+    }
 
-        OneTimeWorkRequest uploadWorkRequest = new OneTimeWorkRequest
-                .Builder(UserDataUploadWorker.class)
-                .addTag(UserDataUploadWorker.TAG)
-                .setConstraints(constraints)
-                .build();
 
+    private void scheduleWorkRequest(WorkRequest workRequest) {
         WorkManager
                 .getInstance(getApplicationContext())
-                .enqueue(uploadWorkRequest);
+                .enqueue(workRequest);
     }
 
     @NotNull
@@ -317,7 +315,25 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         unSchedulePeriodDataUpload();
     }
 
-    public void schedulePeriodicDataUpload() {
+    /**
+     * Schedules a Single Upload of the data
+     */
+    public void scheduleSingleDataUpload() {
+        Constraints constraints = getWorkManagerConstraints();
+
+        OneTimeWorkRequest uploadWorkRequest = new OneTimeWorkRequest
+                .Builder(UserDataUploadWorker.class)
+                .addTag(UserDataUploadWorker.TAG)
+                .setConstraints(constraints)
+                .build();
+
+        scheduleWorkRequest(uploadWorkRequest);
+    }
+
+    /**
+     * Schedules a Periodic Upload of the data
+     */
+    private void schedulePeriodicDataUpload() {
         Constraints constraints = getWorkManagerConstraints();
 
         PeriodicWorkRequest uploadWorkRequest = new PeriodicWorkRequest
@@ -326,9 +342,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                 .setConstraints(constraints)
                 .build();
 
-        WorkManager
-                .getInstance(getApplicationContext())
-                .enqueue(uploadWorkRequest);
+        scheduleWorkRequest(uploadWorkRequest);
     }
 
     public void unSchedulePeriodDataUpload() {
