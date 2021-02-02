@@ -1,6 +1,7 @@
 package nl.nfi.cellscanner;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
@@ -20,32 +21,28 @@ import java.util.concurrent.Executors;
 Check if we can remove the service part... now it is only in
 use to get the application context, and so the file name
  */
-public class FileUpload extends Service {
+public class FileUpload {
 
     private static final String TAG = FileUpload.class.getSimpleName();
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
 
     /**
      * Upload datafile to FTP server.
      */
     private class FTPUpload implements Runnable {
 
-        private static final String HOSTNAME = "192.168.2.6";
+        private static final String HOSTNAME = "10.0.2.2";
         private static final String USERNAME = "myuser";
         private static final String MYPASS = "mypass";
+        private final Context ctx;
 
         String deviceID = "";
         String pathToDatabase = "";
 
 
-        public FTPUpload(String deviceID, String pathToDataBase) {
+        public FTPUpload(String deviceID, String pathToDataBase, Context ctx) {
             this.deviceID = deviceID;
             this.pathToDatabase = pathToDataBase;
+            this.ctx = ctx;
         }
 
 
@@ -64,7 +61,7 @@ public class FileUpload extends Service {
                     con.setFileType(FTP.BINARY_FILE_TYPE);
 
                     // get the file and send it. A
-                    fileInputStream = new FileInputStream(Database.getDataFile(getApplicationContext()));
+                    fileInputStream = new FileInputStream(Database.getDataFile(ctx));
                     boolean result = con.storeFile(getFileName(deviceID, ""), fileInputStream);
                     fileInputStream.close();
 
@@ -100,8 +97,8 @@ public class FileUpload extends Service {
     /**
      * Pickup the database and send it to the FTP
      */
-    public void uploadApplicationDatabase(){
-        Runnable action = new FTPUpload("123", "omg");
+    public void uploadApplicationDatabase(Context ctx){
+        Runnable action = new FTPUpload("123", "omg", ctx);
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(action);
     }
