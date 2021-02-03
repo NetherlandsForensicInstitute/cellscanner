@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Toast;
 
@@ -20,6 +21,9 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 import androidx.preference.SwitchPreferenceCompat;
+
+import java.util.Random;
+import java.util.UUID;
 
 import nl.nfi.cellscanner.recorder.RecorderUtils;
 
@@ -42,11 +46,39 @@ public class PreferencesActivity
     private static final String PREF_AUTO_UPLOAD = "AUTO_UPLOAD";
     private static final String PREF_UPLOAD_ON_WIFI_ONLY = "UPLOAD_ON_WIFI_ONLY";
 
+    private static final String PREF_INSTALL_ID = "INSTALL_ID";
+
     private PreferenceFragment prefs;
 
     private SwitchPreferenceCompat swRecordingMaster;
     private SwitchPreferenceCompat swGPSRecord;
     private SwitchPreferenceCompat swGPSPrecision;
+
+    /**
+     * Returns a unique identifier (UUID) for this Cellscanner setup. The value should be the same for
+     * subsequent calls to this. The following actions will cause the identifier to be re-generated:
+     *
+     * - the app is re-installed
+     * - all Cellscanner-related app data are cleared from the Android settings menu.
+     *
+     * The output is a UUID generated randomly once after installation, and then stored with the app
+     * settings.
+     *
+     * @param ctx the application context
+     * @return a UUID of this Cellscanner setup.
+     */
+    public static String getInstallID(Context ctx) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
+        String install_id = prefs.getString(PREF_INSTALL_ID, null);
+
+        if (install_id == null) {
+            // install id not yet available; generate one randomly
+            install_id = UUID.randomUUID().toString();
+            prefs.edit().putString(PREF_INSTALL_ID, install_id).apply();
+        }
+
+        return install_id;
+    }
 
     public static class PreferenceFragment extends PreferenceFragmentCompat
     {
