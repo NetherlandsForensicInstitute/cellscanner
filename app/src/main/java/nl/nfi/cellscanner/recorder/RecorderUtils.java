@@ -4,12 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
-
+import android.preference.PreferenceManager;
 
 import androidx.core.content.ContextCompat;
 
-import nl.nfi.cellscanner.CellScannerApp;
-
+import nl.nfi.cellscanner.PreferencesActivity;
 
 
 /**
@@ -19,19 +18,13 @@ import nl.nfi.cellscanner.CellScannerApp;
  * stop the service
  */
 public class RecorderUtils {
-    final private static String PREFS_NAME = CellScannerApp.TITLE;
-    final private static String APP_RECORDING = "APP_RECORDING";  // APP should be recording data
-    final private static String GPS_RECORDING = "GPS_RECORDING";  // APP should record GPS data when in Recording state
-    final private static String GPS_HIGH_PRECISION_RECORDING = "GPS_HIGH_PRECISION_RECORDING";  // APP should record GPS data when in Recording state
-
     /**
      * Check the state of the Recording key.
      * @return State of the Recording key, when True the app should record cell data
      */
     public static boolean inRecordingState(Context context) {
-        return context
-                .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .getBoolean(APP_RECORDING, false);
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(PreferencesActivity.PREF_ENABLE, false);
     }
 
     /**
@@ -40,9 +33,8 @@ public class RecorderUtils {
      *      the recording state is True
      */
     public static boolean gpsRecordingState(Context context) {
-        return context
-                .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .getBoolean(GPS_RECORDING, true);
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(PreferencesActivity.PREF_GPS_RECORDING, true);
     }
 
     /**
@@ -51,24 +43,23 @@ public class RecorderUtils {
      *      the recording state is True
      */
     public static boolean gpsHighPrecisionRecordingState(Context context) {
-        return context
-                .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .getBoolean(GPS_HIGH_PRECISION_RECORDING, false);
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(PreferencesActivity.PREF_GPS_HIGH_PRECISION_RECORDING, false);
     }
 
     /**
      * Set Recording to State value
      * When True, the app should record data
      * */
-    public static void setRecordingState(Context context, Boolean state) { putBoolean(context, APP_RECORDING, state); };
+    public static void setRecordingState(Context context, Boolean state) { putBoolean(context, PreferencesActivity.PREF_ENABLE, state); };
 
     /**
      * Set GPS recording to State value
      * GPS Recording, when True, store GPS location when the app is recording cells
      * */
-    public static void setGPSRecordingState(Context context, Boolean state) { putBoolean(context, GPS_RECORDING, state); };
+    public static void setGPSRecordingState(Context context, Boolean state) { putBoolean(context, PreferencesActivity.PREF_GPS_RECORDING, state); };
 
-    public static void setGPSHighPrecisionRecordingState(Context context, Boolean state) { putBoolean(context, GPS_HIGH_PRECISION_RECORDING, state); };
+    public static void setGPSHighPrecisionRecordingState(Context context, Boolean state) { putBoolean(context, PreferencesActivity.PREF_GPS_HIGH_PRECISION_RECORDING, state); };
 
 
     /**
@@ -79,10 +70,15 @@ public class RecorderUtils {
      * @param state: Boolean state to store
      */
     private static void putBoolean(Context context, String target, Boolean state ) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean(target, state);
         editor.apply();
+    }
+
+    public static boolean exportMeteredAllowed(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(PreferencesActivity.PREF_UPLOAD_ON_WIFI_ONLY, false);
     }
 
     /**

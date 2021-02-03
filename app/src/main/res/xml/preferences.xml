@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        app:title="Recording settings" >
+
+        <SwitchPreferenceCompat
+            app:key="APP_RECORDING"
+            app:title="Enable"
+            app:summary="Enable network data logging"
+            app:defaultValue="false"/>
+
+        <SwitchPreferenceCompat
+            app:key="GPS_RECORDING"
+            app:title="Record locations"
+            app:summary="Enable location logging"
+            app:defaultValue="true"/>
+
+        <SwitchPreferenceCompat
+            app:key="GPS_HIGH_ACCURACY"
+            app:title="High accuracy"
+            app:summary="Improves accuracy of locations, may increase power consumption"
+            app:defaultValue="true"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:title="Data management" >
+
+        <Preference
+            app:key="VIEW_MEASUREMENTS"
+            app:title="View data"
+            app:summary="View currently recorded data"/>
+
+        <Preference
+            app:key="SHARE_DATA"
+            app:title="Export database"
+            app:summary="Export locally stored data as an sqlite file"/>
+
+        <SwitchPreferenceCompat
+            app:key="AUTO_UPLOAD"
+            app:title="Periodic upload"
+            app:summary="Automatically upload encrypted data to NFI"
+            app:defaultValue="true"/>
+
+        <SwitchPreferenceCompat
+            app:key="UPLOAD_ON_WIFI_ONLY"
+            app:title="Wifi upload only"
+            app:summary="Upload when connected to wifi only"
+            app:defaultValue="true"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:title="Cellscanner" >
+
+        <Preference
+            app:key="about_cellscanner"
+            app:title="About Cellscanner"
+            app:summary="View general information and contact details"/>
+
+    </PreferenceCategory>
+</PreferenceScreen>

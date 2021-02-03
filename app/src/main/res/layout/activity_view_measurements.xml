@@ -4,87 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="nl.nfi.cellscanner.MainActivity">
-
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/recorderSwitch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="32dp"
-            android:layout_marginEnd="8dp"
-            android:checked="false"
-            android:text="Recording Off/On"
-            android:visibility="visible"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/swGPSRecord"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="false"
-            android:text="Add GPS recording"
-            android:visibility="visible"
-            app:layout_constraintEnd_toEndOf="@+id/recorderSwitch"
-            app:layout_constraintTop_toBottomOf="@+id/recorderSwitch" />
-
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/swGPSRecordingPrecision"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="false"
-            android:text="GPS recording precision"
-            android:visibility="visible"
-            app:layout_constraintEnd_toEndOf="@+id/recorderSwitch"
-            app:layout_constraintTop_toBottomOf="@+id/swGPSRecord" />
-
-        <Button
-            android:id="@+id/exportButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="16dp"
-            android:onClick="exportData"
-            android:text="Export"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/swGPSRecordingPrecision" />
-
-        <Button
-            android:id="@+id/clearButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
-            android:onClick="clearDatabase"
-            android:text="Clear data"
-            app:layout_constraintEnd_toStartOf="@+id/tac_info_button"
-            app:layout_constraintStart_toEndOf="@+id/exportButton"
-            app:layout_constraintTop_toBottomOf="@+id/swGPSRecordingPrecision" />
-
-        <Button
-            android:id="@+id/tac_info_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="32dp"
-            android:onClick="openTermsAndConditions"
-            android:text="Info"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/swGPSRecordingPrecision" />
+    tools:context="nl.nfi.cellscanner.ViewMeasurementsActivity">
 
         <View
             android:id="@+id/divideruno"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="20dp"
             android:background="?android:attr/listDivider"
+            app:layout_constraintBottom_toTopOf="@+id/editTextTextPersonName2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/clearButton"
-            app:layout_constraintBottom_toTopOf="@+id/editTextTextPersonName2"/>
+            app:layout_constraintStart_toStartOf="parent" />
 
 
         <View
@@ -264,34 +195,5 @@
             app:layout_constraintStart_toEndOf="@+id/lblGPSAcc"
             app:layout_constraintTop_toTopOf="@+id/lblGPSSpeed"
             app:layout_constraintVertical_bias="0.0" />
-
-        <Button
-            android:id="@+id/button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="512dp"
-            android:onClick="exportTest"
-            android:text="ExportTest"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <Button
-            android:id="@+id/button2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="schedulerTest"
-            android:text="ScheduleTest"
-            app:layout_constraintStart_toStartOf="@+id/button"
-            app:layout_constraintTop_toBottomOf="@+id/button" />
-
-        <Button
-            android:id="@+id/button3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="cancelJobs"
-            android:text="CancelTest"
-            app:layout_constraintStart_toStartOf="@+id/button2"
-            app:layout_constraintTop_toBottomOf="@+id/button2" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
