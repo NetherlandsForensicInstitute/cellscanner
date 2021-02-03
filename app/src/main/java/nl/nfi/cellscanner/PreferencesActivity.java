@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -94,6 +95,13 @@ public class PreferencesActivity
             upload_switch.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    // toggle the scheduled upload of data
+                    if ((boolean)newValue) {
+                        preferencesActivity.schedulePeriodicDataUpload();
+                    } else {
+                        preferencesActivity.unSchedulePeriodDataUpload();
+                    }
+
                     wifi_switch.setEnabled((boolean)newValue);
                     return true;
                 }
@@ -302,11 +310,6 @@ public class PreferencesActivity
                 .setNegativeButton("No", dialogClickListener).show();
     }
 
-    public void exportTest(View view) {
-        scheduleSingleDataUpload();
-    }
-
-
     private void scheduleWorkRequest(WorkRequest workRequest) {
         WorkManager
                 .getInstance(getApplicationContext())
@@ -318,14 +321,6 @@ public class PreferencesActivity
         return new Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.UNMETERED)
                 .build();
-    }
-
-    public void schedulerTest(View view) {
-        schedulePeriodicDataUpload();
-    }
-
-    public void cancelJobs(View view) {
-        unSchedulePeriodDataUpload();
     }
 
     /**
