@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
-import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -23,7 +22,7 @@ public class Database {
     protected static final int VERSION = 2;
 
     private static final String META_VERSION_CODE = "version_code";
-    private static final String META_ANDROID_ID = "android_id";
+    private static final String META_INSTALL_ID = "install_id";
 
     private SQLiteDatabase db;
 
@@ -178,9 +177,9 @@ public class Database {
             return Integer.parseInt(versionCode);
     }
 
-    public void storePhoneID(Context ctx) {
-        String android_id = Settings.Secure.getString(ctx.getContentResolver(), Settings.Secure.ANDROID_ID);
-        setMetaEntry(META_ANDROID_ID, android_id);
+    public void storeInstallID(Context ctx) {
+        String install_id = PreferencesActivity.getInstallID(ctx);
+        setMetaEntry(META_INSTALL_ID, install_id);
     }
 
     public void storeMessage(String msg) {

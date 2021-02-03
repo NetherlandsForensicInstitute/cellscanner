@@ -4,10 +4,12 @@ import android.app.Application;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
 import java.util.Locale;
+import java.util.Random;
 
 /**
  * Main application state
