@@ -20,6 +20,16 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 import androidx.preference.SwitchPreferenceCompat;
+import androidx.work.Constraints;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.util.concurrent.TimeUnit;
 
 import nl.nfi.cellscanner.recorder.RecorderUtils;
 
@@ -269,7 +279,6 @@ public class PreferencesActivity
         }
     }
 
-
     public void clearDatabase(View view) {
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
             @Override
@@ -292,4 +301,67 @@ public class PreferencesActivity
         ab.setMessage("Drop tables. Sure?").setPositiveButton("Yes", dialogClickListener)
                 .setNegativeButton("No", dialogClickListener).show();
     }
+
+    public void exportTest(View view) {
+        scheduleSingleDataUpload();
+    }
+
+
+    private void scheduleWorkRequest(WorkRequest workRequest) {
+        WorkManager
+                .getInstance(getApplicationContext())
+                .enqueue(workRequest);
+    }
+
+    @NotNull
+    private Constraints getWorkManagerConstraints() {
+        return new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.UNMETERED)
+                .build();
+    }
+
+    public void schedulerTest(View view) {
+        schedulePeriodicDataUpload();
+    }
+
+    public void cancelJobs(View view) {
+        unSchedulePeriodDataUpload();
+    }
+
+    /**
+     * Schedules a Single Upload of the data
+     */
+    public void scheduleSingleDataUpload() {
+        Constraints constraints = getWorkManagerConstraints();
+
+        OneTimeWorkRequest uploadWorkRequest = new OneTimeWorkRequest
+                .Builder(UserDataUploadWorker.class)
+                .addTag(UserDataUploadWorker.TAG)
+                .setConstraints(constraints)
+                .build();
+
+        scheduleWorkRequest(uploadWorkRequest);
+    }
+
+    /**
+     * Schedules a Periodic Upload of the data
+     */
+    private void schedulePeriodicDataUpload() {
+        Constraints constraints = getWorkManagerConstraints();
+
+        PeriodicWorkRequest uploadWorkRequest = new PeriodicWorkRequest
+                .Builder(UserDataUploadWorker.class, 15, TimeUnit.MINUTES) // TODO: Make this a useful setting
+                .addTag(UserDataUploadWorker.TAG)
+                .setConstraints(constraints)
+                .build();
+
+        scheduleWorkRequest(uploadWorkRequest);
+    }
+
+    public void unSchedulePeriodDataUpload() {
+        WorkManager
+                .getInstance(getApplicationContext())
+                .cancelAllWorkByTag(UserDataUploadWorker.TAG);
+    }
+
 }
