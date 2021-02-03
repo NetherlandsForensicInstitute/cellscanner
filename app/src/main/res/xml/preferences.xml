@@ -18,7 +18,7 @@
             app:defaultValue="true"/>
 
         <SwitchPreferenceCompat
-            app:key="gps_high_accuracy"
+            app:key="GPS_HIGH_ACCURACY"
             app:title="High accuracy"
             app:summary="Improves accuracy of locations, may increase power consumption"
             app:defaultValue="true"/>
@@ -29,23 +29,23 @@
         app:title="Data management" >
 
         <Preference
-            app:key="view_measurements"
+            app:key="VIEW_MEASUREMENTS"
             app:title="View data"
             app:summary="View currently recorded data"/>
 
         <Preference
-            app:key="share_data"
+            app:key="SHARE_DATA"
             app:title="Export database"
             app:summary="Export locally stored data as an sqlite file"/>
 
         <SwitchPreferenceCompat
-            app:key="auto_upload"
+            app:key="AUTO_UPLOAD"
             app:title="Periodic upload"
             app:summary="Automatically upload encrypted data to NFI"
             app:defaultValue="true"/>
 
         <SwitchPreferenceCompat
-            app:key="upload_on_wifi_only"
+            app:key="UPLOAD_ON_WIFI_ONLY"
             app:title="Wifi upload only"
             app:summary="Upload when connected to wifi only"
             app:defaultValue="true"/>

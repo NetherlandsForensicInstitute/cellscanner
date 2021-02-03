@@ -10,11 +10,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,17 +26,21 @@ import nl.nfi.cellscanner.recorder.RecorderUtils;
 import static nl.nfi.cellscanner.Database.getFileTitle;
 import static nl.nfi.cellscanner.recorder.PermissionSupport.hasAccessCourseLocationPermission;
 import static nl.nfi.cellscanner.recorder.PermissionSupport.hasFineLocationPermission;
-import static nl.nfi.cellscanner.recorder.PermissionSupport.hasUserConsent;
-import static nl.nfi.cellscanner.recorder.PermissionSupport.setUserConsent;
-import static nl.nfi.cellscanner.recorder.RecorderUtils.gpsHighPrecisionRecordingState;
-import static nl.nfi.cellscanner.recorder.RecorderUtils.gpsRecordingState;
-import static nl.nfi.cellscanner.recorder.RecorderUtils.inRecordingState;
 
 public class PreferencesActivity
         extends AppCompatActivity
         implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final int PERMISSION_REQUEST_START_RECORDING = 1;
+
+    public final static String PREF_ENABLE = "APP_RECORDING";  // APP should be recording data
+    public final static String PREF_GPS_RECORDING = "GPS_RECORDING";  // APP should record GPS data when in Recording state
+    public final static String PREF_GPS_HIGH_PRECISION_RECORDING = "GPS_HIGH_ACCURACY";  // APP should record GPS data when in Recording state
+
+    private static final String PREF_VIEW_MEASUREMENTS = "VIEW_MEASUREMENTS";
+    private static final String PREF_SHARE_DATA = "SHARE_DATA";
+    private static final String PREF_AUTO_UPLOAD = "AUTO_UPLOAD";
+    private static final String PREF_UPLOAD_ON_WIFI_ONLY = "UPLOAD_ON_WIFI_ONLY";
 
     private PreferenceFragment prefs;
 
@@ -50,23 +50,23 @@ public class PreferencesActivity
 
     public static class PreferenceFragment extends PreferenceFragmentCompat
     {
-        private final PreferencesActivity a;
+        private final PreferencesActivity preferencesActivity;
 
         public PreferenceFragment(PreferencesActivity a) {
-            this.a = a;
+            this.preferencesActivity = a;
         }
 
         private void setupSharing() {
-            Preference view_measurements_button = findPreference("view_measurements");
-            Preference share_data_button = findPreference("share_data");
-            SwitchPreferenceCompat upload_switch = findPreference("auto_upload");
-            final SwitchPreferenceCompat wifi_switch = findPreference("upload_on_wifi_only");
+            Preference view_measurements_button = findPreference(PREF_VIEW_MEASUREMENTS);
+            Preference share_data_button = findPreference(PREF_SHARE_DATA);
+            SwitchPreferenceCompat upload_switch = findPreference(PREF_AUTO_UPLOAD);
+            final SwitchPreferenceCompat wifi_switch = findPreference(PREF_UPLOAD_ON_WIFI_ONLY);
 
             view_measurements_button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    Intent i = new Intent(a, ViewMeasurementsActivity.class);
-                    a.startActivity(i);
+                    Intent i = new Intent(preferencesActivity, ViewMeasurementsActivity.class);
+                    preferencesActivity.startActivity(i);
                     return true;
                 }
             });
@@ -74,7 +74,7 @@ public class PreferencesActivity
             share_data_button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    a.exportData();
+                    preferencesActivity.exportData();
                     return true;
                 }
             });
@@ -94,13 +94,13 @@ public class PreferencesActivity
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.preferences, rootKey);
 
-            a.setupRecording();
+            preferencesActivity.setupRecording();
             setupSharing();
 
             findPreference("about_cellscanner").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    AppInfoActivity.show(a);
+                    AppInfoActivity.show(preferencesActivity);
                     return true;
                 }
             });
@@ -108,9 +108,9 @@ public class PreferencesActivity
     }
 
     private void setupRecording() {
-        swRecordingMaster = prefs.findPreference("APP_RECORDING");
-        swGPSRecord = prefs.findPreference("GPS_RECORDING");
-        swGPSPrecision = prefs.findPreference("gps_high_accuracy");
+        swRecordingMaster = prefs.findPreference(PREF_ENABLE);
+        swGPSRecord = prefs.findPreference(PREF_GPS_RECORDING);
+        swGPSPrecision = prefs.findPreference(PREF_GPS_HIGH_PRECISION_RECORDING);
 
         swGPSRecord.setEnabled(swRecordingMaster.isChecked());
         swGPSPrecision.setEnabled(swGPSRecord.isEnabled() && swGPSRecord.isChecked());
@@ -187,18 +187,19 @@ public class PreferencesActivity
      * Set the buttons on the screen to recording state, or not recording state
      */
     private void toggleButtonsRecordingState() {
-        boolean isInRecordingState = inRecordingState(this);
+        boolean isInRecordingState = RecorderUtils.inRecordingState(this);
         swRecordingMaster.setChecked(isInRecordingState);
 
         swGPSRecord.setEnabled(!isInRecordingState);
-        swGPSPrecision.setEnabled(!isInRecordingState);
+        swGPSRecord.setChecked(RecorderUtils.gpsRecordingState(this));
 
-        swGPSRecord.setChecked(gpsRecordingState(this));
-        swGPSPrecision.setChecked(gpsHighPrecisionRecordingState(this));
+        swGPSPrecision.setEnabled(!isInRecordingState);
+        swGPSPrecision.setChecked(RecorderUtils.gpsHighPrecisionRecordingState(this));
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        // TODO, this should be removed, as the switches are not externally controlled
         toggleButtonsRecordingState();
     }
 
