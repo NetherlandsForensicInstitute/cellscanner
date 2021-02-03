@@ -24,3 +24,20 @@ Data is stored in a local SLQLite database
 * Application restarts recording after a reboot if the device was rebooted while the App was running 
 
  
+ 
+## FTP test setups 
+For testing with the FTP file upload  
+
+1. Get your local ip
+2. Use to following docker command to start an FTP server on your machine
+```
+docker run -ti -v /home/nprins/ftp:/home/vsftpd -p 20:20 -p 21:21 -p 21100-21110:21100-21110 \
+-e FTP_USER=myuser -e FTP_PASS=mypass \
+-e PASV_ADDRESS=<YOUR LOCALHOST IP> -e PASV_MIN_PORT=21100 -e PASV_MAX_PORT=21110 \
+fauria/vsftpd
+```
+3. Set you local IP in the android app on the file upload
+
+you are done 
+
+

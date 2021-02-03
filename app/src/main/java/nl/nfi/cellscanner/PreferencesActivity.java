@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -21,6 +22,16 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 import androidx.preference.SwitchPreferenceCompat;
+import androidx.work.Constraints;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.util.concurrent.TimeUnit;
 
 import java.util.Random;
 import java.util.UUID;
@@ -30,6 +41,7 @@ import nl.nfi.cellscanner.recorder.RecorderUtils;
 import static nl.nfi.cellscanner.Database.getFileTitle;
 import static nl.nfi.cellscanner.recorder.PermissionSupport.hasAccessCourseLocationPermission;
 import static nl.nfi.cellscanner.recorder.PermissionSupport.hasFineLocationPermission;
+import static nl.nfi.cellscanner.recorder.RecorderUtils.exportMeteredAllowed;
 
 public class PreferencesActivity
         extends AppCompatActivity
@@ -44,7 +56,7 @@ public class PreferencesActivity
     private static final String PREF_VIEW_MEASUREMENTS = "VIEW_MEASUREMENTS";
     private static final String PREF_SHARE_DATA = "SHARE_DATA";
     private static final String PREF_AUTO_UPLOAD = "AUTO_UPLOAD";
-    private static final String PREF_UPLOAD_ON_WIFI_ONLY = "UPLOAD_ON_WIFI_ONLY";
+    public static final String PREF_UPLOAD_ON_WIFI_ONLY = "UPLOAD_ON_WIFI_ONLY";
 
     private static final String PREF_INSTALL_ID = "INSTALL_ID";
 
@@ -116,6 +128,13 @@ public class PreferencesActivity
             upload_switch.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    // toggle the scheduled upload of data
+                    if ((boolean)newValue) {
+                        preferencesActivity.schedulePeriodicDataUpload();
+                    } else {
+                        preferencesActivity.unSchedulePeriodDataUpload();
+                    }
+
                     wifi_switch.setEnabled((boolean)newValue);
                     return true;
                 }
@@ -301,7 +320,6 @@ public class PreferencesActivity
         }
     }
 
-
     public void clearDatabase(View view) {
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
             @Override
@@ -324,4 +342,55 @@ public class PreferencesActivity
         ab.setMessage("Drop tables. Sure?").setPositiveButton("Yes", dialogClickListener)
                 .setNegativeButton("No", dialogClickListener).show();
     }
+
+    private void scheduleWorkRequest(WorkRequest workRequest) {
+        WorkManager
+                .getInstance(getApplicationContext())
+                .enqueue(workRequest);
+    }
+
+    @NotNull
+    private Constraints getWorkManagerConstraints() {
+        NetworkType networkType = exportMeteredAllowed(this) ? NetworkType.UNMETERED : NetworkType.CONNECTED;
+        return new Constraints.Builder()
+                .setRequiredNetworkType(networkType)
+                .build();
+    }
+
+    /**
+     * Schedules a Single Upload of the data
+     */
+    public void scheduleSingleDataUpload() {
+        Constraints constraints = getWorkManagerConstraints();
+
+        OneTimeWorkRequest uploadWorkRequest = new OneTimeWorkRequest
+                .Builder(UserDataUploadWorker.class)
+                .addTag(UserDataUploadWorker.TAG)
+                .setConstraints(constraints)
+                .build();
+
+        scheduleWorkRequest(uploadWorkRequest);
+    }
+
+    /**
+     * Schedules a Periodic Upload of the data
+     */
+    private void schedulePeriodicDataUpload() {
+        Constraints constraints = getWorkManagerConstraints();
+
+        PeriodicWorkRequest uploadWorkRequest = new PeriodicWorkRequest
+                .Builder(UserDataUploadWorker.class, 15, TimeUnit.MINUTES) // TODO: Make this a useful setting
+                .addTag(UserDataUploadWorker.TAG)
+                .setConstraints(constraints)
+                .build();
+
+        scheduleWorkRequest(uploadWorkRequest);
+    }
+
+    public void unSchedulePeriodDataUpload() {
+        WorkManager
+                .getInstance(getApplicationContext())
+                .cancelAllWorkByTag(UserDataUploadWorker.TAG);
+    }
+
 }
