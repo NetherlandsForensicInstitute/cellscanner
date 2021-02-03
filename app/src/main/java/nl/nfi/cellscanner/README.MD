@@ -38,6 +38,6 @@ fauria/vsftpd
 ```
 3. Set you local IP in the android app on the file upload
 
-your done 
+you are done 
 
 

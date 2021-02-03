@@ -42,11 +42,10 @@ public class FileUpload {
         @Override
         public void run() {
 
-            FileInputStream fileInputStream;
-            FTPClient con = new FTPClient();
 
             try
             {
+                FTPClient con = new FTPClient();
                 con.connect(HOSTNAME);
                 if (con.login(USERNAME, MYPASS))
                 {
@@ -54,7 +53,7 @@ public class FileUpload {
                     con.setFileType(FTP.BINARY_FILE_TYPE);
 
                     // get the file and send it. A
-                    fileInputStream = new FileInputStream(Database.getDataFile(ctx));
+                    FileInputStream fileInputStream = new FileInputStream(Database.getDataFile(ctx));
                     boolean result = con.storeFile(getFileName(deviceID, ""), fileInputStream);
                     fileInputStream.close();
 
