@@ -37,6 +37,7 @@ import nl.nfi.cellscanner.recorder.RecorderUtils;
 import static nl.nfi.cellscanner.Database.getFileTitle;
 import static nl.nfi.cellscanner.recorder.PermissionSupport.hasAccessCourseLocationPermission;
 import static nl.nfi.cellscanner.recorder.PermissionSupport.hasFineLocationPermission;
+import static nl.nfi.cellscanner.recorder.RecorderUtils.exportMeteredAllowed;
 
 public class PreferencesActivity
         extends AppCompatActivity
@@ -51,7 +52,7 @@ public class PreferencesActivity
     private static final String PREF_VIEW_MEASUREMENTS = "VIEW_MEASUREMENTS";
     private static final String PREF_SHARE_DATA = "SHARE_DATA";
     private static final String PREF_AUTO_UPLOAD = "AUTO_UPLOAD";
-    private static final String PREF_UPLOAD_ON_WIFI_ONLY = "UPLOAD_ON_WIFI_ONLY";
+    public static final String PREF_UPLOAD_ON_WIFI_ONLY = "UPLOAD_ON_WIFI_ONLY";
 
     private PreferenceFragment prefs;
 
@@ -318,8 +319,9 @@ public class PreferencesActivity
 
     @NotNull
     private Constraints getWorkManagerConstraints() {
+        NetworkType networkType = exportMeteredAllowed(this) ? NetworkType.UNMETERED : NetworkType.CONNECTED;
         return new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.UNMETERED)
+                .setRequiredNetworkType(networkType)
                 .build();
     }
 
