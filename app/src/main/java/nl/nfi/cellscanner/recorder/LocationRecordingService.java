@@ -78,7 +78,7 @@ public class LocationRecordingService extends Service {
         createNotificationChannel();
 
         /* store some constants in the database */
-        mDB.storePhoneID(getApplicationContext());
+        mDB.storeInstallID(getApplicationContext());
         mDB.storeVersionCode(getApplicationContext());
 
         /*

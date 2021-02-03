@@ -1,11 +1,9 @@
 package nl.nfi.cellscanner;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.text.Html;
 import android.view.View;
 import android.widget.Button;
@@ -28,9 +26,9 @@ public class AppInfoActivity extends AppCompatActivity {
         final Context context = this;
 
         // Show the android ID to the user
-        String androidId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
-        TextView tvAndroidId = findViewById(R.id.tac_android_id_text);
-        tvAndroidId.setText(androidId);
+        String installId = PreferencesActivity.getInstallID(context);
+        TextView tvAndroidId = findViewById(R.id.tac_install_id_text);
+        tvAndroidId.setText(installId);
 
         // Set textview with string containing HTML for URLs and phonenumbers
         String contactInformation = getString(R.string.tac_contact_information);

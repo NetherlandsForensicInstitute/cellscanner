@@ -14,7 +14,7 @@ Cellscanner only collects what is strictly necessary.
 That includes network and (optionally) GPS data.
 Network data may reveal the location of the device to some extent, depending on the number of cell towers in the area.
 In addition, a device identifier is stored.
-The device identifier is used to link multiple submissions from the same user.
+The device identifier is used to link multiple submissions from the same user, and is generated once after the app is installed.
 </p><p>
 When using this app you are free to start/stop recording at any time using the switch button on the main screen.
 In addition, GPS logging is optional and can be enabled or disabled at any time.
@@ -22,6 +22,8 @@ When the app is recording and GPS logging is turned off, only cell tower address
 </p><p>
 If at any point you wish to revoke your consent and have your data removed from NFI servers, you can email your request to <a href="mailto:fbda@nfi.nl">fbda@nfi.nl</a>.
 In this email you should mention the name of this app (Cellscanner) and your device identifier, which is shown below.
+This identifier is the only link between you and your data.
+Please write it down now, in case you may wish to revoke your consent later.
 </p><p>
 In summary, by using this app you consent and understand that:
 <ul>

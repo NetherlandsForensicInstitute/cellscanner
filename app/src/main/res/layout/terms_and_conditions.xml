@@ -104,13 +104,13 @@
                 android:text="Your device identifier"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textSize="24sp"
-                app:layout_constraintBottom_toTopOf="@+id/tac_android_id_text"
+                app:layout_constraintBottom_toTopOf="@+id/tac_install_id_text"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tac_dataCollected_text" />
 
             <TextView
-                android:id="@+id/tac_android_id_text"
+                android:id="@+id/tac_install_id_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingLeft="3dp"
@@ -136,7 +136,7 @@
                 app:layout_constraintBottom_toTopOf="@+id/tac_aboutApp_text"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tac_android_id_text" />
+                app:layout_constraintTop_toBottomOf="@+id/tac_install_id_text" />
 
             <TextView
                 android:id="@+id/tac_aboutApp_text"
