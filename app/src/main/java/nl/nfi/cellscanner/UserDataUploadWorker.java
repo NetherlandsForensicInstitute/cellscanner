@@ -14,6 +14,8 @@ import org.apache.commons.net.ftp.FTPClient;
 import java.io.FileInputStream;
 import java.util.Date;
 
+import nl.nfi.cellscanner.recorder.RecorderUtils;
+
 public class UserDataUploadWorker extends Worker {
     public static final String TAG = UserDataUploadWorker.class.getSimpleName();
 
@@ -46,9 +48,16 @@ public class UserDataUploadWorker extends Worker {
                 con.enterLocalPassiveMode(); // important!
                 con.setFileType(FTP.BINARY_FILE_TYPE);
 
-                // get the file and send it. A
+                // get the file and send it.
                 fileInputStream = new FileInputStream(Database.getDataFile(getApplicationContext()));
-                boolean result = con.storeFile(getFileName("deviceID", getTimeStamp()), fileInputStream);
+
+                String serverSideFileName = getFileName(
+                        RecorderUtils.getPrefInstallId(getApplicationContext()),
+                        getTimeStamp()
+                );
+
+                // Upload the file
+                boolean result = con.storeFile(serverSideFileName, fileInputStream);
                 fileInputStream.close();
 
                 if (result) {

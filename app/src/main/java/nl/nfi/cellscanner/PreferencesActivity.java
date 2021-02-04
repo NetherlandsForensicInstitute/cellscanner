@@ -47,6 +47,7 @@ public class PreferencesActivity
         extends AppCompatActivity
         implements SharedPreferences.OnSharedPreferenceChangeListener {
 
+    public static final String PREF_INSTALL_ID = "INSTALL_ID";
     private static final int PERMISSION_REQUEST_START_RECORDING = 1;
 
     public final static String PREF_ENABLE = "APP_RECORDING";  // APP should be recording data
@@ -57,8 +58,6 @@ public class PreferencesActivity
     private static final String PREF_SHARE_DATA = "SHARE_DATA";
     private static final String PREF_AUTO_UPLOAD = "AUTO_UPLOAD";
     public static final String PREF_UPLOAD_ON_WIFI_ONLY = "UPLOAD_ON_WIFI_ONLY";
-
-    private static final String PREF_INSTALL_ID = "INSTALL_ID";
 
     private PreferenceFragment prefs;
 
