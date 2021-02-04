@@ -47,6 +47,11 @@ public class RecorderUtils {
                 .getBoolean(PreferencesActivity.PREF_GPS_HIGH_PRECISION_RECORDING, false);
     }
 
+    public static String getPrefInstallId (Context context) {
+        return  PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(PreferencesActivity.PREF_INSTALL_ID, "UNKNOWN");
+    }
+
     /**
      * Set Recording to State value
      * When True, the app should record data
