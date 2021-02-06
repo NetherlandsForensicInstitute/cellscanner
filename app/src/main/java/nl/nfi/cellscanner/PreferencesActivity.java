@@ -198,7 +198,7 @@ public class PreferencesActivity
             }
         });
 
-        toggleButtonsRecordingState();
+        updateButtonStateToRecordingState();
     }
 
     @Override
@@ -237,21 +237,21 @@ public class PreferencesActivity
     /**
      * Set the buttons on the screen to recording state, or not recording state
      */
-    private void toggleButtonsRecordingState() {
+    private void updateButtonStateToRecordingState() {
         boolean isInRecordingState = RecorderUtils.inRecordingState(this);
         swRecordingMaster.setChecked(isInRecordingState);
 
         swGPSRecord.setEnabled(!isInRecordingState);
         swGPSRecord.setChecked(RecorderUtils.gpsRecordingState(this));
 
-        swGPSPrecision.setEnabled(!isInRecordingState);
+        swGPSPrecision.setEnabled(!isInRecordingState && swGPSRecord.isChecked());
         swGPSPrecision.setChecked(RecorderUtils.gpsHighPrecisionRecordingState(this));
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         // TODO, this should be removed, as the switches are not externally controlled
-        toggleButtonsRecordingState();
+        updateButtonStateToRecordingState();
     }
 
     /**
