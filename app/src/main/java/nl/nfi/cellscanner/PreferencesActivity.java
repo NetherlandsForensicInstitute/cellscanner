@@ -10,8 +10,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -33,7 +31,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
 
-import java.util.Random;
 import java.util.UUID;
 
 import nl.nfi.cellscanner.recorder.RecorderUtils;
@@ -49,6 +46,7 @@ public class PreferencesActivity
 
     private static final int PERMISSION_REQUEST_START_RECORDING = 1;
 
+    private static final String PREF_INSTALL_ID = "INSTALL_ID";
     public final static String PREF_ENABLE = "APP_RECORDING";  // APP should be recording data
     public final static String PREF_GPS_RECORDING = "GPS_RECORDING";  // APP should record GPS data when in Recording state
     public final static String PREF_GPS_HIGH_PRECISION_RECORDING = "GPS_HIGH_ACCURACY";  // APP should record GPS data when in Recording state
@@ -57,8 +55,6 @@ public class PreferencesActivity
     private static final String PREF_SHARE_DATA = "SHARE_DATA";
     private static final String PREF_AUTO_UPLOAD = "AUTO_UPLOAD";
     public static final String PREF_UPLOAD_ON_WIFI_ONLY = "UPLOAD_ON_WIFI_ONLY";
-
-    private static final String PREF_INSTALL_ID = "INSTALL_ID";
 
     private PreferenceFragment prefs;
 
