@@ -89,6 +89,10 @@ public class UserDataUploadWorker extends Worker {
     }
 
 
+    /**
+     * Method returns how many milliseconds have passed since January 1, 1970, 00:00:00 GMT
+     * @return UTC timestamp
+     */
     private long getTimeStamp() {
         return new Date().getTime();
     }
