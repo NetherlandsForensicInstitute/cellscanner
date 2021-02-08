@@ -67,5 +67,6 @@ When rebooting your device, the app will continue in the state that you left it 
     </string>
     <string name="terms_and_conditions_accept">I understand and accept the terms and conditions as listed above</string>
     <string name="terms_and_conditions_close">Close</string>
-    <string name="valueBaseText">searching</string>
+    <string name="noDataRecorded">database is empty</string>
+    <string name="gpsNotRecordingState">not recording</string>
 </resources>
