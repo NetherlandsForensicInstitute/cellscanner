@@ -14,8 +14,8 @@ import org.apache.commons.net.ftp.FTPClient;
 import java.io.FileInputStream;
 import java.util.Date;
 
-import nl.nfi.cellscanner.recorder.RecorderUtils;
 import static nl.nfi.cellscanner.CellScannerApp.getDatabase;
+import static nl.nfi.cellscanner.PreferencesActivity.getInstallID;
 
 public class UserDataUploadWorker extends Worker {
     public static final String TAG = UserDataUploadWorker.class.getSimpleName();
@@ -56,7 +56,7 @@ public class UserDataUploadWorker extends Worker {
                 long timestamp  = getTimeStamp();
 
                 String serverSideFileName = getFileName(
-                        RecorderUtils.getPrefInstallId(getApplicationContext()),
+                        getInstallID(getApplicationContext()),
                         timestamp
                 );
 
