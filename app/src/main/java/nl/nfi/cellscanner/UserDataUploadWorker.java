@@ -15,6 +15,7 @@ import java.io.FileInputStream;
 import java.util.Date;
 
 import nl.nfi.cellscanner.recorder.RecorderUtils;
+import static nl.nfi.cellscanner.CellScannerApp.getDatabase;
 
 public class UserDataUploadWorker extends Worker {
     public static final String TAG = UserDataUploadWorker.class.getSimpleName();
@@ -42,6 +43,8 @@ public class UserDataUploadWorker extends Worker {
 
         try
         {
+            Database db = getDatabase();
+
             con.connect(HOSTNAME);
             if (con.login(USERNAME, MYPASS))
             {
@@ -50,10 +53,11 @@ public class UserDataUploadWorker extends Worker {
 
                 // get the file and send it.
                 fileInputStream = new FileInputStream(Database.getDataFile(getApplicationContext()));
+                long timestamp  = getTimeStamp();
 
                 String serverSideFileName = getFileName(
                         RecorderUtils.getPrefInstallId(getApplicationContext()),
-                        getTimeStamp()
+                        timestamp
                 );
 
                 // Upload the file
@@ -63,7 +67,7 @@ public class UserDataUploadWorker extends Worker {
                 if (result) {
                     Log.i(TAG, "upload result: succeeded");
 
-                    /*when file has been uploaded, the old data can be flushed*/
+                    db.dropDataUntil(timestamp);
 
                 } else {
                     Log.i(TAG, "upload result: Failed");
@@ -85,12 +89,16 @@ public class UserDataUploadWorker extends Worker {
     }
 
 
+    /**
+     * Method returns how many milliseconds have passed since January 1, 1970, 00:00:00 GMT
+     * @return UTC timestamp
+     */
     private long getTimeStamp() {
-        return new Date().getTime() / 1000L;
+        return new Date().getTime();
     }
 
     @SuppressLint("DefaultLocale")
     private String getFileName(String aDeviceId, long aTimeStamp) {
-        return String.format("%s-%d.sqlite", aDeviceId, aTimeStamp);
+        return String.format("%s-%d.sqlite", aDeviceId, aTimeStamp / 1000L);
     }
 }
