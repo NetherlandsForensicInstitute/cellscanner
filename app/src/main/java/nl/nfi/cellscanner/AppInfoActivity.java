@@ -6,6 +6,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import static nl.nfi.cellscanner.recorder.PermissionSupport.hasUserConsent;
 import static nl.nfi.cellscanner.recorder.PermissionSupport.setUserConsent;
@@ -51,10 +53,13 @@ public class AppInfoActivity extends AppCompatActivity {
         /*
         Only allow (un)checking the consent the first time around. To retract consent, an email
         should be send asking to remove all data.
+
+        When consent has already been given, do not show the option
          */
         final CheckBox accepted_checkbox = findViewById(R.id.tac_checkbox);
-        accepted_checkbox.setChecked(userConsent);
+
         if (!userConsent) {
+            accepted_checkbox.setChecked(userConsent);
             accepted_checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -63,13 +68,17 @@ public class AppInfoActivity extends AppCompatActivity {
                 }
             });
         } else {
-            accepted_checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    accepted_checkbox.setChecked(true);
-                    Toast.makeText(context, "To revoke consent, contact the NFI to remove your data and then uninstall the app", Toast.LENGTH_SHORT).show();
-                }
-            });
+            /* user already accepted, we assume the user came via the 'about entry point' */
+            accepted_checkbox.setVisibility(View.INVISIBLE);
+            ViewGroup.LayoutParams params = accepted_checkbox.getLayoutParams();
+            params.height = 0;
+            accepted_checkbox.setLayoutParams(params);
+
+            /* hack to no longer show the message when already accepted */
+            View scrollTextView = findViewById(R.id.scrollView2);
+            ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) scrollTextView.getLayoutParams();
+            layoutParams.bottomToTop = R.id.tac_close_button;
+            scrollTextView.setLayoutParams(layoutParams);
         }
     }
 
