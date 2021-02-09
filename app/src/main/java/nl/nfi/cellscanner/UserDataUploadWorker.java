@@ -2,6 +2,8 @@ package nl.nfi.cellscanner;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -35,11 +37,10 @@ public class UserDataUploadWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        Log.i(TAG, "Start upload of data file");
-
         FileInputStream fileInputStream;
         FTPClient con = new FTPClient();
 
+        long timestamp  = getTimeStamp();
 
         try
         {
@@ -53,7 +54,6 @@ public class UserDataUploadWorker extends Worker {
 
                 // get the file and send it.
                 fileInputStream = new FileInputStream(Database.getDataFile(getApplicationContext()));
-                long timestamp  = getTimeStamp();
 
                 String serverSideFileName = getFileName(
                         getInstallID(getApplicationContext()),
@@ -65,12 +65,16 @@ public class UserDataUploadWorker extends Worker {
                 fileInputStream.close();
 
                 if (result) {
+                    // SIGNAL our success
                     Log.i(TAG, "upload result: succeeded");
-
+                    ExportResultRepository.storeExportResult(getApplicationContext(), timestamp, true, "success", ExportResultRepository.AUTO);
                     db.dropDataUntil(timestamp);
 
                 } else {
+                    // SIGNAL their failure
                     Log.i(TAG, "upload result: Failed");
+                    ExportResultRepository.storeExportResult(getApplicationContext(), timestamp, false, "unknown failure", ExportResultRepository.AUTO);
+
                 }
 
                 // disconnect from the server
@@ -81,6 +85,8 @@ public class UserDataUploadWorker extends Worker {
         catch (Exception e)
         {
             e.printStackTrace();
+            ExportResultRepository.storeExportResult(getApplicationContext(), timestamp, false, e.getMessage(), ExportResultRepository.AUTO);
+
         }
 
 
