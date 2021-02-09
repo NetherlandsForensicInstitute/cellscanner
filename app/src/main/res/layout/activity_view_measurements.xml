@@ -7,7 +7,7 @@
     tools:context="nl.nfi.cellscanner.ViewMeasurementsActivity">
 
         <TextView
-            android:id="@+id/textView12"
+            android:id="@+id/vlUpLastSuccess"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:text="TextView"
@@ -15,15 +15,7 @@
             app:layout_constraintTop_toTopOf="@+id/textView8" />
 
         <TextView
-            android:id="@+id/textView10"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:text="TextView"
-            app:layout_constraintStart_toEndOf="@+id/textView6"
-            app:layout_constraintTop_toTopOf="@+id/textView6" />
-
-        <TextView
-            android:id="@+id/textView11"
+            android:id="@+id/vlUpStatus"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:text="TextView"
@@ -254,22 +246,13 @@
             app:layout_constraintTop_toBottomOf="@+id/editTextTextPersonName3" />
 
         <TextView
-            android:id="@+id/textView6"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Type:"
-            app:layout_constraintStart_toStartOf="@+id/textView5"
-            app:layout_constraintTop_toBottomOf="@+id/textView5" />
-
-        <TextView
             android:id="@+id/textView7"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="Status mssg:"
-            app:layout_constraintStart_toStartOf="@+id/textView6"
-            app:layout_constraintTop_toBottomOf="@+id/textView6" />
+            app:layout_constraintStart_toStartOf="@+id/textView5"
+            app:layout_constraintTop_toBottomOf="@+id/textView5" />
 
         <TextView
             android:id="@+id/textView8"
@@ -278,10 +261,10 @@
             android:layout_marginTop="8dp"
             android:text="Last success:"
             app:layout_constraintStart_toStartOf="@+id/textView7"
-            app:layout_constraintTop_toBottomOf="@+id/textView11" />
+            app:layout_constraintTop_toBottomOf="@+id/vlUpStatus" />
 
         <TextView
-            android:id="@+id/textView9"
+            android:id="@+id/vlUpLastUpdate"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:text="TextView"

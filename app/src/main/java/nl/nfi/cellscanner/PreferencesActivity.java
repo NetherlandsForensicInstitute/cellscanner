@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -29,9 +30,8 @@ import androidx.work.WorkRequest;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.TimeUnit;
-
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import nl.nfi.cellscanner.recorder.RecorderUtils;
 
@@ -247,6 +247,7 @@ public class PreferencesActivity
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         // TODO, this should be removed, as the switches are not externally controlled
+        Log.i("WORKING", key);
         updateButtonStateToRecordingState();
     }
 

@@ -2,8 +2,6 @@ package nl.nfi.cellscanner;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -88,8 +86,6 @@ public class UserDataUploadWorker extends Worker {
             ExportResultRepository.storeExportResult(getApplicationContext(), timestamp, false, e.getMessage(), ExportResultRepository.AUTO);
 
         }
-
-
 
         return Result.success();
     }
