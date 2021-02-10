@@ -129,7 +129,7 @@ public class PreferencesActivity
                         preferencesActivity.unSchedulePeriodDataUpload();
                         preferencesActivity.schedulePeriodicDataUpload();
                     }
-                    return false;
+                    return true;
                 }
             });
 
