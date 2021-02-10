@@ -99,7 +99,7 @@ public class PreferencesActivity
         private void setupSharing() {
             Preference view_measurements_button = findPreference(PREF_VIEW_MEASUREMENTS);
             Preference share_data_button = findPreference(PREF_SHARE_DATA);
-            SwitchPreferenceCompat upload_switch = findPreference(PREF_AUTO_UPLOAD);
+            final SwitchPreferenceCompat upload_switch = findPreference(PREF_AUTO_UPLOAD);
             final SwitchPreferenceCompat wifi_switch = findPreference(PREF_UPLOAD_ON_WIFI_ONLY);
 
             view_measurements_button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -120,6 +120,18 @@ public class PreferencesActivity
             });
 
             wifi_switch.setEnabled(upload_switch.isChecked());
+
+            wifi_switch.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    if (upload_switch.isChecked()) {
+                        // apparently it is already recording, pull it back and start recording again
+                        preferencesActivity.unSchedulePeriodDataUpload();
+                        preferencesActivity.schedulePeriodicDataUpload();
+                    }
+                    return false;
+                }
+            });
 
             upload_switch.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
                 @Override
