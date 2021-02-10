@@ -53,7 +53,7 @@ public class PreferencesActivity
 
     private static final String PREF_VIEW_MEASUREMENTS = "VIEW_MEASUREMENTS";
     private static final String PREF_SHARE_DATA = "SHARE_DATA";
-    private static final String PREF_AUTO_UPLOAD = "AUTO_UPLOAD";
+    public static final String PREF_AUTO_UPLOAD = "AUTO_UPLOAD";
     public static final String PREF_UPLOAD_ON_WIFI_ONLY = "UPLOAD_ON_WIFI_ONLY";
 
     private PreferenceFragment prefs;
@@ -124,7 +124,7 @@ public class PreferencesActivity
             wifi_switch.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    if (upload_switch.isChecked()) {
+                    if (RecorderUtils.exportScheduled(getContext())) {
                         // apparently it is already recording, pull it back and start recording again
                         preferencesActivity.unSchedulePeriodDataUpload();
                         preferencesActivity.schedulePeriodicDataUpload();
