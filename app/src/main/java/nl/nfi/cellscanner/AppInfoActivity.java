@@ -74,7 +74,12 @@ public class AppInfoActivity extends AppCompatActivity {
             params.height = 0;
             accepted_checkbox.setLayoutParams(params);
 
-            /* hack to no longer show the message when already accepted */
+            /*
+             * When the checkbox becomes invisible the old scrollTextView does not
+             * relay its constraints to the bottom button of the screen. Following hack
+             * relays the old bottom constraint from the checkbox to the
+             * button
+             * */
             View scrollTextView = findViewById(R.id.scrollView2);
             ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) scrollTextView.getLayoutParams();
             layoutParams.bottomToTop = R.id.tac_close_button;
