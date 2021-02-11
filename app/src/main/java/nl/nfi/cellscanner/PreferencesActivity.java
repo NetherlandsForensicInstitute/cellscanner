@@ -22,6 +22,7 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 import androidx.preference.SwitchPreferenceCompat;
 import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
@@ -124,8 +125,8 @@ public class PreferencesActivity
             wifi_switch.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    if (RecorderUtils.exportScheduled(getContext())) {
-                        // apparently it is already recording, pull it back and start recording again
+                    if (RecorderUtils.autoDataUploadWanted(getContext())) {
+                        // there is need for auto data upload
                         preferencesActivity.unSchedulePeriodDataUpload();
                         preferencesActivity.schedulePeriodicDataUpload();
                     }
@@ -352,11 +353,6 @@ public class PreferencesActivity
                 .setNegativeButton("No", dialogClickListener).show();
     }
 
-    private void scheduleWorkRequest(WorkRequest workRequest) {
-        WorkManager
-                .getInstance(getApplicationContext())
-                .enqueue(workRequest);
-    }
 
     @NotNull
     private Constraints getWorkManagerConstraints() {
@@ -364,21 +360,6 @@ public class PreferencesActivity
         return new Constraints.Builder()
                 .setRequiredNetworkType(networkType)
                 .build();
-    }
-
-    /**
-     * Schedules a Single Upload of the data
-     */
-    public void scheduleSingleDataUpload() {
-        Constraints constraints = getWorkManagerConstraints();
-
-        OneTimeWorkRequest uploadWorkRequest = new OneTimeWorkRequest
-                .Builder(UserDataUploadWorker.class)
-                .addTag(UserDataUploadWorker.TAG)
-                .setConstraints(constraints)
-                .build();
-
-        scheduleWorkRequest(uploadWorkRequest);
     }
 
     /**
@@ -393,7 +374,9 @@ public class PreferencesActivity
                 .setConstraints(constraints)
                 .build();
 
-        scheduleWorkRequest(uploadWorkRequest);
+        WorkManager
+                .getInstance(getApplicationContext())
+                .enqueueUniquePeriodicWork(UserDataUploadWorker.TAG, ExistingPeriodicWorkPolicy.REPLACE, uploadWorkRequest);
     }
 
     public void unSchedulePeriodDataUpload() {
