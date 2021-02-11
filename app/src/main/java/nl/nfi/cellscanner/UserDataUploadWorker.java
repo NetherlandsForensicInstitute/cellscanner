@@ -71,7 +71,7 @@ public class UserDataUploadWorker extends Worker {
                 } else {
                     // SIGNAL their failure
                     Log.i(TAG, "upload result: Failed");
-                    ExportResultRepository.storeExportResult(getApplicationContext(), timestamp, false, "unknown failure", ExportResultRepository.AUTO);
+                    ExportResultRepository.storeExportResult(getApplicationContext(), timestamp, false, "upload failed", ExportResultRepository.AUTO);
 
                 }
 

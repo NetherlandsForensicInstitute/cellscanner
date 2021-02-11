@@ -247,7 +247,6 @@ public class PreferencesActivity
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         // TODO, this should be removed, as the switches are not externally controlled
-        Log.i("WORKING", key);
         updateButtonStateToRecordingState();
     }
 
