@@ -81,7 +81,7 @@ public class RecorderUtils {
                 .getBoolean(PreferencesActivity.PREF_UPLOAD_ON_WIFI_ONLY, false);
     }
 
-    public static boolean exportScheduled(Context context) {
+    public static boolean autoDataUploadWanted(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(PreferencesActivity.PREF_AUTO_UPLOAD, false);
     }
