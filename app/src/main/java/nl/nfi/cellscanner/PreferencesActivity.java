@@ -22,6 +22,7 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 import androidx.preference.SwitchPreferenceCompat;
 import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
@@ -53,7 +54,7 @@ public class PreferencesActivity
 
     private static final String PREF_VIEW_MEASUREMENTS = "VIEW_MEASUREMENTS";
     private static final String PREF_SHARE_DATA = "SHARE_DATA";
-    private static final String PREF_AUTO_UPLOAD = "AUTO_UPLOAD";
+    public static final String PREF_AUTO_UPLOAD = "AUTO_UPLOAD";
     public static final String PREF_UPLOAD_ON_WIFI_ONLY = "UPLOAD_ON_WIFI_ONLY";
 
     private PreferenceFragment prefs;
@@ -99,7 +100,7 @@ public class PreferencesActivity
         private void setupSharing() {
             Preference view_measurements_button = findPreference(PREF_VIEW_MEASUREMENTS);
             Preference share_data_button = findPreference(PREF_SHARE_DATA);
-            SwitchPreferenceCompat upload_switch = findPreference(PREF_AUTO_UPLOAD);
+            final SwitchPreferenceCompat upload_switch = findPreference(PREF_AUTO_UPLOAD);
             final SwitchPreferenceCompat wifi_switch = findPreference(PREF_UPLOAD_ON_WIFI_ONLY);
 
             view_measurements_button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -120,6 +121,18 @@ public class PreferencesActivity
             });
 
             wifi_switch.setEnabled(upload_switch.isChecked());
+
+            wifi_switch.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    if (RecorderUtils.autoDataUploadWanted(getContext())) {
+                        // there is need for auto data upload
+                        preferencesActivity.unSchedulePeriodDataUpload();
+                        preferencesActivity.schedulePeriodicDataUpload();
+                    }
+                    return true;
+                }
+            });
 
             upload_switch.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
                 @Override
@@ -339,11 +352,6 @@ public class PreferencesActivity
                 .setNegativeButton("No", dialogClickListener).show();
     }
 
-    private void scheduleWorkRequest(WorkRequest workRequest) {
-        WorkManager
-                .getInstance(getApplicationContext())
-                .enqueue(workRequest);
-    }
 
     @NotNull
     private Constraints getWorkManagerConstraints() {
@@ -351,21 +359,6 @@ public class PreferencesActivity
         return new Constraints.Builder()
                 .setRequiredNetworkType(networkType)
                 .build();
-    }
-
-    /**
-     * Schedules a Single Upload of the data
-     */
-    public void scheduleSingleDataUpload() {
-        Constraints constraints = getWorkManagerConstraints();
-
-        OneTimeWorkRequest uploadWorkRequest = new OneTimeWorkRequest
-                .Builder(UserDataUploadWorker.class)
-                .addTag(UserDataUploadWorker.TAG)
-                .setConstraints(constraints)
-                .build();
-
-        scheduleWorkRequest(uploadWorkRequest);
     }
 
     /**
@@ -380,7 +373,9 @@ public class PreferencesActivity
                 .setConstraints(constraints)
                 .build();
 
-        scheduleWorkRequest(uploadWorkRequest);
+        WorkManager
+                .getInstance(getApplicationContext())
+                .enqueueUniquePeriodicWork(UserDataUploadWorker.TAG, ExistingPeriodicWorkPolicy.REPLACE, uploadWorkRequest);
     }
 
     public void unSchedulePeriodDataUpload() {
