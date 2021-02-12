@@ -1,55 +1,26 @@
 package nl.nfi.cellscanner;
 
-import android.Manifest;
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.icu.text.AlphabeticIndex;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.provider.Settings;
-import android.text.Html;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SwitchCompat;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.FileProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.preference.PreferenceManager;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
 import nl.nfi.cellscanner.recorder.LocationRecordingService;
-import nl.nfi.cellscanner.recorder.RecorderUtils;
-
-import static nl.nfi.cellscanner.Database.getFileTitle;
-
-import static nl.nfi.cellscanner.recorder.RecorderUtils.gpsHighPrecisionRecordingState;
-import static nl.nfi.cellscanner.recorder.PermissionSupport.hasAccessCourseLocationPermission;
-import static nl.nfi.cellscanner.recorder.PermissionSupport.hasFineLocationPermission;
-import static nl.nfi.cellscanner.recorder.PermissionSupport.hasUserConsent;
-import static nl.nfi.cellscanner.recorder.PermissionSupport.setUserConsent;
-import static nl.nfi.cellscanner.recorder.RecorderUtils.gpsRecordingState;
-import static nl.nfi.cellscanner.recorder.RecorderUtils.inRecordingState;
 
 
-public class ViewMeasurementsActivity extends AppCompatActivity {
+public class ViewMeasurementsActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
     /*
     Activity lifecycle, see: https://developer.android.com/guide/components/activities/activity-lifecycle
     Communicate Activity <-> Service ... https://www.vogella.com/tutorials/AndroidServices/article.html
@@ -59,7 +30,8 @@ public class ViewMeasurementsActivity extends AppCompatActivity {
     private static final String TAG = ViewMeasurementsActivity.class.getSimpleName();
 
     // ui
-    private TextView vlCILastUpdate, vlGPSLastUpdate, vlGPSProvider, vlGPSLat, vlGPSLon, vlGPSAcc, vlGPSAlt, vlGPSSpeed;
+    private TextView vlCILastUpdate, vlGPSLastUpdate, vlGPSProvider, vlGPSLat, vlGPSLon, vlGPSAcc,
+            vlGPSAlt, vlGPSSpeed, vlUpLastUpdate, vlUpStatus, vlUpLastSuccess;
 
     /**
      * Fires when the system first creates the activity
@@ -78,6 +50,16 @@ public class ViewMeasurementsActivity extends AppCompatActivity {
         super.onResume();
         clearGPSLocationFields();
         AppInfoActivity.showIfNoConsent(this);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+        setAutoUploadData();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
     }
 
     private void showRecorderScreen() {
@@ -91,6 +73,10 @@ public class ViewMeasurementsActivity extends AppCompatActivity {
         vlGPSAcc = findViewById(R.id.vlGPSAcc);
         vlGPSAlt = findViewById(R.id.vlGPSAlt);
         vlGPSSpeed = findViewById(R.id.vlGPSSpeed);
+
+        vlUpLastUpdate = findViewById(R.id.vlUpLastUpdate);
+        vlUpStatus = findViewById(R.id.vlUpStatus);
+        vlUpLastSuccess = findViewById(R.id.vlUpLastSuccess);
 
         // run initial update to inform the end user
         updateLogViewer();
@@ -144,6 +130,24 @@ public class ViewMeasurementsActivity extends AppCompatActivity {
         dateFormat.setTimeZone(TimeZone.getDefault());
         Date dateTime = new Date(time);
         return dateFormat.format(dateTime);
+    }
+
+    private void setAutoUploadData() {
+        vlUpStatus.setText(ExportResultRepository.getLastUploadMsg(getApplicationContext()));
+        vlUpLastSuccess.setText(getDateTimeFromTimeStamp(ExportResultRepository.getLastSuccessfulUploadTimestamp(getApplicationContext()), "yyyy-MM-dd HH:mm:ss"));
+        vlUpLastUpdate.setText(getDateTimeFromTimeStamp(ExportResultRepository.getLastUploadTimeStamp(getApplicationContext()),"yyyy-MM-dd HH:mm:ss"));
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        /*
+        The last automatic upload data is stored as a shared preference.
+        When this data changes, the data is retrieved and placed
+        on the screen
+         */
+        Log.i("WORK", key);
+        setAutoUploadData();
+
     }
 }
 
