@@ -1,14 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
     defaultConfig {
         applicationId "nl.nfi.cellscanner"
-        minSdkVersion 24
-        targetSdkVersion 28
-        versionCode 7
-        versionName "1.0.7"
+        versionCode 8
+        versionName '1.0.8'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+        targetSdkVersion 30
+        minSdkVersion 24
     }
     buildTypes {
         release {
@@ -18,6 +17,7 @@ android {
     }
     productFlavors {
     }
+    compileSdkVersion 30
 }
 
 dependencies {
