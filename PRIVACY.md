@@ -6,14 +6,14 @@ Cellscanner is an Android application to collect network and location data from 
 Purpose of Cellscanner
 ----------------------
 
-The purpose of Cellscanner is to improve the legal system. It is developed by the Netherlands
-Forensic Institute (NFI), one of the world's leading forensic laboratories. Its activities include
-forensic interpretation of location traces from cell phones. To be able to understand what may have
-happened in a criminal investigation, it is important to know how mobile networks behave under
-different circumstances. To learn how these networks operate, and how to interpret their traces in
-criminal cases, we need data from ordinary users. We will use these data to derive aggregated
-statistics. We will never attempt to reveal the identity of individual users. An example of the type
-of research done with similar data in the past can be found here:
+The purpose of Cellscanner is to improve the legal system. It is developed by the [Netherlands
+Forensic Institute](https://www.forensicinstitute.nl/) (NFI), one of the world's leading forensic
+laboratories. Its activities include forensic interpretation of location traces from cell phones. To
+be able to understand what may have happened in a criminal investigation, it is important to know
+how mobile networks behave under different circumstances. To learn how these networks operate, and
+how to interpret their traces in criminal cases, we need data from ordinary users. We will use these
+data to derive aggregated statistics. We will never attempt to reveal the identity of individual
+users. An example of the type of research done with similar data in the past can be found here:
 [10.1016/j.scijus.2019.10.005](http://doi.org/10.1016/j.scijus.2019.10.005).
 
 Data collection
