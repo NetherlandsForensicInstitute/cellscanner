@@ -19,8 +19,8 @@ of research done with similar data in the past can be found here:
 Data collection
 ---------------
 
-When activated, Cellscanner logs two types of location data: addresses of *cell towers* the device
-connects to, and optionally *GPS coordinates* along with other GPS data such as their accuracy.
+When activated, Cellscanner logs two types of location data: addresses of **cell towers** the device
+connects to, and optionally **GPS coordinates** along with other GPS data such as their accuracy.
 Cellscanner only collects what is strictly necessary to achieve its goal. That includes network and
 (optionally) GPS data. Network data may reveal the coarse location of the device, depending on the
 number of cell towers in the area. In addition, a device identifier is stored. This identifier is
@@ -51,8 +51,8 @@ you may wish to revoke your consent later.
 
 In summary, by using this app you consent and understand that:
 
-* the data collected by this app are stored locally on your device;
-* these data are securely uploaded to and stored on NFI servers when you enable the upload feature;
-* these data are used by NFI as described above;
-* these data are retained by NFI for a maximum of 30 years;
-* you may revoke your consent at any time.
+- the data collected by this app are stored locally on your device;
+- these data are securely uploaded to and stored on NFI servers when you enable the upload feature;
+- these data are used by NFI as described above;
+- these data are retained by NFI for a maximum of 30 years;
+- you may revoke your consent at any time.
