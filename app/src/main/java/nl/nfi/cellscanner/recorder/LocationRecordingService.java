@@ -1,5 +1,6 @@
 package nl.nfi.cellscanner.recorder;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -8,6 +9,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
 import android.os.IBinder;
@@ -16,6 +18,7 @@ import android.telephony.CellInfo;
 import android.telephony.TelephonyManager;
 
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -47,7 +50,7 @@ public class LocationRecordingService extends Service {
     private static final String TAG = LocationRecordingService.class.getSimpleName();
 
 
-    public static final String LOCATION_DATA_UPDATE_BROADCAST= "LOCATION_DATA_UPDATE_MESSAGE";
+    public static final String LOCATION_DATA_UPDATE_BROADCAST = "LOCATION_DATA_UPDATE_MESSAGE";
 
     private static final String CHANNEL_ID = "CELL_SCANNER_MAIN_COMMUNICATION_CHANNEL";
 
@@ -85,7 +88,7 @@ public class LocationRecordingService extends Service {
             initialize a callback function that listens for location updates
             made by the (GPS) location manager
          */
-        locationCallback  = new LocationCallback(){
+        locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 super.onLocationResult(locationResult);
@@ -100,14 +103,13 @@ public class LocationRecordingService extends Service {
      * @param ctx: Context of the running service
      */
     private void toggleGPSRecording(Context ctx) {
-        if (RecorderUtils.gpsRecordingState(ctx)) startGPSLocationUpdates();
+        if (RecorderUtils.isLocationRecordingEnabled(ctx)) startGPSLocationUpdates();
         else stopGPSLocationUpdates();
     }
 
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        // TODO: this service should probably start sticky and allow for multiple calls to onStartCommand
         startForeground(NOTIF_ID, getActivityNotification("started"));
 
         // start the times, schedule for every second
@@ -116,13 +118,12 @@ public class LocationRecordingService extends Service {
             public void run() {
                 preformCellInfoRetrievalRequest();
             }
-        }, 0, CellScannerApp.UPDATE_DELAY_MILLIS);
-
+        }, CellScannerApp.UPDATE_DELAY_MILLIS, CellScannerApp.UPDATE_DELAY_MILLIS);
 
         // Check if the application should start recording GPS
         toggleGPSRecording(getApplicationContext());
 
-        return START_NOT_STICKY;
+        return START_STICKY;
     }
 
     @Override
@@ -176,7 +177,7 @@ public class LocationRecordingService extends Service {
 
 
     private static int recordingPriorityValue(Context context) {
-        return RecorderUtils.gpsHighPrecisionRecordingState(context) ? LocationRequest.PRIORITY_HIGH_ACCURACY : LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
+        return RecorderUtils.isHighPrecisionRecordingEnabled(context) ? LocationRequest.PRIORITY_HIGH_ACCURACY : LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
     }
 
     /**
@@ -196,20 +197,17 @@ public class LocationRecordingService extends Service {
 
     /**
      * starts the capture of GPS location updates.
-     *
-     * Method does not need permission checks, these are done in the methods that set the flags
-     * to start and stop recording
-     *
-     * TODO: What if the permission is revoked by the end user?
      */
     @SuppressLint("MissingPermission")
     private void startGPSLocationUpdates() {
         // start the request for location updates
-        fusedLocationProviderClient.requestLocationUpdates(
-                createLocationRequest(),
-                locationCallback,
-                null
-        );
+        if (PermissionSupport.hasFineLocationPermission(getApplicationContext())) {
+            fusedLocationProviderClient.requestLocationUpdates(
+                    createLocationRequest(),
+                    locationCallback,
+                    null
+            );
+        }
     }
 
     private void stopGPSLocationUpdates() {
@@ -217,21 +215,19 @@ public class LocationRecordingService extends Service {
         fusedLocationProviderClient.removeLocationUpdates(locationCallback);
     }
 
-
-    @SuppressLint("MissingPermission") // permission check is moved to another part of the app
+    @SuppressLint("MissingPermission")
     private List<CellInfo> getCellInfo() {
         /*
           - This code should not run if the permissions are not there
           - Code should check and ask for permissions when the 'start recording switch' in the main activity
             is switched to start running when the permissions are not there
          */
-        if (PermissionSupport.hasAccessCourseLocationPermission(getApplicationContext())) {
+        if (PermissionSupport.hasCourseLocationPermission(getApplicationContext())) {
             return telephonyManager.getAllCellInfo();
         } else {
-            // TODO: Shutdown this service ...???
             /*
             Can only get in this situation when the location permission is revoked
-            Should spawn a notification and kill this is service
+            TODO: spawn a notification
              */
             return new ArrayList<>();
         }

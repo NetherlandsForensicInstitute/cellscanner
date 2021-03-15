@@ -1,7 +1,5 @@
 package nl.nfi.cellscanner;
 
-import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -10,13 +8,10 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -33,26 +28,23 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
 
-import java.util.Random;
 import java.util.UUID;
 
 import nl.nfi.cellscanner.recorder.RecorderUtils;
 
 import static nl.nfi.cellscanner.Database.getFileTitle;
-import static nl.nfi.cellscanner.recorder.PermissionSupport.hasAccessCourseLocationPermission;
-import static nl.nfi.cellscanner.recorder.PermissionSupport.hasFineLocationPermission;
 import static nl.nfi.cellscanner.recorder.RecorderUtils.exportMeteredAllowed;
 
 public class PreferencesActivity
         extends AppCompatActivity
         implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private static final int PERMISSION_REQUEST_START_RECORDING = 1;
-
+    // recording preferences
     public final static String PREF_ENABLE = "APP_RECORDING";  // APP should be recording data
     public final static String PREF_GPS_RECORDING = "GPS_RECORDING";  // APP should record GPS data when in Recording state
     public final static String PREF_GPS_HIGH_PRECISION_RECORDING = "GPS_HIGH_ACCURACY";  // APP should record GPS data when in Recording state
 
+    // data management preferences
     private static final String PREF_VIEW_MEASUREMENTS = "VIEW_MEASUREMENTS";
     private static final String PREF_SHARE_DATA = "SHARE_DATA";
     private static final String PREF_AUTO_UPLOAD = "AUTO_UPLOAD";
@@ -171,13 +163,15 @@ public class PreferencesActivity
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 boolean recording_enabled = (boolean)newValue;
 
-                if (recording_enabled)
-                    requestStartRecording();
-                else
-                    RecorderUtils.stopService(PreferencesActivity.this);
-
+                // update button states
                 swGPSRecord.setEnabled(!recording_enabled);
                 swGPSPrecision.setEnabled(!recording_enabled && swGPSRecord.isChecked());
+
+                // apply new settings
+                if (recording_enabled)
+                    RecorderUtils.requestStartRecording(PreferencesActivity.this);
+                else
+                    RecorderUtils.stopService(PreferencesActivity.this);
 
                 return true;
             }
@@ -186,7 +180,9 @@ public class PreferencesActivity
         swGPSRecord.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
+                // update button state
                 swGPSPrecision.setEnabled((boolean)newValue);
+
                 return true;
             }
         });
@@ -225,6 +221,10 @@ public class PreferencesActivity
     protected void onResume() {
         super.onResume();
         AppInfoActivity.showIfNoConsent(this);
+
+        // resume foreground service if necessary
+        if (RecorderUtils.isRecordingEnabled(this))
+            RecorderUtils.requestStartRecording(this);
     }
 
     @Override
@@ -238,14 +238,14 @@ public class PreferencesActivity
      * Set the buttons on the screen to recording state, or not recording state
      */
     private void updateButtonStateToRecordingState() {
-        boolean isInRecordingState = RecorderUtils.inRecordingState(this);
+        boolean isInRecordingState = RecorderUtils.isRecordingEnabled(this);
         swRecordingMaster.setChecked(isInRecordingState);
 
         swGPSRecord.setEnabled(!isInRecordingState);
-        swGPSRecord.setChecked(RecorderUtils.gpsRecordingState(this));
+        swGPSRecord.setChecked(RecorderUtils.isLocationRecordingEnabled(this));
 
         swGPSPrecision.setEnabled(!isInRecordingState && swGPSRecord.isChecked());
-        swGPSPrecision.setChecked(RecorderUtils.gpsHighPrecisionRecordingState(this));
+        swGPSPrecision.setChecked(RecorderUtils.isHighPrecisionRecordingEnabled(this));
     }
 
     @Override
@@ -260,39 +260,17 @@ public class PreferencesActivity
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
-            case PERMISSION_REQUEST_START_RECORDING: {
+            case RecorderUtils.PERMISSION_REQUEST_START_RECORDING: {
                 if (permissions.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    requestStartRecording();
+                    RecorderUtils.requestStartRecording(this);
                 } else {
-                    RecorderUtils.setRecordingState(this, false);
+                    swRecordingMaster.setChecked(false);
 
                     // explain the app will not be working
                     Toast.makeText(this, "App will not work without location permissions", Toast.LENGTH_SHORT).show();
                 }
             }
         }
-    }
-
-    /**
-     * Request the start of recording user data
-     * <p>
-     * test for the right permissions, if ok, start recording. Otherwise request permissions
-     */
-    public void requestStartRecording() {
-        if (!hasAccessCourseLocationPermission(this))
-            requestLocationPermission(this);
-        else if (RecorderUtils.gpsRecordingState(this) && !hasFineLocationPermission(this))
-            requestLocationPermission(this);
-        else
-            RecorderUtils.startService(this);
-    }
-
-    /**
-     * Request permission to the end user for Location usage. Please be aware that this request is
-     * done on a separate thread
-     */
-    private static void requestLocationPermission(Activity ctx) {
-        ActivityCompat.requestPermissions(ctx, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_START_RECORDING);
     }
 
     /**
@@ -392,5 +370,4 @@ public class PreferencesActivity
                 .getInstance(getApplicationContext())
                 .cancelAllWorkByTag(UserDataUploadWorker.TAG);
     }
-
 }

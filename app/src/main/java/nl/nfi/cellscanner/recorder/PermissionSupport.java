@@ -15,12 +15,12 @@ import nl.nfi.cellscanner.CellScannerApp;
 public class PermissionSupport {
     final private static String PREFS_NAME = CellScannerApp.TITLE;
 
-    public static boolean hasAccessCourseLocationPermission(Context ctx) {
+    public static boolean hasCourseLocationPermission(Context ctx) {
         return hasPermission(ctx, Manifest.permission.ACCESS_COARSE_LOCATION);
     }
 
     public static boolean hasFineLocationPermission(Context ctx) {
-        return hasPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION);
+        return hasPermission(ctx, Manifest.permission.ACCESS_COARSE_LOCATION) && hasPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION);
     }
 
     private static boolean hasPermission(Context ctx, String permission) {

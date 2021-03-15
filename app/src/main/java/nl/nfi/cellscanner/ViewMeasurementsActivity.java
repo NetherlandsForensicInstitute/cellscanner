@@ -1,34 +1,13 @@
 package nl.nfi.cellscanner;
 
-import android.Manifest;
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.icu.text.AlphabeticIndex;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.provider.Settings;
-import android.text.Html;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SwitchCompat;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.FileProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.text.SimpleDateFormat;
@@ -36,17 +15,6 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import nl.nfi.cellscanner.recorder.LocationRecordingService;
-import nl.nfi.cellscanner.recorder.RecorderUtils;
-
-import static nl.nfi.cellscanner.Database.getFileTitle;
-
-import static nl.nfi.cellscanner.recorder.RecorderUtils.gpsHighPrecisionRecordingState;
-import static nl.nfi.cellscanner.recorder.PermissionSupport.hasAccessCourseLocationPermission;
-import static nl.nfi.cellscanner.recorder.PermissionSupport.hasFineLocationPermission;
-import static nl.nfi.cellscanner.recorder.PermissionSupport.hasUserConsent;
-import static nl.nfi.cellscanner.recorder.PermissionSupport.setUserConsent;
-import static nl.nfi.cellscanner.recorder.RecorderUtils.gpsRecordingState;
-import static nl.nfi.cellscanner.recorder.RecorderUtils.inRecordingState;
 
 
 public class ViewMeasurementsActivity extends AppCompatActivity {

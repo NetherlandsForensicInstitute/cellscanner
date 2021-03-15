@@ -1,14 +1,20 @@
 package nl.nfi.cellscanner.recorder;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
 
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import nl.nfi.cellscanner.PreferencesActivity;
+
+import static nl.nfi.cellscanner.recorder.PermissionSupport.hasCourseLocationPermission;
+import static nl.nfi.cellscanner.recorder.PermissionSupport.hasFineLocationPermission;
 
 
 /**
@@ -18,11 +24,36 @@ import nl.nfi.cellscanner.PreferencesActivity;
  * stop the service
  */
 public class RecorderUtils {
+    public static final int PERMISSION_REQUEST_START_RECORDING = 1;
+
+    /**
+     * Request the start of recording user data
+     * <p>
+     * test for the right permissions, if ok, start recording. Otherwise request permissions
+     */
+    public static void requestStartRecording(Activity ctx) {
+        if (!hasCourseLocationPermission(ctx))
+            requestLocationPermission(ctx);
+        else if (isLocationRecordingEnabled(ctx) && !hasFineLocationPermission(ctx))
+            requestLocationPermission(ctx);
+        else
+            RecorderUtils.startService(ctx);
+    }
+
+    /**
+     * Request permission to the end user for Location usage. Please be aware that this request is
+     * done on a separate thread
+     */
+    private static void requestLocationPermission(Activity ctx) {
+        ActivityCompat.requestPermissions(ctx, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_START_RECORDING);
+    }
+
+
     /**
      * Check the state of the Recording key.
      * @return State of the Recording key, when True the app should record cell data
      */
-    public static boolean inRecordingState(Context context) {
+    public static boolean isRecordingEnabled(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(PreferencesActivity.PREF_ENABLE, false);
     }
@@ -32,7 +63,7 @@ public class RecorderUtils {
      * @return State of the GPS Recording key, when True the app should record GPS data when
      *      the recording state is True
      */
-    public static boolean gpsRecordingState(Context context) {
+    public static boolean isLocationRecordingEnabled(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(PreferencesActivity.PREF_GPS_RECORDING, true);
     }
@@ -42,7 +73,7 @@ public class RecorderUtils {
      * @return State of the GPS Recording key, when True the app should record GPS data with HIGH precision when
      *      the recording state is True
      */
-    public static boolean gpsHighPrecisionRecordingState(Context context) {
+    public static boolean isHighPrecisionRecordingEnabled(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(PreferencesActivity.PREF_GPS_HIGH_PRECISION_RECORDING, false);
     }
@@ -51,16 +82,15 @@ public class RecorderUtils {
      * Set Recording to State value
      * When True, the app should record data
      * */
-    public static void setRecordingState(Context context, Boolean state) { putBoolean(context, PreferencesActivity.PREF_ENABLE, state); };
+    private static void setRecordingEnabled(Context context, Boolean state) { putBoolean(context, PreferencesActivity.PREF_ENABLE, state); };
 
     /**
      * Set GPS recording to State value
      * GPS Recording, when True, store GPS location when the app is recording cells
      * */
-    public static void setGPSRecordingState(Context context, Boolean state) { putBoolean(context, PreferencesActivity.PREF_GPS_RECORDING, state); };
+    private static void setGPSRecordingState(Context context, Boolean state) { putBoolean(context, PreferencesActivity.PREF_GPS_RECORDING, state); };
 
-    public static void setGPSHighPrecisionRecordingState(Context context, Boolean state) { putBoolean(context, PreferencesActivity.PREF_GPS_HIGH_PRECISION_RECORDING, state); };
-
+    private static void setGPSHighPrecisionRecordingState(Context context, Boolean state) { putBoolean(context, PreferencesActivity.PREF_GPS_HIGH_PRECISION_RECORDING, state); };
 
     /**
      * Sets a boolean key to a given state in local storage
@@ -94,8 +124,6 @@ public class RecorderUtils {
         } else {
             context.startService(new Intent(context, LocationRecordingService.class));
         }
-        // TODO: toggling the state might be set to the onStart of the service. Android might stop it
-        setRecordingState(context, true);
     }
 
     /**
@@ -105,7 +133,5 @@ public class RecorderUtils {
     public static void stopService(Context context) {
         Intent serviceIntent = new Intent(context, LocationRecordingService.class);
         context.stopService(serviceIntent);
-        // TODO: toggling the state might be set to the onDestroy of the service. Android might stop it
-        setRecordingState(context, false);
     }
 }

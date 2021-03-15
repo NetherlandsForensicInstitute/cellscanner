@@ -31,9 +31,8 @@ public class BootDeviceReceiver extends BroadcastReceiver {
           Call the start of the application if the boot-up state of the application
           is inRecordingState
          */
-        if (RecorderUtils.inRecordingState(context)){
-            if (PermissionSupport.hasAccessCourseLocationPermission(context)) RecorderUtils.startService(context);
-            else RecorderUtils.setRecordingState(context, false);
+        if (RecorderUtils.isRecordingEnabled(context)){
+            RecorderUtils.startService(context);
         }
     }
 }
