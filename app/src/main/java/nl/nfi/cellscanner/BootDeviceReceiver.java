@@ -34,5 +34,7 @@ public class BootDeviceReceiver extends BroadcastReceiver {
         if (RecorderUtils.isRecordingEnabled(context)){
             RecorderUtils.startService(context);
         }
+
+        UserDataUploadWorker.applyUploadPolicy(context);
     }
 }

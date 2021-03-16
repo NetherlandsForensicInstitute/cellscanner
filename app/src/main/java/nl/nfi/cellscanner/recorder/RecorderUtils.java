@@ -10,6 +10,10 @@ import android.preference.PreferenceManager;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.work.Constraints;
+import androidx.work.NetworkType;
+
+import org.jetbrains.annotations.NotNull;
 
 import nl.nfi.cellscanner.PreferencesActivity;
 
@@ -104,11 +108,6 @@ public class RecorderUtils {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean(target, state);
         editor.apply();
-    }
-
-    public static boolean exportMeteredAllowed(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(PreferencesActivity.PREF_UPLOAD_ON_WIFI_ONLY, false);
     }
 
     /**

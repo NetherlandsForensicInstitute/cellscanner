@@ -30,6 +30,8 @@ import com.google.android.gms.location.LocationServices;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -92,7 +94,11 @@ public class LocationRecordingService extends Service {
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 super.onLocationResult(locationResult);
-                processLocationUpdate(locationResult.getLastLocation());
+                try {
+                    processLocationUpdate(locationResult.getLastLocation());
+                } catch (Throwable e) {
+                    CellScannerApp.getDatabase().storeMessage(e);
+                }
             }
         };
 
@@ -255,7 +261,7 @@ public class LocationRecordingService extends Service {
                     cells.add(status.toString());
                 }
             } catch (CellStatus.UnsupportedTypeException e) {
-                mDB.storeMessage(e.getMessage());
+                mDB.storeMessage(e);
             }
         }
 
@@ -270,13 +276,17 @@ public class LocationRecordingService extends Service {
      * - send broadcast to update App
      */
     private void preformCellInfoRetrievalRequest() {
-        List<CellInfo> cellinfo = getCellInfo();
-        String[] cellstr = storeCellInfo(cellinfo);
-        notificationManager.notify(
-                NOTIF_ID,
-                getActivityNotification(String.format("%d cells registered (%d visible)", cellstr.length, cellinfo.size()))
-        );
-        sendBroadcastMessage();
+        try {
+            List<CellInfo> cellinfo = getCellInfo();
+            String[] cellstr = storeCellInfo(cellinfo);
+            notificationManager.notify(
+                    NOTIF_ID,
+                    getActivityNotification(String.format("%d cells registered (%d visible)", cellstr.length, cellinfo.size()))
+            );
+            sendBroadcastMessage();
+        } catch (Throwable e) {
+            CellScannerApp.getDatabase().storeMessage(e);
+        }
     }
 
     /**

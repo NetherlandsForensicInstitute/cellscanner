@@ -34,15 +34,21 @@
             app:summary="View currently recorded data"/>
 
         <Preference
-            app:key="SHARE_DATA"
-            app:title="Export database"
-            app:summary="Export locally stored data as an sqlite file"/>
+            app:key="START_UPLOAD"
+            app:title="Start upload"
+            app:summary="Start data upload now"/>
 
         <SwitchPreferenceCompat
             app:key="AUTO_UPLOAD"
             app:title="Periodic upload"
-            app:summary="Automatically upload encrypted data to NFI"
+            app:summary="Automatically upload data periodically"
             app:defaultValue="true"/>
+
+        <EditTextPreference
+            app:key="UPLOAD_URL"
+            app:title="Upload server"
+            app:summary="URL to send data (ftp or sftp)"
+            app:defaultValue="sftp://upload@cellscanner-upload.foreach.eu:6192"/>
 
         <SwitchPreferenceCompat
             app:key="UPLOAD_ON_WIFI_ONLY"

@@ -11,6 +11,8 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -180,6 +182,13 @@ public class Database {
     public void storeInstallID(Context ctx) {
         String install_id = PreferencesActivity.getInstallID(ctx);
         setMetaEntry(META_INSTALL_ID, install_id);
+    }
+
+    public void storeMessage(Throwable e) {
+        StringWriter msg = new StringWriter();
+        PrintWriter writer = new PrintWriter(msg);
+        e.printStackTrace(writer);
+        storeMessage(msg.toString());
     }
 
     public void storeMessage(String msg) {

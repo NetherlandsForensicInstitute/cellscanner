@@ -8,32 +8,32 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.service.autofill.UserData;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
+import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 import androidx.preference.SwitchPreferenceCompat;
 import androidx.work.Constraints;
-import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.util.concurrent.TimeUnit;
-
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.UUID;
 
 import nl.nfi.cellscanner.recorder.RecorderUtils;
 
 import static nl.nfi.cellscanner.Database.getFileTitle;
-import static nl.nfi.cellscanner.recorder.RecorderUtils.exportMeteredAllowed;
 
 public class PreferencesActivity
         extends AppCompatActivity
@@ -47,7 +47,9 @@ public class PreferencesActivity
     // data management preferences
     private static final String PREF_VIEW_MEASUREMENTS = "VIEW_MEASUREMENTS";
     private static final String PREF_SHARE_DATA = "SHARE_DATA";
+    private static final String PREF_START_UPLOAD = "START_UPLOAD";
     private static final String PREF_AUTO_UPLOAD = "AUTO_UPLOAD";
+    private static final String PREF_UPLOAD_URL = "UPLOAD_URL";
     public static final String PREF_UPLOAD_ON_WIFI_ONLY = "UPLOAD_ON_WIFI_ONLY";
 
     private static final String PREF_INSTALL_ID = "INSTALL_ID";
@@ -94,8 +96,9 @@ public class PreferencesActivity
 
         private void setupSharing() {
             Preference view_measurements_button = findPreference(PREF_VIEW_MEASUREMENTS);
-            Preference share_data_button = findPreference(PREF_SHARE_DATA);
-            SwitchPreferenceCompat upload_switch = findPreference(PREF_AUTO_UPLOAD);
+            Preference start_upload_button = findPreference(PREF_START_UPLOAD);
+            final SwitchPreferenceCompat upload_switch = findPreference(PREF_AUTO_UPLOAD);
+            final EditTextPreference upload_server = findPreference(PREF_UPLOAD_URL);
             final SwitchPreferenceCompat wifi_switch = findPreference(PREF_UPLOAD_ON_WIFI_ONLY);
 
             view_measurements_button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -107,30 +110,71 @@ public class PreferencesActivity
                 }
             });
 
-            share_data_button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            start_upload_button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    preferencesActivity.exportData();
+                    UserDataUploadWorker.startDataUpload(preferencesActivity);
                     return true;
                 }
             });
-
-            wifi_switch.setEnabled(upload_switch.isChecked());
 
             upload_switch.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    // toggle the scheduled upload of data
-                    if ((boolean)newValue) {
-                        preferencesActivity.schedulePeriodicDataUpload();
-                    } else {
-                        preferencesActivity.unSchedulePeriodDataUpload();
-                    }
+                    boolean upload_enabled = (boolean) newValue;
+                    if (upload_enabled && upload_server.getText().equals(""))
+                        return false;
 
-                    wifi_switch.setEnabled((boolean)newValue);
+                    wifi_switch.setEnabled(upload_enabled);
+                    UserDataUploadWorker.applyUploadPolicy(preferencesActivity, (boolean)newValue, wifi_switch.isChecked());
                     return true;
                 }
             });
+
+            upload_server.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    if (newValue.equals(upload_server.getText())) {
+                        // no change
+                        return true;
+                    } else if (newValue.equals("")) {
+                        // field cleared
+                        if (upload_switch.isChecked())
+                            upload_switch.setChecked(false);
+                        Toast.makeText(preferencesActivity, "Upload server removed", Toast.LENGTH_LONG).show();
+                        return true;
+                    } else {
+                        // field set with new value
+                        try {
+                            URI url = new URI((String)newValue);
+                            if (url.getScheme() == null) {
+                                Toast.makeText(preferencesActivity, "Protocol missing; try a valid URL such as sftp://user@hostname", Toast.LENGTH_LONG).show();
+                                return false;
+                            }
+                            else if (url.getHost() == null) {
+                                Toast.makeText(preferencesActivity, "Host missing; try a valid URL such as sftp://user@hostname", Toast.LENGTH_LONG).show();
+                                return false;
+                            }
+                            else if (url.getPath() != null && !url.getPath().equals("")) {
+                                Toast.makeText(preferencesActivity, "Upload path not supported; try a URL without a path", Toast.LENGTH_LONG).show();
+                                return false;
+                            }
+                            else if (UserDataUploadWorker.getSupportedProtocols().contains(url.getScheme())) {
+                                Toast.makeText(preferencesActivity, "Server updated", Toast.LENGTH_LONG).show();
+                                return true;
+                            } else {
+                                Toast.makeText(preferencesActivity, "Unsupported protocol: " + url.getScheme(), Toast.LENGTH_LONG).show();
+                                return false;
+                            }
+                        } catch (URISyntaxException e) {
+                            Toast.makeText(preferencesActivity, "Invalid input; try a valid URL such as sftp://user@hostname", Toast.LENGTH_LONG).show();
+                            return false;
+                        }
+                    }
+                }
+            });
+
+            wifi_switch.setEnabled(upload_switch.isChecked());
         }
 
         @Override
@@ -321,53 +365,18 @@ public class PreferencesActivity
                 .setNegativeButton("No", dialogClickListener).show();
     }
 
-    private void scheduleWorkRequest(WorkRequest workRequest) {
-        WorkManager
-                .getInstance(getApplicationContext())
-                .enqueue(workRequest);
+    public static boolean getAutoUploadEnabled(Context context) {
+        return android.preference.PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(PreferencesActivity.PREF_AUTO_UPLOAD, false);
     }
 
-    @NotNull
-    private Constraints getWorkManagerConstraints() {
-        NetworkType networkType = exportMeteredAllowed(this) ? NetworkType.UNMETERED : NetworkType.CONNECTED;
-        return new Constraints.Builder()
-                .setRequiredNetworkType(networkType)
-                .build();
+    public static String getUploadURL(Context context) {
+        return android.preference.PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(PreferencesActivity.PREF_UPLOAD_URL, null);
     }
 
-    /**
-     * Schedules a Single Upload of the data
-     */
-    public void scheduleSingleDataUpload() {
-        Constraints constraints = getWorkManagerConstraints();
-
-        OneTimeWorkRequest uploadWorkRequest = new OneTimeWorkRequest
-                .Builder(UserDataUploadWorker.class)
-                .addTag(UserDataUploadWorker.TAG)
-                .setConstraints(constraints)
-                .build();
-
-        scheduleWorkRequest(uploadWorkRequest);
-    }
-
-    /**
-     * Schedules a Periodic Upload of the data
-     */
-    private void schedulePeriodicDataUpload() {
-        Constraints constraints = getWorkManagerConstraints();
-
-        PeriodicWorkRequest uploadWorkRequest = new PeriodicWorkRequest
-                .Builder(UserDataUploadWorker.class, 15, TimeUnit.MINUTES) // TODO: Make this a useful setting
-                .addTag(UserDataUploadWorker.TAG)
-                .setConstraints(constraints)
-                .build();
-
-        scheduleWorkRequest(uploadWorkRequest);
-    }
-
-    public void unSchedulePeriodDataUpload() {
-        WorkManager
-                .getInstance(getApplicationContext())
-                .cancelAllWorkByTag(UserDataUploadWorker.TAG);
+    public static boolean getUnmeteredUploadOnly(Context context) {
+        return android.preference.PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(PreferencesActivity.PREF_UPLOAD_ON_WIFI_ONLY, true);
     }
 }
