@@ -44,13 +44,12 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.zip.GZIPInputStream;
 
 import nl.nfi.cellscanner.recorder.RecorderUtils;
+import static nl.nfi.cellscanner.CellScannerApp.getDatabase;
+import static nl.nfi.cellscanner.PreferencesActivity.getInstallID;
 
 public class UserDataUploadWorker extends Worker {
-    private static final String ONETIME_TAG = UserDataUploadWorker.class.getSimpleName() + "_onetime";
-    private static final String PERIODIC_TAG = UserDataUploadWorker.class.getSimpleName() + "_periodic";
     private static final String ERROR_CHANNEL_ID = "cellscanner_upload_notification";
 
     public UserDataUploadWorker(
@@ -180,6 +179,7 @@ public class UserDataUploadWorker extends Worker {
     public Result doWork() {
         Log.i("cellscanner", "Start upload of data file");
 
+        long timestamp = new Date().getTime();
         Context ctx = getApplicationContext();
         try {
             // stop recording
@@ -189,11 +189,13 @@ public class UserDataUploadWorker extends Worker {
             upload(getApplicationContext(), PreferencesActivity.getUploadURL(getApplicationContext()));
 
             // clear database
-            CellScannerApp.resetDatabase(ctx);
+            ExportResultRepository.storeExportResult(getApplicationContext(), timestamp, true, "success", getTags().iterator().next());
+            CellScannerApp.getDatabase().dropDataUntil(timestamp);
 
             return Result.success();
         } catch (Exception e) {
             notifyError(getApplicationContext(), "Cellscanner upload error", e.getMessage());
+            ExportResultRepository.storeExportResult(getApplicationContext(), timestamp, false, e.getMessage(), getTags().iterator().next());
             return Result.retry();
         } finally {
             // resume recording
@@ -230,7 +232,7 @@ public class UserDataUploadWorker extends Worker {
     public static void startDataUpload(final Activity ctx) {
         OneTimeWorkRequest uploadWorkRequest = new OneTimeWorkRequest
                 .Builder(UserDataUploadWorker.class)
-                .addTag(ONETIME_TAG)
+                .addTag(ExportResultRepository.MANUAL)
                 .build();
 
         Toast.makeText(ctx, "Uploading data", Toast.LENGTH_LONG).show();
@@ -245,7 +247,7 @@ public class UserDataUploadWorker extends Worker {
 
         PeriodicWorkRequest uploadWorkRequest = new PeriodicWorkRequest
                 .Builder(UserDataUploadWorker.class, 15, TimeUnit.MINUTES) // TODO: Make this a useful setting
-                .addTag(PERIODIC_TAG)
+                .addTag(ExportResultRepository.AUTO)
                 .setConstraints(constraints)
                 .build();
 
@@ -255,6 +257,6 @@ public class UserDataUploadWorker extends Worker {
     private static void unSchedulePeriodDataUpload(Context ctx) {
         WorkManager
                 .getInstance(ctx)
-                .cancelAllWorkByTag(PERIODIC_TAG);
+                .cancelAllWorkByTag(ExportResultRepository.AUTO);
     }
 }

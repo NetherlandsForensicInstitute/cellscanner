@@ -35,13 +35,19 @@
 
         <Preference
             app:key="START_UPLOAD"
-            app:title="Start upload"
-            app:summary="Start data upload now"/>
+            app:title="Perform upload"
+            app:summary="Upload data to the upload server"/>
 
         <SwitchPreferenceCompat
             app:key="AUTO_UPLOAD"
             app:title="Periodic upload"
-            app:summary="Automatically upload data periodically"
+            app:summary="Automatically upload data to the upload server"
+            app:defaultValue="true"/>
+
+        <SwitchPreferenceCompat
+            app:key="UPLOAD_ON_WIFI_ONLY"
+            app:title="Wifi upload only"
+            app:summary="Upload automatically when connected to wifi only"
             app:defaultValue="true"/>
 
         <EditTextPreference
@@ -49,12 +55,6 @@
             app:title="Upload server"
             app:summary="URL to send data (ftp or sftp)"
             app:defaultValue="sftp://upload@cellscanner-upload.foreach.eu:6192"/>
-
-        <SwitchPreferenceCompat
-            app:key="UPLOAD_ON_WIFI_ONLY"
-            app:title="Wifi upload only"
-            app:summary="Upload when connected to wifi only"
-            app:defaultValue="true"/>
 
     </PreferenceCategory>
 

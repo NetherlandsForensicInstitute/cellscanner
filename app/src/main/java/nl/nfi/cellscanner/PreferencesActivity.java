@@ -8,8 +8,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.service.autofill.UserData;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -20,15 +18,10 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 import androidx.preference.SwitchPreferenceCompat;
-import androidx.work.Constraints;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
-import androidx.work.WorkRequest;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
+
 import java.util.UUID;
 
 import nl.nfi.cellscanner.recorder.RecorderUtils;
@@ -48,10 +41,11 @@ public class PreferencesActivity
     private static final String PREF_VIEW_MEASUREMENTS = "VIEW_MEASUREMENTS";
     private static final String PREF_SHARE_DATA = "SHARE_DATA";
     private static final String PREF_START_UPLOAD = "START_UPLOAD";
-    private static final String PREF_AUTO_UPLOAD = "AUTO_UPLOAD";
+    public static final String PREF_AUTO_UPLOAD = "AUTO_UPLOAD";
     private static final String PREF_UPLOAD_URL = "UPLOAD_URL";
     public static final String PREF_UPLOAD_ON_WIFI_ONLY = "UPLOAD_ON_WIFI_ONLY";
 
+    // general preferences
     private static final String PREF_INSTALL_ID = "INSTALL_ID";
 
     private PreferenceFragment prefs;
@@ -114,6 +108,16 @@ public class PreferencesActivity
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     UserDataUploadWorker.startDataUpload(preferencesActivity);
+                    return true;
+                }
+            });
+
+            wifi_switch.setEnabled(upload_switch.isChecked());
+
+            wifi_switch.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    UserDataUploadWorker.applyUploadPolicy(getContext(), upload_switch.isChecked(), (boolean)newValue);
                     return true;
                 }
             });

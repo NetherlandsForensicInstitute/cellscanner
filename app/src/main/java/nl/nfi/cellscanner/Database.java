@@ -215,6 +215,11 @@ public class Database {
         db.insert("locationinfo", null, values);
     }
 
+    /** drop data until a given timestamp **/
+    public void dropDataUntil(long timestamp) {
+        db.execSQL("delete from cellinfo where date_end  <= " + timestamp );
+        db.execSQL("delete from locationinfo where timestamp  <= " + timestamp);
+    }
 
 
     protected static void upgrade(SQLiteDatabase db, int oldVersion, int newVersion) {

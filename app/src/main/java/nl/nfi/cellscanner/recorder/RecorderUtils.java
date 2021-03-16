@@ -10,10 +10,6 @@ import android.preference.PreferenceManager;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.work.Constraints;
-import androidx.work.NetworkType;
-
-import org.jetbrains.annotations.NotNull;
 
 import nl.nfi.cellscanner.PreferencesActivity;
 

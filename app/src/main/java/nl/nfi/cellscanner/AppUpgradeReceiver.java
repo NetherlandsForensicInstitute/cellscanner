@@ -14,19 +14,11 @@ import nl.nfi.cellscanner.recorder.RecorderUtils;
  * Checks if the application is was left in a recording state before the reboot, if true
  * starts the application after the boot sequence has been completed
  */
-public class BootDeviceReceiver extends BroadcastReceiver {
-
-    private static final String TAG = BootDeviceReceiver.class.getSimpleName();
-
+public class AppUpgradeReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        String action = intent.getAction();
-        String message = CellScannerApp.TITLE + " on boot action is " + action;
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show();
-
-        // TODO: @ check if the right application is sending the request
         /*
           Call the start of the application if the boot-up state of the application
           is inRecordingState
