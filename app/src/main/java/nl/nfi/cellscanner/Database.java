@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
+import android.telephony.CellInfo;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -102,14 +103,11 @@ public class Database {
      * @param date the current date
      * @param status the cellular connection status
      */
-    public void updateCellStatus(Date date, CellStatus status) {
-        Date previous_date = getTimestampFromSQL("SELECT MAX(date_end) FROM cellinfo");
-        boolean contiguous = previous_date != null && date.getTime() < previous_date.getTime() + CellScannerApp.EVENT_VALIDITY_MILLIS;
-
+    private void updateCellStatus(Date date, CellStatus status, Date previous_date) {
         ContentValues values = status.getContentValues();
 
         // if the previous registration has the same values, update the end time only
-        if (contiguous) {
+        if (previous_date != null) {
             ContentValues update = new ContentValues();
             update.put("date_end", date.getTime());
 
@@ -133,6 +131,15 @@ public class Database {
         insert.put("date_end", date.getTime());
         Log.v(CellScannerApp.TITLE, "new cell: "+insert.toString());
         db.insert("cellinfo", null, insert);
+    }
+
+    public void updateCellStatus(List<CellStatus> cells) {
+        Date date = new Date();
+        Date previous_date = getTimestampFromSQL(String.format("SELECT MAX(date_end) FROM cellinfo WHERE date_end > %d", date.getTime() - CellScannerApp.EVENT_VALIDITY_MILLIS));
+
+        for (CellStatus cell : cells) {
+            updateCellStatus(date, cell, previous_date);
+        }
     }
 
     protected String getMetaEntry(String name) {

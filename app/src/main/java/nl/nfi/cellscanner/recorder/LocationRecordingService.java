@@ -69,6 +69,7 @@ public class LocationRecordingService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        startForeground(STATUS_NOTIFICATION_ID, getActivityNotification("started"));
 
         /* construct required constants */
         timer = new Timer();
@@ -105,8 +106,6 @@ public class LocationRecordingService extends Service {
                 }
             }
         };
-
-        startForeground(STATUS_NOTIFICATION_ID, getActivityNotification("started"));
     }
 
     /**
@@ -262,7 +261,7 @@ public class LocationRecordingService extends Service {
 
     }
 
-    private String[] storeCellInfo(List<CellInfo> cellinfo) {
+    private List<CellStatus> storeCellInfo(List<CellInfo> cellinfo) {
         /*
         // TODO: Be more clear around this
 
@@ -272,22 +271,20 @@ public class LocationRecordingService extends Service {
         - turns modified records in a string and reports them back
 
          */
-        Date date = new Date();
-
-        List<String> cells = new ArrayList<>();
+        List<CellStatus> cells = new ArrayList<>();
         for (CellInfo info : cellinfo) {
             try {
                 CellStatus status = CellStatus.fromCellInfo(info);
-                if (status.isValid()) {
-                    mDB.updateCellStatus(date, status);
-                    cells.add(status.toString());
-                }
+                if (status.isValid())
+                    cells.add(status);
             } catch (CellStatus.UnsupportedTypeException e) {
                 mDB.storeMessage(e);
             }
         }
 
-        return cells.toArray(new String[0]);
+        mDB.updateCellStatus(cells);
+
+        return cells;
     }
 
 
@@ -300,10 +297,10 @@ public class LocationRecordingService extends Service {
     private void preformCellInfoRetrievalRequest() {
         try {
             List<CellInfo> cellinfo = getCellInfo();
-            String[] cellstr = storeCellInfo(cellinfo);
+            List<CellStatus> cellstr = storeCellInfo(cellinfo);
             notificationManager.notify(
                     STATUS_NOTIFICATION_ID,
-                    getActivityNotification(String.format("%d cells registered (%d visible)", cellstr.length, cellinfo.size()))
+                    getActivityNotification(String.format("%d cells registered (%d visible)", cellstr.size(), cellinfo.size()))
             );
             sendBroadcastMessage();
         } catch (Throwable e) {

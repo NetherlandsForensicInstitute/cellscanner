@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.preference.EditTextPreference;
@@ -38,8 +39,6 @@ public class Preferences extends PreferenceFragmentCompat
     private static final String PREF_INSTALL_ID = "INSTALL_ID";
 
     protected SwitchPreferenceCompat swRecordingMaster;
-    private SwitchPreferenceCompat swGPSRecord;
-    private SwitchPreferenceCompat swGPSPrecision;
 
     /**
      * Returns a unique identifier (UUID) for this Cellscanner setup. The value should be the same for
@@ -86,12 +85,15 @@ public class Preferences extends PreferenceFragmentCompat
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.preferences, rootKey);
 
-        swRecordingMaster = findPreference(PREF_ENABLE);
-        swGPSRecord = findPreference(PREF_GPS_RECORDING);
-        swGPSPrecision = findPreference(PREF_GPS_HIGH_PRECISION_RECORDING);
+        setupRecording();
+        setupSharing();
     }
 
     private void setupRecording() {
+        swRecordingMaster = findPreference(PREF_ENABLE);
+        final SwitchPreferenceCompat swGPSRecord = findPreference(PREF_GPS_RECORDING);
+        final SwitchPreferenceCompat swGPSPrecision = findPreference(PREF_GPS_HIGH_PRECISION_RECORDING);
+
         swGPSRecord.setEnabled(swRecordingMaster.isChecked());
         swGPSPrecision.setEnabled(swGPSRecord.isEnabled() && swGPSRecord.isChecked());
 
@@ -138,7 +140,7 @@ public class Preferences extends PreferenceFragmentCompat
 
     private void setupSharing() {
         Preference view_measurements_button = findPreference(PREF_VIEW_MEASUREMENTS);
-        Preference start_upload_button = findPreference(PREF_START_UPLOAD);
+        final Preference start_upload_button = findPreference(PREF_START_UPLOAD);
         final SwitchPreferenceCompat upload_switch = findPreference(PREF_AUTO_UPLOAD);
         final EditTextPreference upload_server = findPreference(PREF_UPLOAD_URL);
         final SwitchPreferenceCompat wifi_switch = findPreference(PREF_UPLOAD_ON_WIFI_ONLY);
@@ -227,19 +229,5 @@ public class Preferences extends PreferenceFragmentCompat
         });
 
         wifi_switch.setEnabled(upload_switch.isChecked());
-    }
-
-    /**
-     * Set the buttons on the screen to recording state, or not recording state
-     */
-    private void updateButtonStateToRecordingState() {
-        boolean isInRecordingState = RecorderUtils.isRecordingEnabled(getContext());
-        swRecordingMaster.setChecked(isInRecordingState);
-
-        swGPSRecord.setEnabled(!isInRecordingState);
-        swGPSRecord.setChecked(RecorderUtils.isLocationRecordingEnabled(getContext()));
-
-        swGPSPrecision.setEnabled(!isInRecordingState && swGPSRecord.isChecked());
-        swGPSPrecision.setChecked(RecorderUtils.isHighPrecisionRecordingEnabled(getContext()));
     }
 }
