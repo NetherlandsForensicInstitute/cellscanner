@@ -1,6 +1,5 @@
 package nl.nfi.cellscanner.recorder;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -9,16 +8,17 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
 
+import android.provider.Settings;
 import android.telephony.CellInfo;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -30,8 +30,6 @@ import com.google.android.gms.location.LocationServices;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -49,14 +47,12 @@ import nl.nfi.cellscanner.R;
  * */
 public class LocationRecordingService extends Service {
 
-    private static final String TAG = LocationRecordingService.class.getSimpleName();
-
-
     public static final String LOCATION_DATA_UPDATE_BROADCAST = "LOCATION_DATA_UPDATE_MESSAGE";
 
-    private static final String CHANNEL_ID = "CELL_SCANNER_MAIN_COMMUNICATION_CHANNEL";
-
-    private static final int NOTIF_ID = 123;  // ID of the notification posted
+    private static final String RECORDING_STATUS_CHANNEL = "RECORDING_STATUS_CHANNEL";
+    private static final String ACTION_REQUIRED_CHANNEL = "ACTION_REQUIRED_CHANNEL";
+    private static final int STATUS_NOTIFICATION_ID = 1;
+    private static final int PERMISSION_NOTIFICATION_ID = 2;
 
     /* Settings for storing GPS related data */
     private static final int GPS_LOCATION_INTERVAL = 5; // requested interval in seconds
@@ -86,6 +82,14 @@ public class LocationRecordingService extends Service {
         mDB.storeInstallID(getApplicationContext());
         mDB.storeVersionCode(getApplicationContext());
 
+        // start the times, schedule for every second
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                preformCellInfoRetrievalRequest();
+            }
+        }, CellScannerApp.UPDATE_DELAY_MILLIS, CellScannerApp.UPDATE_DELAY_MILLIS);
+
         /*
             initialize a callback function that listens for location updates
             made by the (GPS) location manager
@@ -102,6 +106,7 @@ public class LocationRecordingService extends Service {
             }
         };
 
+        startForeground(STATUS_NOTIFICATION_ID, getActivityNotification("started"));
     }
 
     /**
@@ -116,16 +121,6 @@ public class LocationRecordingService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        startForeground(NOTIF_ID, getActivityNotification("started"));
-
-        // start the times, schedule for every second
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                preformCellInfoRetrievalRequest();
-            }
-        }, CellScannerApp.UPDATE_DELAY_MILLIS, CellScannerApp.UPDATE_DELAY_MILLIS);
-
         // Check if the application should start recording GPS
         toggleGPSRecording(getApplicationContext());
 
@@ -155,7 +150,7 @@ public class LocationRecordingService extends Service {
 
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, ViewMeasurementsActivity.class), 0);
 
-        return new NotificationCompat.Builder(this, CHANNEL_ID)
+        return new NotificationCompat.Builder(this, RECORDING_STATUS_CHANNEL)
                 .setContentTitle("Cellscanner")
                 .setContentText(text)
                 .setSmallIcon(R.drawable.ic_symbol24)
@@ -171,13 +166,21 @@ public class LocationRecordingService extends Service {
      */
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notificationManager = getSystemService(NotificationManager.class);
+
             NotificationChannel serviceChannel = new NotificationChannel(
-                    CHANNEL_ID,
-                    "Foreground Service Channel",
+                    RECORDING_STATUS_CHANNEL,
+                    "Recording status",
                     NotificationManager.IMPORTANCE_LOW
             );
-            notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(serviceChannel);
+
+            NotificationChannel actionChannel = new NotificationChannel(
+                    ACTION_REQUIRED_CHANNEL,
+                    "Action required",
+                    NotificationManager.IMPORTANCE_DEFAULT
+            );
+            notificationManager.createNotificationChannel(actionChannel);
         }
     }
 
@@ -200,6 +203,24 @@ public class LocationRecordingService extends Service {
         return locationRequest;
     }
 
+    private void notifyLocationPermissionRequired() {
+        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        Uri uri = Uri.fromParts("package", getPackageName(), null);
+        intent.setData(uri);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        Notification notification = new NotificationCompat.Builder(this, ACTION_REQUIRED_CHANNEL)
+                .setContentTitle("Cellscanner")
+                .setContentText("Cellscanner requires permission to access device location")
+                .setSmallIcon(R.drawable.ic_symbol24)
+                .setContentIntent(pendingIntent)
+                .setOnlyAlertOnce(true)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .build();
+
+        notificationManager.notify(PERMISSION_NOTIFICATION_ID, notification);
+    }
 
     /**
      * starts the capture of GPS location updates.
@@ -213,6 +234,9 @@ public class LocationRecordingService extends Service {
                     locationCallback,
                     null
             );
+            notificationManager.cancel(PERMISSION_NOTIFICATION_ID);
+        } else {
+            notifyLocationPermissionRequired();
         }
     }
 
@@ -229,12 +253,10 @@ public class LocationRecordingService extends Service {
             is switched to start running when the permissions are not there
          */
         if (PermissionSupport.hasCourseLocationPermission(getApplicationContext())) {
+            notificationManager.cancel(PERMISSION_NOTIFICATION_ID);  // cancel permissions warning if any
             return telephonyManager.getAllCellInfo();
         } else {
-            /*
-            Can only get in this situation when the location permission is revoked
-            TODO: spawn a notification
-             */
+            notifyLocationPermissionRequired();
             return new ArrayList<>();
         }
 
@@ -280,7 +302,7 @@ public class LocationRecordingService extends Service {
             List<CellInfo> cellinfo = getCellInfo();
             String[] cellstr = storeCellInfo(cellinfo);
             notificationManager.notify(
-                    NOTIF_ID,
+                    STATUS_NOTIFICATION_ID,
                     getActivityNotification(String.format("%d cells registered (%d visible)", cellstr.length, cellinfo.size()))
             );
             sendBroadcastMessage();

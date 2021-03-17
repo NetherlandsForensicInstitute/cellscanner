@@ -1,6 +1,5 @@
 package nl.nfi.cellscanner;
 
-import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -35,7 +34,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -46,8 +44,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import nl.nfi.cellscanner.recorder.RecorderUtils;
-import static nl.nfi.cellscanner.CellScannerApp.getDatabase;
-import static nl.nfi.cellscanner.PreferencesActivity.getInstallID;
 
 public class UserDataUploadWorker extends Worker {
     private static final String ERROR_CHANNEL_ID = "cellscanner_upload_notification";
@@ -148,7 +144,7 @@ public class UserDataUploadWorker extends Worker {
         }
 
         long timestamp = new Date().getTime() / 1000L;
-        String dest_filename = String.format("%s-%d.sqlite3.gz", PreferencesActivity.getInstallID(ctx), timestamp);
+        String dest_filename = String.format("%s-%d.sqlite3.gz", Preferences.getInstallID(ctx), timestamp);
 
         File dbfile = Utils.createTempFile(ctx);
         try {
@@ -186,7 +182,7 @@ public class UserDataUploadWorker extends Worker {
             RecorderUtils.stopService(ctx);
 
             // upload data
-            upload(getApplicationContext(), PreferencesActivity.getUploadURL(getApplicationContext()));
+            upload(getApplicationContext(), Preferences.getUploadURL(getApplicationContext()));
 
             // clear database
             ExportResultRepository.storeExportResult(getApplicationContext(), timestamp, true, "success", getTags().iterator().next());
@@ -218,7 +214,7 @@ public class UserDataUploadWorker extends Worker {
     }
 
     public static void applyUploadPolicy(Context ctx) {
-        applyUploadPolicy(ctx, PreferencesActivity.getAutoUploadEnabled(ctx), PreferencesActivity.getUnmeteredUploadOnly(ctx));
+        applyUploadPolicy(ctx, Preferences.getAutoUploadEnabled(ctx), Preferences.getUnmeteredUploadOnly(ctx));
     }
 
     @NotNull
@@ -229,7 +225,7 @@ public class UserDataUploadWorker extends Worker {
                 .build();
     }
 
-    public static void startDataUpload(final Activity ctx) {
+    public static void startDataUpload(final Context ctx) {
         OneTimeWorkRequest uploadWorkRequest = new OneTimeWorkRequest
                 .Builder(UserDataUploadWorker.class)
                 .addTag(ExportResultRepository.MANUAL)

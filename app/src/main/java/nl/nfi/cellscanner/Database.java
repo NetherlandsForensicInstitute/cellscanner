@@ -180,7 +180,7 @@ public class Database {
     }
 
     public void storeInstallID(Context ctx) {
-        String install_id = PreferencesActivity.getInstallID(ctx);
+        String install_id = Preferences.getInstallID(ctx);
         setMetaEntry(META_INSTALL_ID, install_id);
     }
 

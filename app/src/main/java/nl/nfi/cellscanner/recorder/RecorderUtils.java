@@ -11,7 +11,7 @@ import android.preference.PreferenceManager;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import nl.nfi.cellscanner.PreferencesActivity;
+import nl.nfi.cellscanner.Preferences;
 
 import static nl.nfi.cellscanner.recorder.PermissionSupport.hasCourseLocationPermission;
 import static nl.nfi.cellscanner.recorder.PermissionSupport.hasFineLocationPermission;
@@ -55,7 +55,7 @@ public class RecorderUtils {
      */
     public static boolean isRecordingEnabled(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(PreferencesActivity.PREF_ENABLE, false);
+                .getBoolean(Preferences.PREF_ENABLE, false);
     }
 
     /**
@@ -65,7 +65,7 @@ public class RecorderUtils {
      */
     public static boolean isLocationRecordingEnabled(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(PreferencesActivity.PREF_GPS_RECORDING, true);
+                .getBoolean(Preferences.PREF_GPS_RECORDING, true);
     }
 
     /**
@@ -75,22 +75,8 @@ public class RecorderUtils {
      */
     public static boolean isHighPrecisionRecordingEnabled(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(PreferencesActivity.PREF_GPS_HIGH_PRECISION_RECORDING, false);
+                .getBoolean(Preferences.PREF_GPS_HIGH_PRECISION_RECORDING, false);
     }
-
-    /**
-     * Set Recording to State value
-     * When True, the app should record data
-     * */
-    private static void setRecordingEnabled(Context context, Boolean state) { putBoolean(context, PreferencesActivity.PREF_ENABLE, state); };
-
-    /**
-     * Set GPS recording to State value
-     * GPS Recording, when True, store GPS location when the app is recording cells
-     * */
-    private static void setGPSRecordingState(Context context, Boolean state) { putBoolean(context, PreferencesActivity.PREF_GPS_RECORDING, state); };
-
-    private static void setGPSHighPrecisionRecordingState(Context context, Boolean state) { putBoolean(context, PreferencesActivity.PREF_GPS_HIGH_PRECISION_RECORDING, state); };
 
     /**
      * Sets a boolean key to a given state in local storage
