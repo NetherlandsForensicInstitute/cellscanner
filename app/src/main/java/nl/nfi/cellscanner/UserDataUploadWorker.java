@@ -173,6 +173,9 @@ public class UserDataUploadWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
+        if (!Database.getDataFile(getApplicationContext()).exists())
+            return Result.success();
+
         Log.i("cellscanner", "Start upload of data file");
 
         long timestamp = new Date().getTime();

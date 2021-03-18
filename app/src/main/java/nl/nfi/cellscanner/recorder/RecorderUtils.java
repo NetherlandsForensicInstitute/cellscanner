@@ -79,20 +79,6 @@ public class RecorderUtils {
     }
 
     /**
-     * Sets a boolean key to a given state in local storage
-     *
-     * @param context: Context making the request
-     * @param target: Key to set
-     * @param state: Boolean state to store
-     */
-    private static void putBoolean(Context context, String target, Boolean state ) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putBoolean(target, state);
-        editor.apply();
-    }
-
-    /**
      * Starts the recording service
      *
      * Staring method is based on the API lvl the app is running on/

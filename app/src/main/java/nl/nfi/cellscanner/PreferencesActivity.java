@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -68,7 +69,7 @@ public class PreferencesActivity
                 if (permissions.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     RecorderUtils.requestStartRecording(this);
                 } else {
-                    prefs.swRecordingMaster.setChecked(false);
+                    prefs.setRecordingEnabled(false);
 
                     // explain the app will not be working
                     Toast.makeText(this, "App will not work without location permissions", Toast.LENGTH_SHORT).show();

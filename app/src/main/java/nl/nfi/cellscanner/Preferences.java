@@ -39,6 +39,8 @@ public class Preferences extends PreferenceFragmentCompat
     private static final String PREF_INSTALL_ID = "INSTALL_ID";
 
     protected SwitchPreferenceCompat swRecordingMaster;
+    protected SwitchPreferenceCompat swGPSRecord;
+    protected SwitchPreferenceCompat swGPSPrecision;
 
     /**
      * Returns a unique identifier (UUID) for this Cellscanner setup. The value should be the same for
@@ -66,6 +68,11 @@ public class Preferences extends PreferenceFragmentCompat
         return install_id;
     }
 
+    public void setRecordingEnabled(boolean state) {
+        swRecordingMaster.setChecked(state);
+        swRecordingMaster.callChangeListener(state);
+    }
+
     public static boolean getAutoUploadEnabled(Context context) {
         return android.preference.PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(PREF_AUTO_UPLOAD, false);
@@ -91,10 +98,10 @@ public class Preferences extends PreferenceFragmentCompat
 
     private void setupRecording() {
         swRecordingMaster = findPreference(PREF_ENABLE);
-        final SwitchPreferenceCompat swGPSRecord = findPreference(PREF_GPS_RECORDING);
-        final SwitchPreferenceCompat swGPSPrecision = findPreference(PREF_GPS_HIGH_PRECISION_RECORDING);
+        swGPSRecord = findPreference(PREF_GPS_RECORDING);
+        swGPSPrecision = findPreference(PREF_GPS_HIGH_PRECISION_RECORDING);
 
-        swGPSRecord.setEnabled(swRecordingMaster.isChecked());
+        swGPSRecord.setEnabled(!swRecordingMaster.isChecked());
         swGPSPrecision.setEnabled(swGPSRecord.isEnabled() && swGPSRecord.isChecked());
 
         swRecordingMaster.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
