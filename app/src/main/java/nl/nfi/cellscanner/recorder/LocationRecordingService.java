@@ -49,9 +49,6 @@ import nl.nfi.cellscanner.R;
  * */
 public class LocationRecordingService extends Service {
 
-    private static final String TAG = LocationRecordingService.class.getSimpleName();
-
-
     public static final String LOCATION_DATA_UPDATE_BROADCAST = "LOCATION_DATA_UPDATE_MESSAGE";
 
     private static final String CHANNEL_ID = "CELL_SCANNER_MAIN_COMMUNICATION_CHANNEL";

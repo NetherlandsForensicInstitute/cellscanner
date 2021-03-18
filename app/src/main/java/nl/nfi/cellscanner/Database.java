@@ -217,8 +217,10 @@ public class Database {
 
     /** drop data until a given timestamp **/
     public void dropDataUntil(long timestamp) {
-        db.execSQL("delete from cellinfo where date_end  <= " + timestamp );
-        db.execSQL("delete from locationinfo where timestamp  <= " + timestamp);
+        db.delete("message", "date <= ?", new String[]{Long.toString(timestamp)});
+        db.delete("cellinfo", "date_end <= ?", new String[]{Long.toString(timestamp - CellScannerApp.EVENT_VALIDITY_MILLIS)});
+        db.delete("locationinfo", "timestamp <= ?", new String[]{Long.toString(timestamp)});
+        db.execSQL("VACUUM");
     }
 
 

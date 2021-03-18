@@ -188,7 +188,7 @@ public class UserDataUploadWorker extends Worker {
             // upload data
             upload(getApplicationContext(), PreferencesActivity.getUploadURL(getApplicationContext()));
 
-            // clear database
+            // finish up
             ExportResultRepository.storeExportResult(getApplicationContext(), timestamp, true, "success", getTags().iterator().next());
             CellScannerApp.getDatabase().dropDataUntil(timestamp);
 
