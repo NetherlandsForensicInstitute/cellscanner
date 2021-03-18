@@ -11,7 +11,6 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -28,7 +27,7 @@ public class AppInfoActivity extends AppCompatActivity {
         final Context context = this;
 
         // Show the android ID to the user
-        String installId = PreferencesActivity.getInstallID(context);
+        String installId = Preferences.getInstallID(context);
         TextView tvAndroidId = findViewById(R.id.tac_install_id_text);
         tvAndroidId.setText(installId);
 
