@@ -192,6 +192,9 @@ public class UserDataUploadWorker extends Worker {
             CellScannerApp.getDatabase().dropDataUntil(timestamp);
 
             return Result.success();
+        } catch (java.net.ConnectException e) {
+            ExportResultRepository.storeExportResult(getApplicationContext(), timestamp, false, "unable to connect", getTags().iterator().next());
+            return Result.retry();
         } catch (Exception e) {
             notifyError(getApplicationContext(), "Cellscanner upload error", e.getMessage());
             ExportResultRepository.storeExportResult(getApplicationContext(), timestamp, false, e.getMessage(), getTags().iterator().next());
