@@ -69,6 +69,7 @@ public class LocationRecordingService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        createNotificationChannel();
         startForeground(STATUS_NOTIFICATION_ID, getActivityNotification("started"));
 
         /* construct required constants */
@@ -77,7 +78,6 @@ public class LocationRecordingService extends Service {
         mDB = CellScannerApp.getDatabase();
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        createNotificationChannel();
 
         /* store some constants in the database */
         mDB.storeInstallID(getApplicationContext());
