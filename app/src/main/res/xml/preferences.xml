@@ -17,11 +17,13 @@
             app:summary="Store GPS locations if available (consumes no extra battery)"
             app:defaultValue="true"/>
 
-        <SwitchPreferenceCompat
-            app:key="GPS_HIGH_ACCURACY"
-            app:title="High accuracy locations"
-            app:summary="Improves accuracy of locations, may increase power consumption"
-            app:defaultValue="true"/>
+        <ListPreference
+            app:key="LOCATION_ACCURACY"
+            app:title="Location accuracy"
+            app:summary="Choose location accuracy, may affect power consumption"
+            app:entries="@array/LOCATION_PRIORITY_NAMES"
+            app:entryValues="@array/LOCATION_PRIORITY_VALUES"
+            app:defaultValue="LOW" />
 
         <SwitchPreferenceCompat
             app:key="CALL_STATE_RECORDING"

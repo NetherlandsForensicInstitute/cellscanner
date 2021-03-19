@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="LOCATION_PRIORITY_NAMES">
+        <item>High accuracy (increases power consumption)</item>
+        <item>Balanced</item>
+        <item>Low accuracy</item>
+        <item>Passive (no power)</item>
+    </string-array>
+    <string-array name="LOCATION_PRIORITY_VALUES">
+        <item>HIGH</item>
+        <item>BALANCED</item>
+        <item>LOW</item>
+        <item>PASSIVE</item>
+    </string-array>
+</resources>

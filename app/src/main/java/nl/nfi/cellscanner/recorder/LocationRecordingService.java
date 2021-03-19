@@ -218,10 +218,6 @@ public class LocationRecordingService extends Service {
         }
     }
 
-    private static int recordingPriorityValue(Context context) {
-        return Preferences.isHighPrecisionRecordingEnabled(context) ? LocationRequest.PRIORITY_HIGH_ACCURACY : LocationRequest.PRIORITY_NO_POWER;
-    }
-
     /**
      * Construct the settings for the location requests used by the app
      * used to configure the fusedLocationProviderClient
@@ -231,7 +227,7 @@ public class LocationRecordingService extends Service {
         LocationRequest locationRequest = LocationRequest.create();
         locationRequest.setInterval(1000 * GPS_LOCATION_INTERVAL);
         locationRequest.setFastestInterval(1000);
-        locationRequest.setPriority(recordingPriorityValue(this));
+        locationRequest.setPriority(Preferences.getLocationAccuracy(this));
         locationRequest.setSmallestDisplacement(SMALLEST_DISPLACEMENT_BEFORE_LOGGING_MTRS);
         return locationRequest;
     }

@@ -13,10 +13,13 @@ import android.widget.Toast;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.preference.EditTextPreference;
+import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 import androidx.preference.SwitchPreferenceCompat;
+
+import com.google.android.gms.location.LocationRequest;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -31,7 +34,7 @@ public class Preferences extends PreferenceFragmentCompat
     public final static String PREF_ENABLE = "APP_RECORDING";  // APP should be recording data
     public final static String PREF_CALL_STATE_RECORDING = "CALL_STATE_RECORDING";
     public final static String PREF_GPS_RECORDING = "GPS_RECORDING";  // APP should record GPS data when in Recording state
-    public final static String PREF_GPS_HIGH_PRECISION_RECORDING = "GPS_HIGH_ACCURACY";  // APP should record GPS data when in Recording state
+    public final static String PREF_LOCATION_ACCURACY = "LOCATION_ACCURACY";
 
     // data management preferences
     private static final String PREF_VIEW_MEASUREMENTS = "VIEW_MEASUREMENTS";
@@ -48,7 +51,7 @@ public class Preferences extends PreferenceFragmentCompat
     protected SwitchPreferenceCompat swRecordingMaster;
     protected SwitchPreferenceCompat swCallState;
     protected SwitchPreferenceCompat swGPSRecord;
-    protected SwitchPreferenceCompat swGPSPrecision;
+    protected ListPreference swLocationAccuracy;
 
     /**
      * Returns a unique identifier (UUID) for this Cellscanner setup. The value should be the same for
@@ -115,9 +118,21 @@ public class Preferences extends PreferenceFragmentCompat
      * @return State of the GPS Recording key, when True the app should record GPS data with HIGH precision when
      *      the recording state is True
      */
-    public static boolean isHighPrecisionRecordingEnabled(Context context) {
-        return android.preference.PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(Preferences.PREF_GPS_HIGH_PRECISION_RECORDING, false);
+    public static int getLocationAccuracy(Context context) {
+        String value = android.preference.PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(Preferences.PREF_LOCATION_ACCURACY, null);
+
+        if (value.equals("PASSIVE"))
+            return LocationRequest.PRIORITY_NO_POWER;
+        if (value.equals("LOW"))
+            return LocationRequest.PRIORITY_LOW_POWER;
+        if (value.equals("BALANCED"))
+            return LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
+        if (value.equals("HIGH"))
+            return LocationRequest.PRIORITY_HIGH_ACCURACY;
+
+        Log.e("cellscanner", "should not reach this code");
+        return LocationRequest.PRIORITY_LOW_POWER;
     }
 
     public static boolean getAutoUploadEnabled(Context context) {
@@ -155,11 +170,11 @@ public class Preferences extends PreferenceFragmentCompat
         swRecordingMaster = findPreference(PREF_ENABLE);
         swCallState = findPreference(PREF_CALL_STATE_RECORDING);
         swGPSRecord = findPreference(PREF_GPS_RECORDING);
-        swGPSPrecision = findPreference(PREF_GPS_HIGH_PRECISION_RECORDING);
+        swLocationAccuracy = findPreference(PREF_LOCATION_ACCURACY);
 
         swCallState.setEnabled(!swRecordingMaster.isChecked());
         swGPSRecord.setEnabled(!swRecordingMaster.isChecked());
-        swGPSPrecision.setEnabled(swGPSRecord.isEnabled() && swGPSRecord.isChecked());
+        swLocationAccuracy.setEnabled(swGPSRecord.isEnabled() && swGPSRecord.isChecked());
 
         swRecordingMaster.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
             @Override
@@ -170,7 +185,7 @@ public class Preferences extends PreferenceFragmentCompat
                 // update button states
                 swCallState.setEnabled(!recording_enabled);
                 swGPSRecord.setEnabled(!recording_enabled);
-                swGPSPrecision.setEnabled(!recording_enabled && swGPSRecord.isChecked());
+                swLocationAccuracy.setEnabled(swGPSRecord.isEnabled() && swGPSRecord.isChecked());
 
                 // apply new settings
                 if (recording_enabled) {
@@ -203,12 +218,12 @@ public class Preferences extends PreferenceFragmentCompat
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 // update button state
-                swGPSPrecision.setEnabled((boolean)newValue);
+                swLocationAccuracy.setEnabled((boolean)newValue);
                 return true;
             }
         });
 
-        swGPSPrecision.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
+        swLocationAccuracy.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 return true;
