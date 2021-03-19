@@ -37,6 +37,7 @@ public class Preferences extends PreferenceFragmentCompat
 
     // general preferences
     private static final String PREF_INSTALL_ID = "INSTALL_ID";
+    private final static String PREF_ABOUT_CELLSCANNER = "ABOUT_CELLSCANNER";
 
     protected SwitchPreferenceCompat swRecordingMaster;
     protected SwitchPreferenceCompat swGPSRecord;
@@ -94,6 +95,14 @@ public class Preferences extends PreferenceFragmentCompat
 
         setupRecording();
         setupSharing();
+
+        findPreference(PREF_ABOUT_CELLSCANNER).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                AppInfoActivity.show(getContext());
+                return true;
+            }
+        });
     }
 
     private void setupRecording() {
