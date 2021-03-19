@@ -207,7 +207,6 @@ public class UserDataUploadWorker extends Worker {
     }
 
     private static void scheduleWorkRequest(Context ctx, WorkRequest workRequest) {
-        unSchedulePeriodDataUpload(ctx);
         WorkManager
                 .getInstance(ctx)
                 .enqueue(workRequest);
@@ -248,7 +247,7 @@ public class UserDataUploadWorker extends Worker {
         Constraints constraints = getWorkManagerConstraints(ctx, unmetered_only);
 
         PeriodicWorkRequest uploadWorkRequest = new PeriodicWorkRequest
-                .Builder(UserDataUploadWorker.class, 15, TimeUnit.MINUTES) // TODO: Make this a useful setting
+                .Builder(UserDataUploadWorker.class, 15, TimeUnit.MINUTES) // upload every 15 minutes
                 .addTag(ExportResultRepository.AUTO)
                 .setConstraints(constraints)
                 .build();
