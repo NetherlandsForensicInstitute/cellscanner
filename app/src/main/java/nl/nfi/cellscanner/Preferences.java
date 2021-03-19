@@ -43,6 +43,7 @@ public class Preferences extends PreferenceFragmentCompat
 
     // general preferences
     private static final String PREF_INSTALL_ID = "INSTALL_ID";
+    private final static String PREF_ABOUT_CELLSCANNER = "ABOUT_CELLSCANNER";
 
     protected SwitchPreferenceCompat swRecordingMaster;
     protected SwitchPreferenceCompat swCallState;
@@ -84,9 +85,9 @@ public class Preferences extends PreferenceFragmentCompat
                 .getBoolean(Preferences.PREF_ENABLE, false);
     }
 
-    public static void setRecordingEnabled(Context context, boolean enabled) {
-        android.preference.PreferenceManager.getDefaultSharedPreferences(context)
-                .edit().putBoolean(PREF_ENABLE, enabled).apply();
+    public void setRecordingEnabled(boolean enabled) {
+        swRecordingMaster.setChecked(enabled);
+        swRecordingMaster.callChangeListener(enabled);
     }
 
     public static boolean isCallStateRecordingEnabled(Context context) {
@@ -94,9 +95,9 @@ public class Preferences extends PreferenceFragmentCompat
                 .getBoolean(Preferences.PREF_CALL_STATE_RECORDING, false);
     }
 
-    public static void setCallStateRecording(Context context, boolean enabled) {
-        android.preference.PreferenceManager.getDefaultSharedPreferences(context)
-                .edit().putBoolean(PREF_CALL_STATE_RECORDING, enabled).apply();
+    public void setCallStateRecording(boolean enabled) {
+        swCallState.setChecked(enabled);
+        swCallState.callChangeListener(enabled);
     }
 
     /**
@@ -140,10 +141,14 @@ public class Preferences extends PreferenceFragmentCompat
 
         setupRecording();
         setupSharing();
-    }
 
-    private void updateButtonEnabledState() {
-
+        findPreference(PREF_ABOUT_CELLSCANNER).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                AppInfoActivity.show(getContext());
+                return true;
+            }
+        });
     }
 
     private void setupRecording() {

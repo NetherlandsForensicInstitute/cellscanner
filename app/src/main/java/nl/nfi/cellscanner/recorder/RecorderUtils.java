@@ -47,6 +47,15 @@ public class RecorderUtils {
     }
 
     /**
+     * Check the state of the Recording key.
+     * @return State of the Recording key, when True the app should record cell data
+     */
+    public static boolean isRecordingEnabled(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(Preferences.PREF_ENABLE, false);
+    }
+
+    /**
      * Starts the recording service
      *
      * Staring method is based on the API lvl the app is running on/

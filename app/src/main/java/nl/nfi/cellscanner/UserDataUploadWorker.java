@@ -173,6 +173,9 @@ public class UserDataUploadWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
+        if (!Database.getDataFile(getApplicationContext()).exists())
+            return Result.success();
+
         Log.i("cellscanner", "Start upload of data file");
 
         long timestamp = new Date().getTime();
@@ -184,11 +187,14 @@ public class UserDataUploadWorker extends Worker {
             // upload data
             upload(getApplicationContext(), Preferences.getUploadURL(getApplicationContext()));
 
-            // clear database
+            // finish up
             ExportResultRepository.storeExportResult(getApplicationContext(), timestamp, true, "success", getTags().iterator().next());
             CellScannerApp.getDatabase().dropDataUntil(timestamp);
 
             return Result.success();
+        } catch (java.net.ConnectException e) {
+            ExportResultRepository.storeExportResult(getApplicationContext(), timestamp, false, "unable to connect", getTags().iterator().next());
+            return Result.retry();
         } catch (Exception e) {
             notifyError(getApplicationContext(), "Cellscanner upload error", e.getMessage());
             ExportResultRepository.storeExportResult(getApplicationContext(), timestamp, false, e.getMessage(), getTags().iterator().next());

@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -68,12 +69,10 @@ public class PreferencesActivity
         // update switches on denied requests
         for (int i=0 ; i< permissions.length ; i++) {
             if (permissions[i].equals(Manifest.permission.ACCESS_COARSE_LOCATION) && grantResults[i] == PackageManager.PERMISSION_DENIED) {
-                prefs.swRecordingMaster.setChecked(false); // update bu
-                //Preferences.setRecordingEnabled(this, false);
+                prefs.setRecordingEnabled(false);
             }
             if (permissions[i].equals(Manifest.permission.READ_PHONE_STATE) && grantResults[i] == PackageManager.PERMISSION_DENIED) {
-                prefs.swCallState.setChecked(false);
-                //Preferences.setCallStateRecording(this, false);
+                prefs.setCallStateRecording(false);
             }
         }
 

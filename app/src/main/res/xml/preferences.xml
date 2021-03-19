@@ -68,7 +68,7 @@
         app:title="Cellscanner" >
 
         <Preference
-            app:key="about_cellscanner"
+            app:key="ABOUT_CELLSCANNER"
             app:title="About Cellscanner"
             app:summary="View general information and contact details"/>
 
