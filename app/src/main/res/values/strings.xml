@@ -53,15 +53,12 @@ The Netherlands<br/>
     <string name="tac_about_app">
         <![CDATA[
 <p>
-<b>Cell info</b> registers the provider of the sim card and the cell towers the sim card connects with. <b>GPS location info</b> collects latitude, longitude, accuracy, altitude, and speed data using Google\'s location service.
-</p><p>
-Data is only collected when the <b>recording</b> switch is turned on.
-Cell info is always recorded when recording is on.
-Before you start recording you can select whether you want to record GPS data and, if so, whether the GPS precision should be high (for better results) or low (to lower battery use).
-</p><p>
-The data stored on the device can be removed from the device by clicking <b>Clear data</b>. If this is done before the data is exported, the data cannot be recovered.
-</p><p>
-When rebooting your device, the app will continue in the state that you left it in when shutting down your device.
+<b>Cellscanner</b> requires the following permissions to operate.
+
+<ul>
+<li><b>Location access</b> is required to collect network information.</li>
+<li><b>Phone state access</b> is required if call state logging is switched on, i.e. whether a call is active or not.</li>
+</ul>
 </p>
 ]]>
     </string>
