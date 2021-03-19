@@ -14,7 +14,8 @@ version part should be even.
 ## Commit and tag new version
 
 ```sh
-git commit -a
+git add app/build.gradle
+git commit
 git tag VERSION
 ```
 
@@ -30,7 +31,7 @@ The release package is built in `app/release`. Upload this file to google and cr
 
 ```sh
 git push --tags
-git branch -d release
+git branch -D release
 git checkout master
 ```
 

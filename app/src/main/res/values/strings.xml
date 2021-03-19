@@ -3,29 +3,45 @@
     <string name="terms_and_conditions_header">Terms and Conditions</string>
     <string name="tac_data_collection">
 <![CDATA[
-<p>Cellscanner is created by the Netherlands Forensic Institute (NFI).
-When activated, it logs two types of location data: addresses of <b>cell towers</b> the device connects to, and optionally <b>GPS coordinates</b> along with other GPS data such as their accuracy.
-We collect these data to learn how cellular networks operate, and how to interpret their traces in criminal cases.
-We will use the data to derive aggregated statistics.
-We will never attempt to reveal the identity of individual users.
-An example of the type of research done with these data in the past can be found here: <a href="http://doi.org/10.1016/j.scijus.2019.10.005">http://doi.org/10.1016/j.scijus.2019.10.005</a>.
-</p><p>
-Cellscanner only collects what is strictly necessary.
+<p>
+<b>cellscanner</b> collects network and location data. By default, it is configured to upload these
+data to the Netherlands Forensic Institute (NFI) to support criminal investigations. As a user, you
+are in control which data to share and with whom.
+</p>
+
+<p>
+When activated, <b>cellscanner</b> logs two types of data: addresses of <b>cell towers</b> the
+device connects to, and optionally <b>GPS coordinates</b> along with other GPS data such as their
+accuracy. NFI collects these data to learn how cellular networks operate, and how to interpret their
+traces in criminal cases. We will use the data to derive aggregated statistics. We will never
+attempt to reveal the identity of individual users. An example of the type of research done with
+these data in the past can be found here:
+<a href="http://doi.org/10.1016/j.scijus.2019.10.005">http://doi.org/10.1016/j.scijus.2019.10.005</a>.
+</p>
+
+<p>
+<b>cellscanner</b> only collects what is strictly necessary and is transparent about what it collects.
 That includes network and (optionally) GPS data.
 Network data may reveal the location of the device to some extent, depending on the number of cell towers in the area.
 In addition, a device identifier is stored.
 The device identifier is used to link multiple submissions from the same user, and is generated once after the app is installed.
-</p><p>
+</p>
+
+<p>
 When using this app you are free to start/stop recording at any time using the switch button on the main screen.
 In addition, GPS logging is optional and can be enabled or disabled at any time.
 When the app is recording and GPS logging is turned off, only cell tower addresses are registered.
-</p><p>
+</p>
+
+<p>
 If at any point you wish to revoke your consent and have your data removed from NFI servers, you can email your request to <a href="mailto:fbda@nfi.nl">fbda@nfi.nl</a>.
 In this email you should mention the name of this app (Cellscanner) and your device identifier, which is shown below.
 This identifier is the only link between you and your data.
 Please write it down now, in case you may wish to revoke your consent later.
-</p><p>
-In summary, by using this app you consent and understand that:
+</p>
+
+<p>
+In summary, if you use this app to share your data with NFI, you consent and understand that:
 <ul>
     <li>the data collected by this app are stored locally on your device;</li>
     <li>these data are securely uploaded to and stored on NFI servers when you enable the upload feature;</li>
