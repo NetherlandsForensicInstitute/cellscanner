@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.telephony.CellInfo;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -222,6 +223,24 @@ public class Database {
         db.insert("locationinfo", null, values);
     }
 
+    public void storeCallState(int state) {
+        String state_name;
+        if (state == TelephonyManager.CALL_STATE_IDLE)
+            state_name = "idle";
+        else if (state == TelephonyManager.CALL_STATE_RINGING)
+            state_name = "ringing";
+        else if (state == TelephonyManager.CALL_STATE_OFFHOOK)
+            state_name = "offhook";
+        else
+            state_name = "invalid";
+
+        ContentValues values = new ContentValues();
+        values.put("date", new Date().getTime());
+        values.put("state", state_name);
+
+        db.insert("call_state", null, values);
+    }
+
     /** drop data until a given timestamp **/
     public void dropDataUntil(long timestamp) {
         db.execSQL("delete from cellinfo where date_end  <= " + timestamp );
@@ -242,6 +261,11 @@ public class Database {
         db.execSQL("CREATE TABLE IF NOT EXISTS message ("+
                 "  date INT NOT NULL,"+
                 "  message VARCHAR(250) NOT NULL"+
+                ")");
+
+        db.execSQL("CREATE TABLE IF NOT EXISTS call_state ("+
+                "  date INT NOT NULL,"+
+                "  state VARCHAR(20) NOT NULL"+
                 ")");
 
         db.execSQL("CREATE TABLE IF NOT EXISTS cellinfo ("+
@@ -271,11 +295,5 @@ public class Database {
                 "  altitude INT NOT NULL," +
                 "  speed INT NOT NULL" +
                 ")");
-    }
-
-    public void dropTables() {
-        db.execSQL("DROP TABLE IF EXISTS meta");
-        db.execSQL("DROP TABLE IF EXISTS cellinfo");
-        db.execSQL("DROP TABLE IF EXISTS locationinfo");
     }
 }

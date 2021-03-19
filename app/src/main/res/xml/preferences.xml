@@ -12,9 +12,15 @@
             app:defaultValue="false"/>
 
         <SwitchPreferenceCompat
+            app:key="CALL_STATE_RECORDING"
+            app:title="Record call state"
+            app:summary="Record start and end time of calls"
+            app:defaultValue="true"/>
+
+        <SwitchPreferenceCompat
             app:key="GPS_RECORDING"
             app:title="Record locations"
-            app:summary="Enable location logging"
+            app:summary="Consumes no extra battery unless high accuracy is enabled"
             app:defaultValue="true"/>
 
         <SwitchPreferenceCompat

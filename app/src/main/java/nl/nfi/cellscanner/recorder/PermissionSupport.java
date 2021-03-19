@@ -4,10 +4,15 @@ import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.telephony.PhoneStateListener;
 
 import androidx.core.content.ContextCompat;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import nl.nfi.cellscanner.CellScannerApp;
+import nl.nfi.cellscanner.Preferences;
 
 /**
  * Utility class used to check if permissions are set
@@ -15,12 +20,29 @@ import nl.nfi.cellscanner.CellScannerApp;
 public class PermissionSupport {
     final private static String PREFS_NAME = CellScannerApp.TITLE;
 
+    public static List<String> getMissingPermissions(Context ctx) {
+        List<String> missing_permissions = new ArrayList<String>();
+
+        if (!PermissionSupport.hasCourseLocationPermission(ctx))
+            missing_permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+        if (Preferences.isLocationRecordingEnabled(ctx) && !PermissionSupport.hasFineLocationPermission(ctx))
+            missing_permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        if (Preferences.isCallStateRecordingEnabled(ctx) && !PermissionSupport.hasCallStatePermission(ctx))
+            missing_permissions.add(Manifest.permission.READ_PHONE_STATE);
+
+        return missing_permissions;
+    }
+
     public static boolean hasCourseLocationPermission(Context ctx) {
         return hasPermission(ctx, Manifest.permission.ACCESS_COARSE_LOCATION);
     }
 
     public static boolean hasFineLocationPermission(Context ctx) {
         return hasPermission(ctx, Manifest.permission.ACCESS_COARSE_LOCATION) && hasPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION);
+    }
+
+    public static boolean hasCallStatePermission(Context ctx) {
+        return hasPermission(ctx, Manifest.permission.READ_PHONE_STATE);
     }
 
     private static boolean hasPermission(Context ctx, String permission) {

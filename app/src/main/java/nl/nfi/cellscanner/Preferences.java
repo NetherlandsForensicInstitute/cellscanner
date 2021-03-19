@@ -1,13 +1,17 @@
 package nl.nfi.cellscanner;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -18,12 +22,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
 
+import nl.nfi.cellscanner.recorder.PermissionSupport;
 import nl.nfi.cellscanner.recorder.RecorderUtils;
 
 public class Preferences extends PreferenceFragmentCompat
 {
     // recording preferences
     public final static String PREF_ENABLE = "APP_RECORDING";  // APP should be recording data
+    public final static String PREF_CALL_STATE_RECORDING = "CALL_STATE_RECORDING";
     public final static String PREF_GPS_RECORDING = "GPS_RECORDING";  // APP should record GPS data when in Recording state
     public final static String PREF_GPS_HIGH_PRECISION_RECORDING = "GPS_HIGH_ACCURACY";  // APP should record GPS data when in Recording state
 
@@ -39,6 +45,9 @@ public class Preferences extends PreferenceFragmentCompat
     private static final String PREF_INSTALL_ID = "INSTALL_ID";
 
     protected SwitchPreferenceCompat swRecordingMaster;
+    protected SwitchPreferenceCompat swCallState;
+    protected SwitchPreferenceCompat swGPSRecord;
+    protected SwitchPreferenceCompat swGPSPrecision;
 
     /**
      * Returns a unique identifier (UUID) for this Cellscanner setup. The value should be the same for
@@ -66,6 +75,50 @@ public class Preferences extends PreferenceFragmentCompat
         return install_id;
     }
 
+    /**
+     * Check the state of the Recording key.
+     * @return State of the Recording key, when True the app should record cell data
+     */
+    public static boolean isRecordingEnabled(Context context) {
+        return android.preference.PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(Preferences.PREF_ENABLE, false);
+    }
+
+    public static void setRecordingEnabled(Context context, boolean enabled) {
+        android.preference.PreferenceManager.getDefaultSharedPreferences(context)
+                .edit().putBoolean(PREF_ENABLE, enabled).apply();
+    }
+
+    public static boolean isCallStateRecordingEnabled(Context context) {
+        return android.preference.PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(Preferences.PREF_CALL_STATE_RECORDING, false);
+    }
+
+    public static void setCallStateRecording(Context context, boolean enabled) {
+        android.preference.PreferenceManager.getDefaultSharedPreferences(context)
+                .edit().putBoolean(PREF_CALL_STATE_RECORDING, enabled).apply();
+    }
+
+    /**
+     * Check the state of the GPS Recording key.
+     * @return State of the GPS Recording key, when True the app should record GPS data when
+     *      the recording state is True
+     */
+    public static boolean isLocationRecordingEnabled(Context context) {
+        return android.preference.PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(Preferences.PREF_GPS_RECORDING, true);
+    }
+
+    /**
+     * Check the state of the GPS HIGH precision Recording key.
+     * @return State of the GPS Recording key, when True the app should record GPS data with HIGH precision when
+     *      the recording state is True
+     */
+    public static boolean isHighPrecisionRecordingEnabled(Context context) {
+        return android.preference.PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(Preferences.PREF_GPS_HIGH_PRECISION_RECORDING, false);
+    }
+
     public static boolean getAutoUploadEnabled(Context context) {
         return android.preference.PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(PREF_AUTO_UPLOAD, false);
@@ -89,20 +142,28 @@ public class Preferences extends PreferenceFragmentCompat
         setupSharing();
     }
 
+    private void updateButtonEnabledState() {
+
+    }
+
     private void setupRecording() {
         swRecordingMaster = findPreference(PREF_ENABLE);
-        final SwitchPreferenceCompat swGPSRecord = findPreference(PREF_GPS_RECORDING);
-        final SwitchPreferenceCompat swGPSPrecision = findPreference(PREF_GPS_HIGH_PRECISION_RECORDING);
+        swCallState = findPreference(PREF_CALL_STATE_RECORDING);
+        swGPSRecord = findPreference(PREF_GPS_RECORDING);
+        swGPSPrecision = findPreference(PREF_GPS_HIGH_PRECISION_RECORDING);
 
-        swGPSRecord.setEnabled(swRecordingMaster.isChecked());
+        swCallState.setEnabled(!swRecordingMaster.isChecked());
+        swGPSRecord.setEnabled(!swRecordingMaster.isChecked());
         swGPSPrecision.setEnabled(swGPSRecord.isEnabled() && swGPSRecord.isChecked());
 
         swRecordingMaster.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 boolean recording_enabled = (boolean)newValue;
+                Log.e("cellscanner", "checked changed "+recording_enabled);
 
                 // update button states
+                swCallState.setEnabled(!recording_enabled);
                 swGPSRecord.setEnabled(!recording_enabled);
                 swGPSPrecision.setEnabled(!recording_enabled && swGPSRecord.isChecked());
 
@@ -120,12 +181,24 @@ public class Preferences extends PreferenceFragmentCompat
             }
         });
 
+        swCallState.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                boolean enabled = (boolean)newValue;
+
+                // request permission if necessary
+                if (enabled && getContext() instanceof Activity && !PermissionSupport.hasCallStatePermission(getContext()))
+                    ActivityCompat.requestPermissions((Activity)getContext(), new String[]{Manifest.permission.READ_PHONE_STATE}, RecorderUtils.PERMISSION_REQUEST_PHONE_STATE);
+
+                return true;
+            }
+        });
+
         swGPSRecord.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 // update button state
                 swGPSPrecision.setEnabled((boolean)newValue);
-
                 return true;
             }
         });

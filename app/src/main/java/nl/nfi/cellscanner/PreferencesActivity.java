@@ -1,5 +1,6 @@
 package nl.nfi.cellscanner;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -15,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.preference.PreferenceManager;
 
+import nl.nfi.cellscanner.recorder.PermissionSupport;
 import nl.nfi.cellscanner.recorder.RecorderUtils;
 
 import static nl.nfi.cellscanner.Database.getFileTitle;
@@ -22,7 +24,6 @@ import static nl.nfi.cellscanner.Database.getFileTitle;
 public class PreferencesActivity
         extends AppCompatActivity
 {
-
     private Preferences prefs;
 
     @Override
@@ -30,7 +31,8 @@ public class PreferencesActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_preferences);
 
-        prefs = new Preferences();
+        if (prefs == null)
+            prefs = new Preferences();
 
         getSupportFragmentManager()
                 .beginTransaction()
@@ -49,7 +51,7 @@ public class PreferencesActivity
         AppInfoActivity.showIfNoConsent(this);
 
         // resume foreground service if necessary
-        if (RecorderUtils.isRecordingEnabled(this))
+        if (Preferences.isRecordingEnabled(this))
             RecorderUtils.requestStartRecording(this);
     }
 
@@ -63,17 +65,22 @@ public class PreferencesActivity
      */
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case RecorderUtils.PERMISSION_REQUEST_START_RECORDING: {
-                if (permissions.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    RecorderUtils.requestStartRecording(this);
-                } else {
-                    prefs.swRecordingMaster.setChecked(false);
-
-                    // explain the app will not be working
-                    Toast.makeText(this, "App will not work without location permissions", Toast.LENGTH_SHORT).show();
-                }
+        // update switches on denied requests
+        for (int i=0 ; i< permissions.length ; i++) {
+            if (permissions[i].equals(Manifest.permission.ACCESS_COARSE_LOCATION) && grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                prefs.swRecordingMaster.setChecked(false); // update bu
+                //Preferences.setRecordingEnabled(this, false);
             }
+            if (permissions[i].equals(Manifest.permission.READ_PHONE_STATE) && grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                prefs.swCallState.setChecked(false);
+                //Preferences.setCallStateRecording(this, false);
+            }
+        }
+
+        // retry start service
+        if (requestCode == RecorderUtils.PERMISSION_REQUEST_START_RECORDING) {
+            if (Preferences.isRecordingEnabled(this))
+                RecorderUtils.requestStartRecording(this);
         }
     }
 

@@ -15,8 +15,9 @@ import android.os.IBinder;
 
 import android.provider.Settings;
 import android.telephony.CellInfo;
+import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
-import android.util.Log;
+import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -31,7 +32,6 @@ import com.google.android.gms.location.LocationServices;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -39,6 +39,7 @@ import java.util.TimerTask;
 import nl.nfi.cellscanner.CellScannerApp;
 import nl.nfi.cellscanner.CellStatus;
 import nl.nfi.cellscanner.Database;
+import nl.nfi.cellscanner.Preferences;
 import nl.nfi.cellscanner.ViewMeasurementsActivity;
 import nl.nfi.cellscanner.R;
 
@@ -62,6 +63,7 @@ public class LocationRecordingService extends Service {
     private FusedLocationProviderClient fusedLocationProviderClient;
     private Location location;
     private LocationCallback locationCallback;
+    private PhoneStateListener phoneStateCallback;
     private TelephonyManager telephonyManager;
     private NotificationManager notificationManager;
     private Timer timer; // Make a cell scan on every tick
@@ -69,6 +71,7 @@ public class LocationRecordingService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        createNotificationChannel();
         startForeground(STATUS_NOTIFICATION_ID, getActivityNotification("started"));
 
         /* construct required constants */
@@ -77,7 +80,6 @@ public class LocationRecordingService extends Service {
         mDB = CellScannerApp.getDatabase();
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        createNotificationChannel();
 
         /* store some constants in the database */
         mDB.storeInstallID(getApplicationContext());
@@ -106,22 +108,54 @@ public class LocationRecordingService extends Service {
                 }
             }
         };
+
+        phoneStateCallback = new PhoneStateListener() {
+            public void onCallStateChanged(int state, String phoneNumber) {
+                super.onCallStateChanged(state, phoneNumber);
+                try {
+                    processCallStateUpdate(state);
+                } catch (Throwable e) {
+                    CellScannerApp.getDatabase().storeMessage(e);
+                }
+            }
+        };
     }
 
     /**
      * start or stop recording GPS data based on the app state
      * @param ctx: Context of the running service
      */
-    private void toggleGPSRecording(Context ctx) {
-        if (RecorderUtils.isLocationRecordingEnabled(ctx)) startGPSLocationUpdates();
-        else stopGPSLocationUpdates();
-    }
+    @SuppressLint("MissingPermission")
+    private void updateRecordingState(Context ctx) {
+        if (Preferences.isLocationRecordingEnabled(ctx)) {
+            // start the request for location updates
+            if (PermissionSupport.hasFineLocationPermission(getApplicationContext())) {
+                fusedLocationProviderClient.requestLocationUpdates(
+                        createLocationRequest(),
+                        locationCallback,
+                        null
+                );
+            }
+        } else {
+            fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+        }
 
+        if (Preferences.isCallStateRecordingEnabled(ctx)) {
+            // start the request for location updates
+            if (PermissionSupport.hasCallStatePermission(getApplicationContext())) {
+                telephonyManager.listen(phoneStateCallback, PhoneStateListener.LISTEN_CALL_STATE);
+            }
+        } else {
+            telephonyManager.listen(phoneStateCallback, PhoneStateListener.LISTEN_NONE);
+        }
+
+        notifyPermissionRequired();
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // Check if the application should start recording GPS
-        toggleGPSRecording(getApplicationContext());
+        updateRecordingState(getApplicationContext());
 
         return START_STICKY;
     }
@@ -131,7 +165,8 @@ public class LocationRecordingService extends Service {
         super.onDestroy();
         // remove the location request timers & updates
         timer.cancel();
-        stopGPSLocationUpdates();
+        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+        telephonyManager.listen(phoneStateCallback, PhoneStateListener.LISTEN_NONE);
     }
 
     @Nullable
@@ -183,9 +218,8 @@ public class LocationRecordingService extends Service {
         }
     }
 
-
     private static int recordingPriorityValue(Context context) {
-        return RecorderUtils.isHighPrecisionRecordingEnabled(context) ? LocationRequest.PRIORITY_HIGH_ACCURACY : LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
+        return Preferences.isHighPrecisionRecordingEnabled(context) ? LocationRequest.PRIORITY_HIGH_ACCURACY : LocationRequest.PRIORITY_NO_POWER;
     }
 
     /**
@@ -202,46 +236,28 @@ public class LocationRecordingService extends Service {
         return locationRequest;
     }
 
-    private void notifyLocationPermissionRequired() {
-        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-        Uri uri = Uri.fromParts("package", getPackageName(), null);
-        intent.setData(uri);
-
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
-
-        Notification notification = new NotificationCompat.Builder(this, ACTION_REQUIRED_CHANNEL)
-                .setContentTitle("Cellscanner")
-                .setContentText("Cellscanner requires permission to access device location")
-                .setSmallIcon(R.drawable.ic_symbol24)
-                .setContentIntent(pendingIntent)
-                .setOnlyAlertOnce(true)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .build();
-
-        notificationManager.notify(PERMISSION_NOTIFICATION_ID, notification);
-    }
-
-    /**
-     * starts the capture of GPS location updates.
-     */
-    @SuppressLint("MissingPermission")
-    private void startGPSLocationUpdates() {
-        // start the request for location updates
-        if (PermissionSupport.hasFineLocationPermission(getApplicationContext())) {
-            fusedLocationProviderClient.requestLocationUpdates(
-                    createLocationRequest(),
-                    locationCallback,
-                    null
-            );
+    private void notifyPermissionRequired() {
+        List<String> missing_permissions = PermissionSupport.getMissingPermissions(getApplication());
+        if (missing_permissions.isEmpty())
             notificationManager.cancel(PERMISSION_NOTIFICATION_ID);
-        } else {
-            notifyLocationPermissionRequired();
-        }
-    }
+        else {
+            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            Uri uri = Uri.fromParts("package", getPackageName(), null);
+            intent.setData(uri);
 
-    private void stopGPSLocationUpdates() {
-        // stop the active request for location updates
-        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+            Notification notification = new NotificationCompat.Builder(this, ACTION_REQUIRED_CHANNEL)
+                    .setContentTitle("Cellscanner")
+                    .setContentText("Cellscanner requires permission to access device " + TextUtils.join(" and ", missing_permissions))
+                    .setSmallIcon(R.drawable.ic_symbol24)
+                    .setContentIntent(pendingIntent)
+                    .setOnlyAlertOnce(true)
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .build();
+
+            notificationManager.notify(PERMISSION_NOTIFICATION_ID, notification);
+        }
     }
 
     @SuppressLint("MissingPermission")
@@ -255,7 +271,7 @@ public class LocationRecordingService extends Service {
             notificationManager.cancel(PERMISSION_NOTIFICATION_ID);  // cancel permissions warning if any
             return telephonyManager.getAllCellInfo();
         } else {
-            notifyLocationPermissionRequired();
+            notifyPermissionRequired();
             return new ArrayList<>();
         }
 
@@ -321,6 +337,11 @@ public class LocationRecordingService extends Service {
         // store it in the database
         mDB.storeLocationInfo(location);
         sendBroadcastMessage();
+    }
+
+    private void processCallStateUpdate(int state) {
+        // store it in the database
+        mDB.storeCallState(state);
     }
 
     /**
