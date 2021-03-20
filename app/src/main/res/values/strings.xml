@@ -10,6 +10,8 @@ are in control which data to share and with whom.
 </p>
 
 <p>
+<!-- the following sentence is required by Google prominent disclosure policy -->
+This app collects location data to enable data logging even when the app is closed or not in use.
 When activated, <b>cellscanner</b> logs two types of data: addresses of <b>cell towers</b> the
 device connects to, and optionally <b>GPS coordinates</b> along with other GPS data such as their
 accuracy. NFI collects these data to learn how cellular networks operate, and how to interpret their
