@@ -180,7 +180,6 @@ public class Preferences extends PreferenceFragmentCompat
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 boolean recording_enabled = (boolean)newValue;
-                Log.e("cellscanner", "checked changed "+recording_enabled);
 
                 // update button states
                 swCallState.setEnabled(!recording_enabled);
