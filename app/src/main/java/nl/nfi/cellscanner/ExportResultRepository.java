@@ -48,13 +48,13 @@ class ExportResultRepository {
 
     public static String getLastUploadType(Context ctx) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
-        return prefs.getString(LAST_UPLOAD_TYPE, "UNKNOWN_STATUS");
+        return prefs.getString(LAST_UPLOAD_TYPE, "no data");
     }
 
 
     public static String getLastUploadMsg(Context ctx) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
-        return prefs.getString(LAST_UPLOAD_MSG, "UNKNOWN_ERROR");
+        return prefs.getString(LAST_UPLOAD_MSG, "no data");
     }
 
 }
