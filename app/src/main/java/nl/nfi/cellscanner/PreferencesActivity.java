@@ -25,7 +25,7 @@ import static nl.nfi.cellscanner.Database.getFileTitle;
 public class PreferencesActivity
         extends AppCompatActivity
 {
-    private Preferences prefs;
+    public Preferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -1,26 +1,21 @@
 package nl.nfi.cellscanner.recorder;
 
-import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import java.security.Permission;
-import java.util.ArrayList;
 import java.util.List;
 
 import nl.nfi.cellscanner.Preferences;
-
-import static nl.nfi.cellscanner.recorder.PermissionSupport.hasCourseLocationPermission;
-import static nl.nfi.cellscanner.recorder.PermissionSupport.hasFineLocationPermission;
+import nl.nfi.cellscanner.PreferencesActivity;
+import nl.nfi.cellscanner.R;
 
 
 /**
@@ -38,12 +33,30 @@ public class RecorderUtils {
      * <p>
      * test for the right permissions, if ok, start recording. Otherwise request permissions
      */
-    public static void requestStartRecording(Activity ctx) {
-        List<String> missing_permissions = PermissionSupport.getMissingPermissions(ctx);
+    public static void requestStartRecording(final PreferencesActivity ctx) {
+        final List<String> missing_permissions = PermissionSupport.getMissingPermissions(ctx);
+
         if (missing_permissions.isEmpty())
             RecorderUtils.startService(ctx);
-        else
-            ActivityCompat.requestPermissions(ctx, missing_permissions.toArray(new String[]{}), PERMISSION_REQUEST_START_RECORDING);
+        else {
+            // the following sentence is required by Google prominent disclosure policy
+            AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
+            builder.setMessage(ctx.getResources().getText(R.string.prominent_disclosure_text))
+                    .setCancelable(true)
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            ActivityCompat.requestPermissions(ctx, missing_permissions.toArray(new String[]{}), PERMISSION_REQUEST_START_RECORDING);
+                        }
+                    })
+                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            ctx.prefs.setRecordingEnabled(false);
+                        }
+                    });
+            AlertDialog alert = builder.create();
+            alert.show();
+        }
     }
 
     /**

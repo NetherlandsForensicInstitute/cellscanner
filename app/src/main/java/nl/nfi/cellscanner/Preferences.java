@@ -188,8 +188,8 @@ public class Preferences extends PreferenceFragmentCompat
 
                 // apply new settings
                 if (recording_enabled) {
-                    if (getContext() instanceof Activity)
-                        RecorderUtils.requestStartRecording((Activity)getContext());
+                    if (getContext() instanceof PreferencesActivity)
+                        RecorderUtils.requestStartRecording((PreferencesActivity)getContext());
                     else
                         RecorderUtils.startService(getContext());
                 } else {
