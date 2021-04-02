@@ -64,12 +64,8 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
 
         vlCILastUpdate = findViewById(R.id.vlCILastUpdate);
         vlGPSLastUpdate = findViewById(R.id.vlGPSLastUpdate);
-        vlGPSProvider = findViewById(R.id.vlGPSProvider);
         vlGPSLat = findViewById(R.id.vlGPSLat);
         vlGPSLon = findViewById(R.id.vlGPSLon);
-        vlGPSAcc = findViewById(R.id.vlGPSAcc);
-        vlGPSAlt = findViewById(R.id.vlGPSAlt);
-        vlGPSSpeed = findViewById(R.id.vlGPSSpeed);
 
         vlUpLastUpdate = findViewById(R.id.vlUpLastUpdate);
         vlUpStatus = findViewById(R.id.vlUpStatus);
