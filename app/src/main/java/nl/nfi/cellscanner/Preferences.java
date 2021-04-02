@@ -158,12 +158,9 @@ public class Preferences extends PreferenceFragmentCompat
         setupRecording();
         setupSharing();
 
-        findPreference(PREF_ABOUT_CELLSCANNER).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                AppInfoActivity.show(getContext());
-                return true;
-            }
+        findPreference(PREF_ABOUT_CELLSCANNER).setOnPreferenceClickListener(preference -> {
+            AppInfoActivity.show(getContext());
+            return true;
         });
     }
 

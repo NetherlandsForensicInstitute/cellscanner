@@ -101,7 +101,8 @@ public class Database {
             long first = c.getLong(0);
             long last = c.getLong(1);
             long total = c.getLong(2);
-            s.append(String.format("coverage: %d%% of the last %d minutes\n", total*100 / (last-first), (last-first)/1000/60));
+            if (last - first > 0)
+                s.append(String.format("coverage: %d%% of the last %d minutes\n", total*100 / (last-first), (last-first)/1000/60));
         } finally {
             c.close();
         }
