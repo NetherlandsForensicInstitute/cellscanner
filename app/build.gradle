@@ -18,6 +18,15 @@ android {
     productFlavors {
     }
     compileSdkVersion 30
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
+    }
+}
+
+repositories {
+    jcenter()
+    //maven { url "https://jitpack.io" }
 }
 
 dependencies {
@@ -32,6 +41,8 @@ dependencies {
     implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
     implementation 'androidx.work:work-runtime:2.3.4'
     implementation 'com.jcraft:jsch:0.1.55'
+    //implementation 'org.java-websocket:Java-WebSocket:1.5.1'
+    //implementation 'com.github.NaikSoftware:StompProtocolAndroid:1.6.4'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'

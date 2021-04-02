@@ -102,5 +102,18 @@ The Netherlands<br/>
 |1|u7dqlh9ixMlfgNEmFcL9mEDOiUo=|L5cNlzNaLJlFKjqlnTWtGstDEko= ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC1ELi87xHOh8no304t9t6XW4PGlMa8+q/opqF+YtjOWDyznKxtfdohOpP7Fg7jJ98OtBPYaDnqNdHqidqGRR7cZqAa3GImYry50+hEHvFaPo00OswhckOsYtA2N+W7iWUtK5DlgQHlQsbVGidYtk+TT2crMqnj9CcNgXY2tKhhM7K99FnSxPmr6hgw2l1DyeNQG8+RvRziOMOl2tYibzcnfLIH46mn1VIEks8PbZ3xrn+gzHsm9YhGqZUgBIeAwELizI4cuhn0FxABm1YWMfH74B3opWfvZGTm+5FXDt6A4y6l7ZvwQl2qS0GmVsp/3qDDy5/RIjcAhKdFAOd+FqcihDHGYYwufFgc5LVfxdcdFMzKeESxBz1/1zoKptPsT+LzzjNI1y9lSnzpll8U2AM3omejrl5aIMoa5yCG73hgmz2TXN2/NsSi9vyrthTYyqTzQM6wLMRtsLFzQ9jBtVpmMTjE6OPHhIuDrLK1LrsTVSF00XJVLXLF36JV5AGTl4U=
         ]]>
     </string>
+    <string name="rsa_public_key">
+        <![CDATA[
+-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAti1cidro69+fx1z2nRxS
+dtjsn4qmzXGDJHX8k+rkWGMYXKaeab9kunb8YSF/5V5PaN2bTiKnaLfLVQruLOBh
+6oLmmabAuohqy1g0zjnx2VTf/gOVh/oKH7MS50fHBwDFg90W/pMScTDaATZeIua+
+awN0gT5pbe5lZTH7NtAp9s/F3/dzMFwElVIG+JZ020tNip6R0ETyJwN6CPGGEN86
+uT3alesR5Dm2nblFSRKWforZYpV6jKfeKE5yeYShUF9joHVJT3AHqFMw6vxCYLMm
++/WFZuZNkMQDmg99+l2CyPkVyJnztRkuNWW4Ug4Bl9rePrwt2VjeV4DaVpszgtnZ
+gQIDAQAB
+-----END PUBLIC KEY-----
+        ]]>
+    </string>
     <string name="prominent_disclosure_text">This app collects location data to enable collecting and storing network and location data even when the app is closed or not in use.</string>
 </resources>

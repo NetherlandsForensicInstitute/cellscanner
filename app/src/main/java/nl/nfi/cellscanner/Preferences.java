@@ -27,6 +27,7 @@ import java.util.UUID;
 
 import nl.nfi.cellscanner.recorder.PermissionSupport;
 import nl.nfi.cellscanner.recorder.RecorderUtils;
+import nl.nfi.cellscanner.upload.UploadUtils;
 
 public class Preferences extends PreferenceFragmentCompat
 {
@@ -305,7 +306,7 @@ public class Preferences extends PreferenceFragmentCompat
                             Toast.makeText(getContext(), "Upload path not supported; try a URL without a path", Toast.LENGTH_LONG).show();
                             return false;
                         }
-                        else if (UserDataUploadWorker.getSupportedProtocols().contains(url.getScheme())) {
+                        else if (UploadUtils.testURI(url)) {
                             Toast.makeText(getContext(), "Server updated", Toast.LENGTH_LONG).show();
                             return true;
                         } else {

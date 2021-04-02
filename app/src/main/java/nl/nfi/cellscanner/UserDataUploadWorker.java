@@ -21,29 +21,20 @@ import androidx.work.WorkRequest;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
-import com.jcraft.jsch.SftpException;
-
-import org.apache.commons.net.ftp.FTP;
-import org.apache.commons.net.ftp.FTPClient;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import nl.nfi.cellscanner.recorder.RecorderUtils;
+import nl.nfi.cellscanner.upload.Crypto;
+import nl.nfi.cellscanner.upload.UploadUtils;
+import nl.nfi.cellscanner.upload.Uploader;
 
 public class UserDataUploadWorker extends Worker {
     private static final String ERROR_CHANNEL_ID = "cellscanner_upload_notification";
@@ -82,92 +73,34 @@ public class UserDataUploadWorker extends Worker {
         notificationManager.notify(0, builder.build());
     }
 
-    private static void uploadFtp(Context ctx, InputStream source, String dest_filename, String host, String user, String password) throws IOException {
-        FileInputStream fileInputStream;
-        FTPClient con = new FTPClient();
-
-        con.connect(host);
-        if (con.login(user, password))
-        {
-            con.enterLocalPassiveMode(); // important!
-            con.setFileType(FTP.BINARY_FILE_TYPE);
-
-            // get the file and send it. A
-            boolean result = con.storeFile(dest_filename, source);
-            source.close();
-
-            if (result) {
-                Log.e("cellscanner", "upload result: succeeded");
-
-                /*when file has been uploaded, the old data can be flushed*/
-
-            } else {
-                Log.e("cellscanner", "upload result: Failed");
-            }
-
-            // disconnect from the server
-            con.logout();
-            con.disconnect();
-        }
+    private static File createTempFile(Context context) throws IOException {
+        File outputDir = context.getCacheDir(); // context being the Activity pointer
+        return File.createTempFile("temp-db-", null, outputDir);
     }
 
-    private static void uploadSftp(Context ctx, InputStream source, String dest_filename, String host, int port, String user, String password) throws JSchException, SftpException, IOException {
-        JSch jsch = new JSch();
-        jsch.setKnownHosts(new ByteArrayInputStream(ctx.getResources().getText(R.string.ssh_known_hosts).toString().getBytes()));
-        Session session = jsch.getSession(user, host, port == -1 ? 22 : port);
-        if (password != null)
-            session.setPassword(password);
-        session.connect();
-        try {
-            ChannelSftp channel = (ChannelSftp) session.openChannel("sftp");
-            channel.connect();
-            channel.put(source, dest_filename);
-            channel.disconnect();
-        } finally {
-            session.disconnect();
-        }
-    }
+    private static void upload(Context ctx, String url_spec) throws Exception {
+        String pubkey_pem = ctx.getResources().getText(R.string.rsa_public_key).toString();
 
-    private static void upload(Context ctx, String url_spec) throws URISyntaxException, IOException, SftpException, JSchException {
         URI uri = new URI(url_spec);
-        String userinfo = uri.getUserInfo();
-        String username = null, password = null;
-        if (userinfo != null) {
-            int sep = userinfo.indexOf(':');
-            if (sep == -1) {
-                username = userinfo;
-                password = null;
-            } else {
-                username = userinfo.substring(0, sep);
-                password = userinfo.substring(sep + 1);
-            }
-        }
+        Uploader uploader = UploadUtils.getUploadProtocols().getOrDefault(uri.getScheme(), null);
+        if (uploader == null)
+            throw new UnsupportedOperationException("protocol not supportec: "+uri.getScheme());
 
         long timestamp = new Date().getTime() / 1000L;
-        String dest_filename = String.format("%s-%d.sqlite3.gz", Preferences.getInstallID(ctx), timestamp);
+        String dest_filename = String.format("%s-%d.sqlite3.aes.gz", Preferences.getInstallID(ctx), timestamp);
 
-        File dbfile = Utils.createTempFile(ctx);
+        File dbfile = createTempFile(ctx);
         try {
-            Utils.copyFileGzipped(Database.getDataFile(ctx), dbfile);
+            Crypto.encrypt(Database.getDataFile(ctx), dbfile, pubkey_pem);
             InputStream source = new FileInputStream(dbfile);
             try {
-                if (uri.getScheme() == "ftp")
-                    uploadFtp(ctx, source, dest_filename, uri.getHost(), username, password);
-                else
-                    uploadSftp(ctx, source, dest_filename, uri.getHost(), uri.getPort(), username, password);
+                uploader.upload(ctx, uri, source, dest_filename);
             } finally {
                 source.close();
             }
         } finally {
             dbfile.delete();
         }
-    }
-
-    public static Set<String> getSupportedProtocols() {
-        Set<String> set = new HashSet<>();
-        set.add("ftp");
-        set.add("sftp");
-        return set;
     }
 
     @NonNull
