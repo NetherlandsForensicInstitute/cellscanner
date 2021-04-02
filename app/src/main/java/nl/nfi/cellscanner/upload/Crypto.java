@@ -17,11 +17,11 @@ import java.util.zip.GZIPOutputStream;
 
 public class Crypto {
     private static Cipher getAesInstance() throws Exception {
-        return Cipher.getInstance("AES/CBC/PKCS7Padding", "BC");
+        return Cipher.getInstance("AES/CBC/PKCS5Padding");
     }
 
     private static Cipher getRsaInstance() throws Exception {
-        return Cipher.getInstance("RSA", "BC");
+        return Cipher.getInstance("RSA/NONE/NoPadding");
     }
 
     private static SecretKey generateAESKey() throws Exception {
