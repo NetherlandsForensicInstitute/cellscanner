@@ -4,6 +4,7 @@
 
 ```sh
 git branch release
+git checkout release
 ```
 
 ## Increase version number
