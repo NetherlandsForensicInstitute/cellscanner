@@ -79,7 +79,7 @@ public class UserDataUploadWorker extends Worker {
     }
 
     private static void upload(Context ctx, String url_spec) throws Exception {
-        String pubkey_pem = ctx.getResources().getText(R.string.rsa_public_key).toString();
+        String pubkey_pem = ctx.getResources().getText(R.string.message_public_key).toString();
 
         URI uri = new URI(url_spec);
         Uploader uploader = UploadUtils.getUploadProtocols().getOrDefault(uri.getScheme(), null);
