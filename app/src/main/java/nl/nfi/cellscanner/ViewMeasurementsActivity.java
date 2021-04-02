@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -25,10 +26,6 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
     Activity lifecycle, see: https://developer.android.com/guide/components/activities/activity-lifecycle
     Communicate Activity <-> Service ... https://www.vogella.com/tutorials/AndroidServices/article.html
      */
-    public static String RECORD_GPS = "1";  // field used for communicating
-
-    private static final String TAG = ViewMeasurementsActivity.class.getSimpleName();
-
     // ui
     private TextView vlCILastUpdate, vlGPSLastUpdate, vlGPSProvider, vlGPSLat, vlGPSLon, vlGPSAcc,
             vlGPSAlt, vlGPSSpeed, vlUpLastUpdate, vlUpStatus, vlUpLastSuccess;
@@ -104,7 +101,7 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
         if (intent != null) {
             Bundle a = intent.getExtras();
             if (a != null && a.getBoolean("hasLoc", false)) {
-                vlGPSLastUpdate.setText(getDateTimeFromTimeStamp(a.getLong("lts"), "yyyy-MM-dd HH:mm:ss"));
+                vlGPSLastUpdate.setText(getDateTimeFromTimeStamp(a.getLong("lts")));
                 vlGPSProvider.setText(String.valueOf(a.getString("pro")));
                 vlGPSLat.setText(String.valueOf(a.getDouble("lat")));
                 vlGPSLon.setText(String.valueOf(a.getDouble("lon")));
@@ -125,8 +122,8 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
         vlGPSSpeed.setText(R.string.valueBaseText);
     }
 
-    private static String getDateTimeFromTimeStamp(Long time, String requestedDateFormat) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(requestedDateFormat);
+    private static String getDateTimeFromTimeStamp(Long time) {
+        DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
         dateFormat.setTimeZone(TimeZone.getDefault());
         Date dateTime = new Date(time);
         return dateFormat.format(dateTime);
@@ -134,8 +131,8 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
 
     private void setAutoUploadData() {
         vlUpStatus.setText(ExportResultRepository.getLastUploadMsg(getApplicationContext()));
-        vlUpLastSuccess.setText(getDateTimeFromTimeStamp(ExportResultRepository.getLastSuccessfulUploadTimestamp(getApplicationContext()), "yyyy-MM-dd HH:mm:ss"));
-        vlUpLastUpdate.setText(getDateTimeFromTimeStamp(ExportResultRepository.getLastUploadTimeStamp(getApplicationContext()),"yyyy-MM-dd HH:mm:ss"));
+        vlUpLastSuccess.setText(getDateTimeFromTimeStamp(ExportResultRepository.getLastSuccessfulUploadTimestamp(getApplicationContext())));
+        vlUpLastUpdate.setText(getDateTimeFromTimeStamp(ExportResultRepository.getLastUploadTimeStamp(getApplicationContext())));
     }
 
     @Override

@@ -95,6 +95,17 @@ public class Database {
             s.append(String.format("current cell: %s\n", cell));
         }
 
+        Cursor c = db.rawQuery("SELECT MIN(date_start), MAX(date_end), SUM(date_end - date_start) FROM cellinfo", new String[]{});
+        try {
+            c.moveToNext();
+            long first = c.getLong(0);
+            long last = c.getLong(1);
+            long total = c.getLong(2);
+            s.append(String.format("coverage: %d%% of the last %d minutes\n", total*100 / (last-first), (last-first)/1000/60));
+        } finally {
+            c.close();
+        }
+
         return s.toString();
     }
 
