@@ -84,31 +84,6 @@ public class PreferencesActivity
     }
 
     /**
-     * Export data via email (unused but may be useful)
-     */
-    public void exportData() {
-        if (!Database.getDataFile(this).exists()) {
-            Toast.makeText(getApplicationContext(), "No database present.", Toast.LENGTH_SHORT).show();
-
-        } else {
-            String[] TO = {""};
-
-            Uri uri = FileProvider.getUriForFile(getApplicationContext(), "nl.nfi.cellscanner.fileprovider", Database.getDataFile(getApplicationContext()));
-
-            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-
-            sharingIntent.putExtra(Intent.EXTRA_EMAIL, TO);
-            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getFileTitle());
-            sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
-
-            //need this to prompts email client only
-            sharingIntent.setDataAndType(uri, "message/rfc822");
-
-            startActivity(Intent.createChooser(sharingIntent, "Share via"));
-        }
-    }
-
-    /**
      * Deletes the database (unused)
      *
      * @param view

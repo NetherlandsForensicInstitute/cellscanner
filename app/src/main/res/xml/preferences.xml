@@ -62,7 +62,7 @@
             app:key="UPLOAD_URL"
             app:title="Upload server"
             app:summary="URL to send data (ftp or sftp)"
-            app:defaultValue="sftp://upload@cellscanner-upload.foreach.eu:6192"/>
+            app:defaultValue=""/>
 
     </PreferenceCategory>
 

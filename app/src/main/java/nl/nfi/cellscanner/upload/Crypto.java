@@ -1,17 +1,26 @@
 package nl.nfi.cellscanner.upload;
 
-import android.util.Log;
+import android.util.Base64;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
-import java.io.*;
-import java.security.*;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -40,12 +49,12 @@ public class Crypto {
         Cipher cipher = getRsaInstance();
         cipher.init(Cipher.WRAP_MODE, rsa_key);
         byte[] encrypted_key = cipher.wrap(aes_key);
-        os.write(Base64.getEncoder().encode(encrypted_key));
+        os.write(Base64.encode(encrypted_key, Base64.DEFAULT));
         os.write('\n');
     }
 
     private static void writeIV(OutputStream os, IvParameterSpec iv) throws Exception {
-        os.write(Base64.getEncoder().encode(iv.getIV()));
+        os.write(Base64.encode(iv.getIV(), Base64.DEFAULT));
         os.write('\n');
     }
 
@@ -54,7 +63,7 @@ public class Crypto {
                 .replaceAll("-----[A-Z ]*-----", "")
                 .replaceAll("\\s+", "");
 
-        byte[] bytes = Base64.getDecoder().decode(encoded);
+        byte[] bytes = Base64.decode(encoded, Base64.DEFAULT);
         X509EncodedKeySpec spec = new X509EncodedKeySpec(bytes);
         KeyFactory kf = KeyFactory.getInstance("RSA");
         return kf.generatePublic(spec);
@@ -65,7 +74,7 @@ public class Crypto {
                 .replaceAll("-----[A-Z ]*-----", "")
                 .replaceAll("\\s+", "");
 
-        byte[] bytes = Base64.getDecoder().decode(encoded);
+        byte[] bytes = Base64.decode(encoded, Base64.DEFAULT);
         PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(bytes);
         KeyFactory kf = KeyFactory.getInstance("RSA");
         return kf.generatePrivate(spec);
@@ -95,7 +104,7 @@ public class Crypto {
                 throw new Exception("premature eof");
 
             if (b == '\n') {
-                return Base64.getDecoder().decode(buf.toByteArray());
+                return Base64.decode(buf.toByteArray(), Base64.DEFAULT);
             }
 
             buf.write(b);

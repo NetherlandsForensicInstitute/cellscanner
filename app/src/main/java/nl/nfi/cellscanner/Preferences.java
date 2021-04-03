@@ -247,7 +247,11 @@ public class Preferences extends PreferenceFragmentCompat
         start_upload_button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                UserDataUploadWorker.startDataUpload(getContext());
+                if (upload_server.getText().equals(""))
+                    UploadUtils.exportData(Preferences.this.getContext());
+                else
+                    UserDataUploadWorker.startDataUpload(getContext());
+
                 return true;
             }
         });
@@ -286,32 +290,23 @@ public class Preferences extends PreferenceFragmentCompat
                     if (upload_switch.isChecked())
                         upload_switch.setChecked(false);
                     Toast.makeText(getContext(), "Upload server removed", Toast.LENGTH_LONG).show();
+
+                    upload_switch.setEnabled(false);
+                    wifi_switch.setEnabled(false);
+
                     return true;
                 } else {
                     // field set with new value
                     try {
-                        URI url = new URI((String)newValue);
-                        if (url.getScheme() == null) {
-                            Toast.makeText(getContext(), "Protocol missing; try a valid URL such as sftp://user@hostname", Toast.LENGTH_LONG).show();
-                            return false;
-                        }
-                        else if (url.getHost() == null) {
-                            Toast.makeText(getContext(), "Host missing; try a valid URL such as sftp://user@hostname", Toast.LENGTH_LONG).show();
-                            return false;
-                        }
-                        else if (url.getPath() != null && !url.getPath().equals("")) {
-                            Toast.makeText(getContext(), "Upload path not supported; try a URL without a path", Toast.LENGTH_LONG).show();
-                            return false;
-                        }
-                        else if (UploadUtils.testURI(url)) {
-                            Toast.makeText(getContext(), "Server updated", Toast.LENGTH_LONG).show();
-                            return true;
-                        } else {
-                            Toast.makeText(getContext(), "Unsupported protocol: " + url.getScheme(), Toast.LENGTH_LONG).show();
-                            return false;
-                        }
-                    } catch (URISyntaxException e) {
-                        Toast.makeText(getContext(), "Invalid input; try a valid URL such as sftp://user@hostname", Toast.LENGTH_LONG).show();
+                        UploadUtils.validateURI((String)newValue);
+                        Toast.makeText(getContext(), "Server updated", Toast.LENGTH_LONG).show();
+
+                        upload_switch.setEnabled(true);
+                        wifi_switch.setEnabled(true);
+
+                        return true;
+                    } catch (Exception e) {
+                        Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
                         return false;
                     }
                 }

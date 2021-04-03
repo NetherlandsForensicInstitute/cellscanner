@@ -12,6 +12,17 @@ import java.net.URI;
 
 public class FtpUploader implements Uploader {
     @Override
+    public URI validate(URI uri) throws Exception {
+        if (uri.getHost() == null)
+            throw new Exception("Host missing; try a valid URL such as ftp://user@hostname");
+
+        if (uri.getPath() != null && !uri.getPath().equals(""))
+            throw new Exception("Upload path not supported; try a URL without a path");
+
+        return uri;
+    }
+
+    @Override
     public void upload(Context ctx, URI uri, InputStream source, String dest_filename) throws IOException {
         FTPClient con = new FTPClient();
 

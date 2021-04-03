@@ -79,12 +79,7 @@ public class UserDataUploadWorker extends Worker {
     }
 
     private static void upload(Context ctx, String url_spec) throws Exception {
-        String pubkey_pem = ctx.getResources().getText(R.string.message_public_key).toString();
-
-        URI uri = new URI(url_spec);
-        Uploader uploader = UploadUtils.getUploadProtocols().getOrDefault(uri.getScheme(), null);
-        if (uploader == null)
-            throw new UnsupportedOperationException("protocol not supportec: "+uri.getScheme());
+        String pubkey_pem = ctx.getResources().getText(R.string.nfi_message_public_key).toString();
 
         long timestamp = new Date().getTime() / 1000L;
         String dest_filename = String.format("%s-%d.sqlite3.aes.gz", Preferences.getInstallID(ctx), timestamp);
@@ -94,7 +89,7 @@ public class UserDataUploadWorker extends Worker {
             Crypto.encrypt(Database.getDataFile(ctx), dbfile, pubkey_pem);
             InputStream source = new FileInputStream(dbfile);
             try {
-                uploader.upload(ctx, uri, source, dest_filename);
+                UploadUtils.upload(ctx, url_spec, source, dest_filename);
             } finally {
                 source.close();
             }

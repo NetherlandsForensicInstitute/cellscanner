@@ -15,12 +15,35 @@ import java.net.URI;
 import nl.nfi.cellscanner.R;
 
 public class SftpUploader implements Uploader {
-    public void upload(Context ctx, URI uri, InputStream source, String dest_filename) throws JSchException, SftpException {
-        JSch jsch = new JSch();
-        jsch.setKnownHosts(new ByteArrayInputStream(ctx.getResources().getText(R.string.ssh_known_hosts).toString().getBytes()));
+    protected final JSch jsch = new JSch();
+    private boolean strict_host_key_checking = false;
+
+    public void setStrictHostKeyChecking(boolean value) {
+        strict_host_key_checking = value;
+    }
+
+    @Override
+    public URI validate(URI uri) throws Exception {
+        if (uri.getHost() == null)
+            throw new Exception("Host missing; try a valid URL such as sftp://user@hostname");
+
+        if (uri.getPath() != null && !uri.getPath().equals(""))
+            throw new Exception("Upload path not supported; try a URL without a path");
+
+        return uri;
+    }
+
+    public void upload(Context ctx, URI uri, InputStream source, String dest_filename) throws Exception {
         String[] userinfo = UploadUtils.getUsernameAndPasswordFromURI(uri);
         int port = uri.getPort();
         Session session = jsch.getSession(userinfo[0], uri.getHost(), port == -1 ? 22 : port);
+
+        if (!strict_host_key_checking) {
+            java.util.Properties config = new java.util.Properties();
+            config.put("StrictHostKeyChecking", "no");
+            session.setConfig(config);
+        }
+
         if (userinfo[1] != null)
             session.setPassword(userinfo[1]);
         session.connect();
