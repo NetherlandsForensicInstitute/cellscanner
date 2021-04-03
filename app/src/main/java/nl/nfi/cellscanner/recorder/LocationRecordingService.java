@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
 
+import android.os.PowerManager;
 import android.provider.Settings;
 import android.telephony.CellInfo;
 import android.telephony.PhoneStateListener;
@@ -68,6 +69,8 @@ public class LocationRecordingService extends Service {
     private NotificationManager notificationManager;
     private Timer timer; // Make a cell scan on every tick
 
+    PowerManager.WakeLock wakeLock;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -119,6 +122,10 @@ public class LocationRecordingService extends Service {
                 }
             }
         };
+
+        PowerManager powerManager = (PowerManager)getSystemService(POWER_SERVICE);
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "cellscanner::RecordingWakelock");
+        wakeLock.acquire();
     }
 
     /**
@@ -167,6 +174,7 @@ public class LocationRecordingService extends Service {
         timer.cancel();
         fusedLocationProviderClient.removeLocationUpdates(locationCallback);
         telephonyManager.listen(phoneStateCallback, PhoneStateListener.LISTEN_NONE);
+        wakeLock.release();
     }
 
     @Nullable

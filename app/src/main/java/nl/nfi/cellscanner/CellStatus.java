@@ -44,7 +44,7 @@ public class CellStatus {
 
     public boolean isValid() {
         // TODO: improve by example https://github.com/zamojski/TowerCollector/tree/master/app/src/main/java/info/zamojski/soft/towercollector/collector/validators
-        return registered;
+        return registered && mcc > 0;
     }
 
     public ContentValues getContentValues() {
