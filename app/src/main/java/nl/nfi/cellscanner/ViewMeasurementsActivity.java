@@ -14,7 +14,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -27,8 +26,7 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
     Communicate Activity <-> Service ... https://www.vogella.com/tutorials/AndroidServices/article.html
      */
     // ui
-    private TextView vlCILastUpdate, vlGPSLastUpdate, vlGPSProvider, vlGPSLat, vlGPSLon, vlGPSAcc,
-            vlGPSAlt, vlGPSSpeed, vlUpLastUpdate, vlUpStatus, vlUpLastSuccess;
+    private TextView vlCILastUpdate, vl_location_status, vlUpLastUpdate, vlUpStatus, vlUpLastSuccess;
 
     /**
      * Fires when the system first creates the activity
@@ -62,10 +60,8 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
     private void showRecorderScreen() {
         setContentView(nl.nfi.cellscanner.R.layout.activity_view_measurements);
 
-        vlCILastUpdate = findViewById(R.id.vlCILastUpdate);
-        vlGPSLastUpdate = findViewById(R.id.vlGPSLastUpdate);
-        vlGPSLat = findViewById(R.id.vlGPSLat);
-        vlGPSLon = findViewById(R.id.vlGPSLon);
+        vlCILastUpdate = findViewById(R.id.cell_status);
+        vl_location_status = findViewById(R.id.location_status);
 
         vlUpLastUpdate = findViewById(R.id.vlUpLastUpdate);
         vlUpStatus = findViewById(R.id.vlUpStatus);
@@ -97,25 +93,20 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
         if (intent != null) {
             Bundle a = intent.getExtras();
             if (a != null && a.getBoolean("hasLoc", false)) {
-                vlGPSLastUpdate.setText(getDateTimeFromTimeStamp(a.getLong("lts")));
-                vlGPSProvider.setText(String.valueOf(a.getString("pro")));
-                vlGPSLat.setText(String.valueOf(a.getDouble("lat")));
-                vlGPSLon.setText(String.valueOf(a.getDouble("lon")));
-                vlGPSAcc.setText(String.valueOf(a.getFloat("acc")));
-                vlGPSAlt.setText(String.valueOf(a.getDouble("alt")));
-                vlGPSSpeed.setText(String.valueOf(a.getFloat("spd")));
+                StringBuffer statustext = new StringBuffer();
+                statustext.append("updated: "+getDateTimeFromTimeStamp(a.getLong("lts")) + "\n");
+                statustext.append(String.format("coordinates: lat=%.5f, lon=%.5f\n", a.getDouble("lat"), a.getDouble("lon")));
+                statustext.append(String.format("accuracy: %.0fm\n", a.getFloat("acc")));
+                String status = db.getLocationUpdateStatus();
+                if (status != null)
+                    statustext.append(status);
+                vl_location_status.setText(statustext.toString());
             }
         }
     }
 
     private void clearGPSLocationFields() {
-        vlGPSLastUpdate.setText(R.string.valueBaseText);
-        vlGPSProvider.setText(R.string.valueBaseText);
-        vlGPSLat.setText(R.string.valueBaseText);
-        vlGPSLon.setText(R.string.valueBaseText);
-        vlGPSAcc.setText(R.string.valueBaseText);
-        vlGPSAlt.setText(R.string.valueBaseText);
-        vlGPSSpeed.setText(R.string.valueBaseText);
+        vl_location_status.setText(R.string.valueBaseText);
     }
 
     private static String getDateTimeFromTimeStamp(Long time) {

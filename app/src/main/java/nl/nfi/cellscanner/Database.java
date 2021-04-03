@@ -83,6 +83,22 @@ public class Database {
         return v == null ? null : new Date(v);
     }
 
+    public String getLocationUpdateStatus() {
+        Cursor c = db.rawQuery("SELECT MIN(timestamp), COUNT(*) FROM locationinfo", new String[]{});
+        try {
+            c.moveToNext();
+            long first = c.getLong(0);
+            int count = c.getInt(1);
+            long now = new Date().getTime();
+            if (count > 0 && now > first)
+                return String.format("coverage: %d measurements in the last %d minutes\n", count, (now - first) / 1000 / 60);
+            else
+                return null;
+        } finally {
+            c.close();
+        }
+    }
+
     public String getUpdateStatus() {
         DateFormat fmt = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
 
@@ -95,14 +111,17 @@ public class Database {
             s.append(String.format("current cell: %s\n", cell));
         }
 
-        Cursor c = db.rawQuery("SELECT MIN(date_start), MAX(date_end), SUM(date_end - date_start) FROM cellinfo", new String[]{});
+        Cursor c = db.rawQuery("SELECT mcc, mnc, MIN(date_start), SUM(date_end - date_start) FROM cellinfo GROUP BY mcc, mnc", new String[]{});
         try {
-            c.moveToNext();
-            long first = c.getLong(0);
-            long last = c.getLong(1);
-            long total = c.getLong(2);
-            if (last - first > 0)
-                s.append(String.format("coverage: %d%% of the last %d minutes\n", total*100 / (last-first), (last-first)/1000/60));
+            while (c.moveToNext()) {
+                int mcc = c.getInt(0);
+                int mnc = c.getInt(1);
+                long first = c.getLong(2);
+                long total = c.getLong(3);
+                long now = new Date().getTime();
+                if (now - first > 0)
+                    s.append(String.format("coverage of %d-%d: %d%% of the last %d minutes\n", mcc, mnc, total * 100 / (now - first), (now - first) / 1000 / 60));
+            }
         } finally {
             c.close();
         }

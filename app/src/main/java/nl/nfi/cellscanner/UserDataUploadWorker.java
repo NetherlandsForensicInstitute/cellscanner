@@ -180,7 +180,7 @@ public class UserDataUploadWorker extends Worker {
         Constraints constraints = getWorkManagerConstraints(ctx, unmetered_only);
 
         PeriodicWorkRequest uploadWorkRequest = new PeriodicWorkRequest
-                .Builder(UserDataUploadWorker.class, 15, TimeUnit.MINUTES) // upload every 15 minutes
+                .Builder(UserDataUploadWorker.class, CellScannerApp.UPLOAD_DELAY_MINUTES, TimeUnit.MINUTES) // upload every 15 minutes
                 .addTag(ExportResultRepository.AUTO)
                 .setConstraints(constraints)
                 .build();

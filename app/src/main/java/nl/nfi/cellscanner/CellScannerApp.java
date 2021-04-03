@@ -18,6 +18,7 @@ public class CellScannerApp extends Application {
     public static final String TITLE = "cellscanner";
     public static int UPDATE_DELAY_MILLIS = 1000;
     public static int EVENT_VALIDITY_MILLIS = UPDATE_DELAY_MILLIS+20000;
+    public static int UPLOAD_DELAY_MINUTES = 55*7;
 
     private static SQLiteOpenHelper dbhelper;
 
