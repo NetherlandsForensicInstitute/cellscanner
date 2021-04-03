@@ -27,10 +27,14 @@ public class AppInfoActivity extends AppCompatActivity {
 
         final Context context = this;
 
-        // Show the android ID to the user
-        String installId = Preferences.getInstallID(context);
-        TextView tvAndroidId = findViewById(R.id.tac_install_id_text);
-        tvAndroidId.setText(installId);
+        // Show the device identifier and app version
+        StringBuffer dynamic_content = new StringBuffer();
+        dynamic_content.append(String.format("Device identifier: %s\n", Preferences.getInstallID(context)));
+        String version_name = CellScannerApp.getVersionName(context);
+        if (version_name != null)
+            dynamic_content.append(String.format("Cellscanner version: %s\n", version_name));
+        TextView tv_dynamic = findViewById(R.id.tac_dynamic_content);
+        tv_dynamic.setText(dynamic_content.toString());
 
         // Set textview with string containing HTML for URLs and phonenumbers
         String contactInformation = getString(R.string.tac_contact_information);

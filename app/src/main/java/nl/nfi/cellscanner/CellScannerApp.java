@@ -2,6 +2,8 @@ package nl.nfi.cellscanner;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.text.TextUtils;
@@ -73,5 +75,14 @@ public class CellScannerApp extends Application {
         Log.i("App", "created");
         super.onCreate();
         dbhelper = new OpenHelper(getApplicationContext());
+    }
+
+    public static String getVersionName(Context ctx) {
+        try {
+            PackageInfo pInfo = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0);
+            return pInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            return null;
+        }
     }
 }
