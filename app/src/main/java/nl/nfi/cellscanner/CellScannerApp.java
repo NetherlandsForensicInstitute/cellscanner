@@ -6,12 +6,10 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
 import java.util.Locale;
-import java.util.Random;
 
 /**
  * Main application state
@@ -29,13 +27,15 @@ public class CellScannerApp extends Application {
     public static int UPLOAD_INTERVAL_MINUTES = 55*7;
 
     // interval for requesting locations
-    public static final int LOCATION_INTERVAL_SECS = 5;
+    public static final int LOCATION_INTERVAL_MILLIS = 5000;
+
+    // interval for accepting locations if they happen to be available (may be less than LOCATION_INTERVAL_MILLIS)
+    public static final int LOCATION_FASTEST_INTERVAL_MILLIS = 2500;
 
     // minimum displacement before logging a location
     public static final float LOCATION_MINIMUM_DISPLACEMENT_MTRS = 50;
 
     private static SQLiteOpenHelper dbhelper;
-
     private static final int DATABASE_VERSION = Database.VERSION;
 
     /**
@@ -45,7 +45,6 @@ public class CellScannerApp extends Application {
     public static Database getDatabase() {
         return new Database(dbhelper.getWritableDatabase());
     }
-
 
     /**
      * Clear the existing database

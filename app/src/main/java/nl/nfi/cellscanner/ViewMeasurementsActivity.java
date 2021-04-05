@@ -26,7 +26,7 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
     Communicate Activity <-> Service ... https://www.vogella.com/tutorials/AndroidServices/article.html
      */
     // ui
-    private TextView vlCILastUpdate, vl_location_status, vlUpLastUpdate, vlUpStatus, vlUpLastSuccess;
+    private TextView vlCILastUpdate, vl_location_status, vl_upload_status;
 
     /**
      * Fires when the system first creates the activity
@@ -62,10 +62,7 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
 
         vlCILastUpdate = findViewById(R.id.cell_status);
         vl_location_status = findViewById(R.id.location_status);
-
-        vlUpLastUpdate = findViewById(R.id.vlUpLastUpdate);
-        vlUpStatus = findViewById(R.id.vlUpStatus);
-        vlUpLastSuccess = findViewById(R.id.vlUpLastSuccess);
+        vl_upload_status = findViewById(R.id.upload_status_content);
 
         // run initial update to inform the end user
         updateLogViewer();
@@ -88,19 +85,23 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
 
     private void updateLogViewer(Intent intent) {
         Database db = CellScannerApp.getDatabase();
-        vlCILastUpdate.setText(db.getUpdateStatus());
+        StringBuffer ci_status = new StringBuffer();
+        ci_status.append(String.format("status: %s\n", Preferences.isRecordingEnabled(getApplicationContext()) ? "enabled" : "disabled"));
+        ci_status.append(db.getUpdateStatus());
+        vlCILastUpdate.setText(ci_status);
 
         if (intent != null) {
             Bundle a = intent.getExtras();
             if (a != null && a.getBoolean("hasLoc", false)) {
                 StringBuffer statustext = new StringBuffer();
+                statustext.append(String.format("status: %s\n", Preferences.isLocationRecordingEnabled(getApplicationContext()) ? "enabled" : "disabled"));
                 statustext.append("updated: "+getDateTimeFromTimeStamp(a.getLong("lts")) + "\n");
-                statustext.append(String.format("coordinates: lat=%.5f, lon=%.5f\n", a.getDouble("lat"), a.getDouble("lon")));
+                statustext.append(String.format("coordinates: %.5f; %.5f\n", a.getDouble("lat"), a.getDouble("lon")));
                 statustext.append(String.format("accuracy: %.0fm\n", a.getFloat("acc")));
                 String status = db.getLocationUpdateStatus();
                 if (status != null)
                     statustext.append(status);
-                vl_location_status.setText(statustext.toString());
+                vl_location_status.setText(statustext);
             }
         }
     }
@@ -117,9 +118,20 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
     }
 
     private void setAutoUploadData() {
-        vlUpStatus.setText(ExportResultRepository.getLastUploadMsg(getApplicationContext()));
-        vlUpLastSuccess.setText(getDateTimeFromTimeStamp(ExportResultRepository.getLastSuccessfulUploadTimestamp(getApplicationContext())));
-        vlUpLastUpdate.setText(getDateTimeFromTimeStamp(ExportResultRepository.getLastUploadTimeStamp(getApplicationContext())));
+        String upload_message = ExportResultRepository.getLastUploadMsg(getApplicationContext());
+        long last_update_timestamp = ExportResultRepository.getLastUploadTimeStamp(getApplicationContext());
+        long last_success_timestamp = ExportResultRepository.getLastSuccessfulUploadTimestamp(getApplicationContext());
+
+        StringBuffer statustext = new StringBuffer();
+        statustext.append(String.format("status: %s\n", Preferences.getAutoUploadEnabled(getApplicationContext()) ? "enabled" : "disabled"));
+
+        statustext.append("last upload: " + getDateTimeFromTimeStamp(last_update_timestamp) + "\n");
+
+        if (!upload_message.equals("success"))
+            statustext.append("message: " + upload_message + "\n");
+
+        statustext.append("last successful upload: " + getDateTimeFromTimeStamp(last_success_timestamp) + "\n");
+        vl_upload_status.setText(statustext);
     }
 
     @Override

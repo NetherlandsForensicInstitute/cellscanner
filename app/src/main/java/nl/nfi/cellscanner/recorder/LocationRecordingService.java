@@ -229,8 +229,8 @@ public class LocationRecordingService extends Service {
     @NotNull
     private LocationRequest createLocationRequest() {
         LocationRequest locationRequest = LocationRequest.create();
-        locationRequest.setInterval(1000 * CellScannerApp.LOCATION_INTERVAL_SECS);
-        locationRequest.setFastestInterval(500 * CellScannerApp.LOCATION_INTERVAL_SECS);
+        locationRequest.setInterval(CellScannerApp.LOCATION_INTERVAL_MILLIS);
+        locationRequest.setFastestInterval(CellScannerApp.LOCATION_FASTEST_INTERVAL_MILLIS);
         locationRequest.setPriority(Preferences.getLocationAccuracy(this));
         locationRequest.setSmallestDisplacement(CellScannerApp.LOCATION_MINIMUM_DISPLACEMENT_MTRS);
         return locationRequest;

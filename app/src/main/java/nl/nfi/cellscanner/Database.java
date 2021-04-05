@@ -91,7 +91,7 @@ public class Database {
             int count = c.getInt(1);
             long now = new Date().getTime();
             if (count > 0 && now > first)
-                return String.format("coverage: %d measurements in the last %d minutes\n", count, (now - first) / 1000 / 60);
+                return String.format("coverage: %d measurements since %d minutes\n", count, (now - first) / 1000 / 60);
             else
                 return null;
         } finally {
@@ -120,7 +120,7 @@ public class Database {
                 long total = c.getLong(3);
                 long now = new Date().getTime();
                 if (now - first > 0)
-                    s.append(String.format("coverage of %d-%d: %d%% of the last %d minutes\n", mcc, mnc, total * 100 / (now - first), (now - first) / 1000 / 60));
+                    s.append(String.format("coverage of %d-%d: %d%% since %d minutes\n", mcc, mnc, total * 100 / (now - first), (now - first) / 1000 / 60));
             }
         } finally {
             c.close();
