@@ -56,10 +56,6 @@ public class LocationRecordingService extends Service {
     private static final int STATUS_NOTIFICATION_ID = 1;
     private static final int PERMISSION_NOTIFICATION_ID = 2;
 
-    /* Settings for storing GPS related data */
-    private static final int GPS_LOCATION_INTERVAL = 5; // requested interval in seconds
-    private static final float SMALLEST_DISPLACEMENT_BEFORE_LOGGING_MTRS = 50;
-
     private Database mDB;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private Location location;
@@ -233,10 +229,10 @@ public class LocationRecordingService extends Service {
     @NotNull
     private LocationRequest createLocationRequest() {
         LocationRequest locationRequest = LocationRequest.create();
-        locationRequest.setInterval(1000 * GPS_LOCATION_INTERVAL);
-        locationRequest.setFastestInterval(1000);
+        locationRequest.setInterval(1000 * CellScannerApp.LOCATION_INTERVAL_SECS);
+        locationRequest.setFastestInterval(500 * CellScannerApp.LOCATION_INTERVAL_SECS);
         locationRequest.setPriority(Preferences.getLocationAccuracy(this));
-        locationRequest.setSmallestDisplacement(SMALLEST_DISPLACEMENT_BEFORE_LOGGING_MTRS);
+        locationRequest.setSmallestDisplacement(CellScannerApp.LOCATION_MINIMUM_DISPLACEMENT_MTRS);
         return locationRequest;
     }
 

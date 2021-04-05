@@ -27,14 +27,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import nl.nfi.cellscanner.recorder.RecorderUtils;
 import nl.nfi.cellscanner.upload.Crypto;
 import nl.nfi.cellscanner.upload.UploadUtils;
-import nl.nfi.cellscanner.upload.Uploader;
 
 public class UserDataUploadWorker extends Worker {
     private static final String ERROR_CHANNEL_ID = "cellscanner_upload_notification";
@@ -175,7 +173,7 @@ public class UserDataUploadWorker extends Worker {
         Constraints constraints = getWorkManagerConstraints(ctx, unmetered_only);
 
         PeriodicWorkRequest uploadWorkRequest = new PeriodicWorkRequest
-                .Builder(UserDataUploadWorker.class, CellScannerApp.UPLOAD_DELAY_MINUTES, TimeUnit.MINUTES) // upload every 15 minutes
+                .Builder(UserDataUploadWorker.class, CellScannerApp.UPLOAD_INTERVAL_MINUTES, TimeUnit.MINUTES) // upload every 15 minutes
                 .addTag(ExportResultRepository.AUTO)
                 .setConstraints(constraints)
                 .build();
