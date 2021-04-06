@@ -298,8 +298,8 @@ public class Preferences extends PreferenceFragmentCompat
                 } else {
                     // field set with new value
                     try {
-                        UploadUtils.validateURI((String)newValue);
-                        Toast.makeText(getContext(), "Server updated", Toast.LENGTH_LONG).show();
+                        URI new_uri = UploadUtils.validateURI((String)newValue);
+                        Toast.makeText(getContext(), "Upload server: "+new_uri, Toast.LENGTH_LONG).show();
 
                         upload_switch.setEnabled(true);
                         wifi_switch.setEnabled(true);

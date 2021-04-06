@@ -86,7 +86,7 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
     private void updateLogViewer(Intent intent) {
         Database db = CellScannerApp.getDatabase();
         StringBuffer ci_status = new StringBuffer();
-        ci_status.append(String.format("status: %s\n", Preferences.isRecordingEnabled(getApplicationContext()) ? "enabled" : "disabled"));
+        ci_status.append(String.format("recording: %s\n", Preferences.isRecordingEnabled(getApplicationContext()) ? "enabled" : "disabled"));
         ci_status.append(db.getUpdateStatus());
         vlCILastUpdate.setText(ci_status);
 
@@ -94,7 +94,7 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
             Bundle a = intent.getExtras();
             if (a != null && a.getBoolean("hasLoc", false)) {
                 StringBuffer statustext = new StringBuffer();
-                statustext.append(String.format("status: %s\n", Preferences.isLocationRecordingEnabled(getApplicationContext()) ? "enabled" : "disabled"));
+                statustext.append(String.format("recording: %s\n", Preferences.isLocationRecordingEnabled(getApplicationContext()) ? "enabled" : "disabled"));
                 statustext.append("updated: "+getDateTimeFromTimeStamp(a.getLong("lts")) + "\n");
                 statustext.append(String.format("coordinates: %.5f; %.5f\n", a.getDouble("lat"), a.getDouble("lon")));
                 statustext.append(String.format("accuracy: %.0fm\n", a.getFloat("acc")));
@@ -123,7 +123,7 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
         long last_success_timestamp = ExportResultRepository.getLastSuccessfulUploadTimestamp(getApplicationContext());
 
         StringBuffer statustext = new StringBuffer();
-        statustext.append(String.format("status: %s\n", Preferences.getAutoUploadEnabled(getApplicationContext()) ? "enabled" : "disabled"));
+        statustext.append(String.format("periodic upload: %s\n", Preferences.getAutoUploadEnabled(getApplicationContext()) ? "enabled" : "disabled"));
 
         statustext.append("last upload: " + getDateTimeFromTimeStamp(last_success_timestamp) + "\n");
 

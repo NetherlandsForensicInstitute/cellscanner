@@ -50,7 +50,7 @@
             app:key="AUTO_UPLOAD"
             app:title="Periodic upload"
             app:summary="Automatically upload data periodically"
-            app:enabled="false"
+            app:enabled="true"
             app:defaultValue="false"/>
 
         <SwitchPreferenceCompat
