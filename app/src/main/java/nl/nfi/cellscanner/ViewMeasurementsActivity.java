@@ -125,12 +125,13 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
         StringBuffer statustext = new StringBuffer();
         statustext.append(String.format("status: %s\n", Preferences.getAutoUploadEnabled(getApplicationContext()) ? "enabled" : "disabled"));
 
-        statustext.append("last upload: " + getDateTimeFromTimeStamp(last_update_timestamp) + "\n");
+        statustext.append("last upload: " + getDateTimeFromTimeStamp(last_success_timestamp) + "\n");
 
-        if (!upload_message.equals("success"))
-            statustext.append("message: " + upload_message + "\n");
+        if (last_update_timestamp != last_success_timestamp) {
+            statustext.append("last attempt: " + getDateTimeFromTimeStamp(last_update_timestamp) + "\n");
+            statustext.append(upload_message + "\n");
+        }
 
-        statustext.append("last successful upload: " + getDateTimeFromTimeStamp(last_success_timestamp) + "\n");
         vl_upload_status.setText(statustext);
     }
 
