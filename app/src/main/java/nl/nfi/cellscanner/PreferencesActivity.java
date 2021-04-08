@@ -52,8 +52,7 @@ public class PreferencesActivity
         AppInfoActivity.showIfNoConsent(this);
 
         // resume foreground service if necessary
-        if (Preferences.isRecordingEnabled(this))
-            RecorderUtils.requestStartRecording(this);
+        RecorderUtils.applyRecordingPolicy(this);
     }
 
     @Override
@@ -78,8 +77,7 @@ public class PreferencesActivity
 
         // retry start service
         if (requestCode == RecorderUtils.PERMISSION_REQUEST_START_RECORDING) {
-            if (Preferences.isRecordingEnabled(this))
-                RecorderUtils.requestStartRecording(this);
+            RecorderUtils.applyRecordingPolicy(this);
         }
     }
 

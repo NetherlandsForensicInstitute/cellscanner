@@ -15,7 +15,7 @@
             app:key="GPS_RECORDING"
             app:title="Store locations"
             app:summary="Store GPS locations if available (consumes no extra battery)"
-            app:defaultValue="true"/>
+            app:defaultValue="false"/>
 
         <ListPreference
             app:key="LOCATION_ACCURACY"

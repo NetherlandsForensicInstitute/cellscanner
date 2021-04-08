@@ -1,17 +1,12 @@
 package nl.nfi.cellscanner;
 
-import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.preference.EditTextPreference;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
@@ -21,11 +16,8 @@ import androidx.preference.SwitchPreferenceCompat;
 
 import com.google.android.gms.location.LocationRequest;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.UUID;
 
-import nl.nfi.cellscanner.recorder.PermissionSupport;
 import nl.nfi.cellscanner.recorder.RecorderUtils;
 import nl.nfi.cellscanner.upload.UploadUtils;
 
@@ -34,12 +26,11 @@ public class Preferences extends PreferenceFragmentCompat
     // recording preferences
     public final static String PREF_ENABLE = "APP_RECORDING";  // APP should be recording data
     public final static String PREF_CALL_STATE_RECORDING = "CALL_STATE_RECORDING";
-    public final static String PREF_GPS_RECORDING = "GPS_RECORDING";  // APP should record GPS data when in Recording state
+    public final static String PREF_LOCATION_RECORDING = "GPS_RECORDING";  // APP should record GPS data when in Recording state
     public final static String PREF_LOCATION_ACCURACY = "LOCATION_ACCURACY";
 
     // data management preferences
     private static final String PREF_VIEW_MEASUREMENTS = "VIEW_MEASUREMENTS";
-    private static final String PREF_SHARE_DATA = "SHARE_DATA";
     private static final String PREF_START_UPLOAD = "START_UPLOAD";
     private static final String PREF_AUTO_UPLOAD = "AUTO_UPLOAD";
     private static final String PREF_UPLOAD_URL = "UPLOAD_URL";
@@ -84,9 +75,12 @@ public class Preferences extends PreferenceFragmentCompat
      * Check the state of the Recording key.
      * @return State of the Recording key, when True the app should record cell data
      */
+    public static boolean isRecordingEnabled(Context context, Intent intent) {
+        return getBooleanPreference(context, intent, Preferences.PREF_ENABLE, false);
+    }
+
     public static boolean isRecordingEnabled(Context context) {
-        return android.preference.PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(Preferences.PREF_ENABLE, false);
+        return isRecordingEnabled(context, null);
     }
 
     public void setRecordingEnabled(boolean enabled) {
@@ -94,9 +88,18 @@ public class Preferences extends PreferenceFragmentCompat
         swRecordingMaster.callChangeListener(enabled);
     }
 
-    public static boolean isCallStateRecordingEnabled(Context context) {
-        return android.preference.PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(Preferences.PREF_CALL_STATE_RECORDING, false);
+    private static boolean getBooleanPreference(Context context, Intent intent, String key, boolean default_value) {
+        boolean value = android.preference.PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(key, default_value);
+
+        if (intent != null)
+            value = intent.getBooleanExtra(key, value);
+
+        return value;
+    }
+
+    public static boolean isCallStateRecordingEnabled(Context context, Intent intent) {
+        return getBooleanPreference(context, intent, Preferences.PREF_CALL_STATE_RECORDING, false);
     }
 
     public void setCallStateRecording(boolean enabled) {
@@ -109,9 +112,8 @@ public class Preferences extends PreferenceFragmentCompat
      * @return State of the GPS Recording key, when True the app should record GPS data when
      *      the recording state is True
      */
-    public static boolean isLocationRecordingEnabled(Context context) {
-        return android.preference.PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(Preferences.PREF_GPS_RECORDING, true);
+    public static boolean isLocationRecordingEnabled(Context context, Intent intent) {
+        return getBooleanPreference(context, intent, Preferences.PREF_LOCATION_RECORDING, false);
     }
 
     /**
@@ -119,18 +121,24 @@ public class Preferences extends PreferenceFragmentCompat
      * @return State of the GPS Recording key, when True the app should record GPS data with HIGH precision when
      *      the recording state is True
      */
-    public static int getLocationAccuracy(Context context) {
-        String value = android.preference.PreferenceManager.getDefaultSharedPreferences(context)
+    public static int getLocationAccuracy(Context context, Intent intent) {
+        String value = null;
+        if (intent != null)
+            value = intent.getStringExtra(Preferences.PREF_LOCATION_ACCURACY);
+        if (value == null)
+            value = android.preference.PreferenceManager.getDefaultSharedPreferences(context)
                 .getString(Preferences.PREF_LOCATION_ACCURACY, null);
 
-        if (value.equals("PASSIVE"))
-            return LocationRequest.PRIORITY_NO_POWER;
-        if (value.equals("LOW"))
-            return LocationRequest.PRIORITY_LOW_POWER;
-        if (value.equals("BALANCED"))
-            return LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
-        if (value.equals("HIGH"))
-            return LocationRequest.PRIORITY_HIGH_ACCURACY;
+        if (value != null) {
+            if (value.equals("PASSIVE"))
+                return LocationRequest.PRIORITY_NO_POWER;
+            if (value.equals("LOW"))
+                return LocationRequest.PRIORITY_LOW_POWER;
+            if (value.equals("BALANCED"))
+                return LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
+            if (value.equals("HIGH"))
+                return LocationRequest.PRIORITY_HIGH_ACCURACY;
+        }
 
         Log.e("cellscanner", "should not reach this code");
         return LocationRequest.PRIORITY_LOW_POWER;
@@ -167,64 +175,58 @@ public class Preferences extends PreferenceFragmentCompat
     private void setupRecording() {
         swRecordingMaster = findPreference(PREF_ENABLE);
         swCallState = findPreference(PREF_CALL_STATE_RECORDING);
-        swGPSRecord = findPreference(PREF_GPS_RECORDING);
+        swGPSRecord = findPreference(PREF_LOCATION_RECORDING);
         swLocationAccuracy = findPreference(PREF_LOCATION_ACCURACY);
 
-        swCallState.setEnabled(!swRecordingMaster.isChecked());
-        swGPSRecord.setEnabled(!swRecordingMaster.isChecked());
+        swGPSRecord.setEnabled(swRecordingMaster.isChecked());
         swLocationAccuracy.setEnabled(swGPSRecord.isEnabled() && swGPSRecord.isChecked());
+        swCallState.setEnabled(swRecordingMaster.isChecked());
 
         swRecordingMaster.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                boolean recording_enabled = (boolean)newValue;
-
-                // update button states
-                swCallState.setEnabled(!recording_enabled);
-                swGPSRecord.setEnabled(!recording_enabled);
-                swLocationAccuracy.setEnabled(swGPSRecord.isEnabled() && swGPSRecord.isChecked());
-
-                // apply new settings
-                if (recording_enabled) {
-                    if (getContext() instanceof PreferencesActivity)
-                        RecorderUtils.requestStartRecording((PreferencesActivity)getContext());
-                    else
-                        RecorderUtils.startService(getContext());
-                } else {
-                    RecorderUtils.stopService(getContext());
-                }
-
-                return true;
-            }
-        });
-
-        swCallState.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
                 boolean enabled = (boolean)newValue;
 
-                // request permission if necessary
-                if (enabled && getContext() instanceof Activity && !PermissionSupport.hasCallStatePermission(getContext()))
-                    ActivityCompat.requestPermissions((Activity)getContext(), new String[]{Manifest.permission.READ_PHONE_STATE}, RecorderUtils.PERMISSION_REQUEST_PHONE_STATE);
+                Intent intent = new Intent();
+                intent.putExtra(PREF_ENABLE, enabled);
+                RecorderUtils.applyRecordingPolicy(getContext(), intent);
+
+                swGPSRecord.setEnabled(enabled);
+                swLocationAccuracy.setEnabled(swGPSRecord.isEnabled() && swGPSRecord.isChecked());
+                swCallState.setEnabled(enabled);
 
                 return true;
             }
         });
 
-        swGPSRecord.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                // update button state
-                swLocationAccuracy.setEnabled((boolean)newValue);
-                return true;
-            }
+        swCallState.setOnPreferenceChangeListener((preference, newValue) -> {
+            boolean enabled = (boolean)newValue;
+
+            Intent intent = new Intent();
+            intent.putExtra(PREF_CALL_STATE_RECORDING, enabled);
+            RecorderUtils.applyRecordingPolicy(getContext(), intent);
+
+            return true;
         });
 
-        swLocationAccuracy.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                return true;
-            }
+        swGPSRecord.setOnPreferenceChangeListener((preference, newValue) -> {
+            boolean enabled = (boolean)newValue;
+
+            Intent intent = new Intent();
+            intent.putExtra(PREF_LOCATION_RECORDING, enabled);
+            RecorderUtils.applyRecordingPolicy(getContext(), intent);
+
+            swLocationAccuracy.setEnabled(enabled);
+
+            return true;
+        });
+
+        swLocationAccuracy.setOnPreferenceChangeListener((preference, newValue) -> {
+            Intent intent = new Intent();
+            intent.putExtra(PREF_LOCATION_ACCURACY, (String)newValue);
+            RecorderUtils.applyRecordingPolicy(getContext(), intent);
+
+            return true;
         });
     }
 
@@ -235,25 +237,19 @@ public class Preferences extends PreferenceFragmentCompat
         final EditTextPreference upload_server = findPreference(PREF_UPLOAD_URL);
         final SwitchPreferenceCompat wifi_switch = findPreference(PREF_UPLOAD_ON_WIFI_ONLY);
 
-        view_measurements_button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                Intent i = new Intent(getContext(), ViewMeasurementsActivity.class);
-                getContext().startActivity(i);
-                return true;
-            }
+        view_measurements_button.setOnPreferenceClickListener(preference -> {
+            Intent i = new Intent(getContext(), ViewMeasurementsActivity.class);
+            getContext().startActivity(i);
+            return true;
         });
 
-        start_upload_button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                if (upload_server.getText().equals(""))
-                    UploadUtils.exportData(Preferences.this.getContext());
-                else
-                    UserDataUploadWorker.startDataUpload(getContext());
+        start_upload_button.setOnPreferenceClickListener(preference -> {
+            if (upload_server.getText().equals(""))
+                UploadUtils.exportData(Preferences.this.getContext());
+            else
+                UserDataUploadWorker.startDataUpload(getContext());
 
-                return true;
-            }
+            return true;
         });
 
         wifi_switch.setEnabled(upload_switch.isChecked());

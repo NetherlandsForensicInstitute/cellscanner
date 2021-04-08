@@ -129,12 +129,12 @@ public class LocationRecordingService extends Service {
      * @param ctx: Context of the running service
      */
     @SuppressLint("MissingPermission")
-    private void updateRecordingState(Context ctx) {
-        if (Preferences.isLocationRecordingEnabled(ctx)) {
+    private void updateRecordingState(Context ctx, Intent intent) {
+        if (Preferences.isLocationRecordingEnabled(ctx, intent)) {
             // start the request for location updates
             if (PermissionSupport.hasFineLocationPermission(getApplicationContext())) {
                 fusedLocationProviderClient.requestLocationUpdates(
-                        createLocationRequest(),
+                        createLocationRequest(intent),
                         locationCallback,
                         null
                 );
@@ -143,7 +143,7 @@ public class LocationRecordingService extends Service {
             fusedLocationProviderClient.removeLocationUpdates(locationCallback);
         }
 
-        if (Preferences.isCallStateRecordingEnabled(ctx)) {
+        if (Preferences.isCallStateRecordingEnabled(ctx, intent)) {
             // start the request for location updates
             if (PermissionSupport.hasCallStatePermission(getApplicationContext())) {
                 telephonyManager.listen(phoneStateCallback, PhoneStateListener.LISTEN_CALL_STATE);
@@ -158,7 +158,7 @@ public class LocationRecordingService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // Check if the application should start recording GPS
-        updateRecordingState(getApplicationContext());
+        updateRecordingState(getApplicationContext(), intent);
 
         return START_STICKY;
     }
@@ -227,17 +227,17 @@ public class LocationRecordingService extends Service {
      * used to configure the fusedLocationProviderClient
      */
     @NotNull
-    private LocationRequest createLocationRequest() {
+    private LocationRequest createLocationRequest(Intent intent) {
         LocationRequest locationRequest = LocationRequest.create();
         locationRequest.setInterval(CellScannerApp.LOCATION_INTERVAL_MILLIS);
         locationRequest.setFastestInterval(CellScannerApp.LOCATION_FASTEST_INTERVAL_MILLIS);
-        locationRequest.setPriority(Preferences.getLocationAccuracy(this));
+        locationRequest.setPriority(Preferences.getLocationAccuracy(this, intent));
         locationRequest.setSmallestDisplacement(CellScannerApp.LOCATION_MINIMUM_DISPLACEMENT_MTRS);
         return locationRequest;
     }
 
     private void notifyPermissionRequired() {
-        List<String> missing_permissions = PermissionSupport.getMissingPermissions(getApplication());
+        List<String> missing_permissions = PermissionSupport.getMissingPermissions(getApplication(), null);
         if (missing_permissions.isEmpty())
             notificationManager.cancel(PERMISSION_NOTIFICATION_ID);
         else {

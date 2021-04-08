@@ -94,7 +94,7 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
             Bundle a = intent.getExtras();
             if (a != null && a.getBoolean("hasLoc", false)) {
                 StringBuffer statustext = new StringBuffer();
-                statustext.append(String.format("status: %s\n", Preferences.isLocationRecordingEnabled(getApplicationContext()) ? "enabled" : "disabled"));
+                statustext.append(String.format("status: %s\n", Preferences.isLocationRecordingEnabled(getApplicationContext(), null) ? "enabled" : "disabled"));
                 statustext.append("updated: "+getDateTimeFromTimeStamp(a.getLong("lts")) + "\n");
                 statustext.append(String.format("coordinates: %.5f; %.5f\n", a.getDouble("lat"), a.getDouble("lon")));
                 statustext.append(String.format("accuracy: %.0fm\n", a.getFloat("acc")));
@@ -111,10 +111,14 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
     }
 
     private static String getDateTimeFromTimeStamp(Long time) {
-        DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
-        dateFormat.setTimeZone(TimeZone.getDefault());
-        Date dateTime = new Date(time);
-        return dateFormat.format(dateTime);
+        if (time == 0)
+            return "never";
+        else {
+            DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
+            dateFormat.setTimeZone(TimeZone.getDefault());
+            Date dateTime = new Date(time);
+            return dateFormat.format(dateTime);
+        }
     }
 
     private void setAutoUploadData() {

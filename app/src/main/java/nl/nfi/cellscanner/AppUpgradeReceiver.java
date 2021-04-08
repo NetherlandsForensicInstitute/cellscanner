@@ -18,14 +18,7 @@ public class AppUpgradeReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-
-        /*
-          Call the start of the application if the boot-up state of the application
-          is inRecordingState
-         */
-        if (RecorderUtils.isRecordingEnabled(context))
-            RecorderUtils.startService(context);
-
+        RecorderUtils.applyRecordingPolicy(context);
         UserDataUploadWorker.applyUploadPolicy(context);
     }
 }
