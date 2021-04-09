@@ -186,7 +186,10 @@ public class Preferences extends PreferenceFragmentCompat
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.preferences, rootKey);
+        setup();
+    }
 
+    protected void setup() {
         setupRecording();
         setupSharing();
 

@@ -137,7 +137,7 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
 
         if (last_update_timestamp != last_success_timestamp) {
             statustext.append("last attempt: " + getDateTimeFromTimeStamp(last_update_timestamp) + "\n");
-            statustext.append(upload_message + "\n");
+            statustext.append("message: " + upload_message + "\n");
         }
 
         // Show the device identifier and app version

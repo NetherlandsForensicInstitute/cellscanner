@@ -115,4 +115,8 @@ public class UploadUtils {
     protected static String readString(InputStream is) throws IOException {
         return new String(readBytes(is), "UTF-8");
     }
+
+    protected static String safeFilename(String filename) {
+        return filename.replaceAll("[^a-zA-Z0-9_-]", "_");
+    }
 }

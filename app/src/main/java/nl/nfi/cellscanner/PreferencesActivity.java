@@ -117,6 +117,7 @@ public class PreferencesActivity
 
                 prefs.setPreferenceScreen(null);
                 prefs.addPreferencesFromResource(R.xml.preferences);
+                prefs.setup();
                 CellScannerApp.getDatabase().updateSettings(this);
 
                 Toast.makeText(this, "settings applied", Toast.LENGTH_LONG).show();

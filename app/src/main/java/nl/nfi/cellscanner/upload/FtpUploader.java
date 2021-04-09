@@ -34,7 +34,7 @@ public class FtpUploader implements Uploader {
             con.setFileType(FTP.BINARY_FILE_TYPE);
 
             // get the file and send it. A
-            boolean result = con.storeFile(dest_filename, source);
+            boolean result = con.storeFile(UploadUtils.safeFilename(dest_filename), source);
             source.close();
 
             if (result) {

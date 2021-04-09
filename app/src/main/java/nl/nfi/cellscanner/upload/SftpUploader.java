@@ -1,6 +1,7 @@
 package nl.nfi.cellscanner.upload;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
@@ -57,7 +58,7 @@ public class SftpUploader implements Uploader {
         try {
             ChannelSftp channel = (ChannelSftp) session.openChannel("sftp");
             channel.connect();
-            channel.put(source, dest_filename);
+            channel.put(source, UploadUtils.safeFilename(dest_filename));
             channel.disconnect();
         } finally {
             session.disconnect();
