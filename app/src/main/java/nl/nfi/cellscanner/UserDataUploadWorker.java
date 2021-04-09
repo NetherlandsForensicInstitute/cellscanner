@@ -127,8 +127,7 @@ public class UserDataUploadWorker extends Worker {
             return Result.retry();
         } finally {
             // resume recording
-            if (Preferences.isRecordingEnabled(ctx))
-                RecorderUtils.startService(ctx);
+            RecorderUtils.applyRecordingPolicy(ctx);
         }
     }
 

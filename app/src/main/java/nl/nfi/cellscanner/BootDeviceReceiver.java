@@ -21,19 +21,7 @@ public class BootDeviceReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-
-        String action = intent.getAction();
-        String message = CellScannerApp.TITLE + " on boot action is " + action;
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show();
-
-        // TODO: @ check if the right application is sending the request
-        /*
-          Call the start of the application if the boot-up state of the application
-          is inRecordingState
-         */
-        if (RecorderUtils.isRecordingEnabled(context))
-            RecorderUtils.startService(context);
-
+        RecorderUtils.applyRecordingPolicy(context);
         UserDataUploadWorker.applyUploadPolicy(context);
     }
 }
