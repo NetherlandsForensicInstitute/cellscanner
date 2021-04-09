@@ -9,13 +9,10 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.FileProvider;
 import androidx.preference.PreferenceManager;
 
 import org.json.JSONArray;
@@ -23,21 +20,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
 
-import nl.nfi.cellscanner.recorder.PermissionSupport;
 import nl.nfi.cellscanner.recorder.RecorderUtils;
-
-import static nl.nfi.cellscanner.Database.getFileTitle;
 
 public class PreferencesActivity
         extends AppCompatActivity
@@ -128,6 +117,7 @@ public class PreferencesActivity
 
                 prefs.setPreferenceScreen(null);
                 prefs.addPreferencesFromResource(R.xml.preferences);
+                CellScannerApp.getDatabase().updateSettings(this);
 
                 Toast.makeText(this, "settings applied", Toast.LENGTH_LONG).show();
             } catch (Exception e) {

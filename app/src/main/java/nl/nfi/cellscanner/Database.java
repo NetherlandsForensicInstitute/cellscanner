@@ -218,6 +218,10 @@ public class Database {
             return Integer.parseInt(versionCode);
     }
 
+    public void updateSettings(Context context) {
+        storeInstallID(context);
+    }
+
     public void storeInstallID(Context ctx) {
         String install_id = Preferences.getInstallID(ctx);
         setMetaEntry(META_INSTALL_ID, install_id);
