@@ -96,25 +96,6 @@ The Netherlands<br/>
     <string name="terms_and_conditions_accept">I understand and accept the terms and conditions as listed above</string>
     <string name="terms_and_conditions_close">Close</string>
     <string name="valueBaseText">no data</string>
-    <string name="nfi_upload_uri">sftp://upload@cellscanner-upload.foreach.eu:6192</string>
-    <string name="nfi_ssh_known_hosts">
-        <![CDATA[
-|1|FW0HPea04pKttrhiaEBShxyZxvs=|lQpGybh0vwPbYUTmLGU15VF1vaQ= ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDFkl+ursGNKZhtclfXwcuuqr2b1QyOH+JQPKNUWm2hbgSTjgPDA21V8QWYx8LJS2Z3SFUm1srrx2XQ01vQ+8LDUxcTSj/aNa7Gp2URASCj1LIzJZw0khcviyIvKN9ObBOivzFhNTydnGeoaZu7IS3MNTBcBCdO5pBLFJ8wlJTZCaYN3Ub3gy9wuwNb4cicddIgyYpxrFkqq1SemYpe4t6VJA1UaimIac0Azv+5aIIBVDAFVeTqx+9kvDGBJbxeJmht8YPE0qI7aFv2kQgHvR3FnxV3DhkYo46nzkiQEuJb5DCzyeaDMg1PS4j4MOTXvlOR+f2QyCxNe9IFVbwaU7VqdpAiQzKUunZO8RyOLyLU2i6GFVYxDgo1tAuyXRhwylj+d9ejXPXO/+CR0b/+NgSkQJwfJA4kUdOOuCAE46vPVJdZCrPOkl3vIVvysEqacsHcMHDH/0C3nj2fcHivhQEtiL765tU4aWMfn8Zi+KZLGL1FI1e/SbkZqfkvTl2Jaas=
-|1|z6p+LGRpreFoqGvGKENrTjVEt7I=|S0G86kW2P6d3+LqszYMyrcWlsMg= ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDFkl+ursGNKZhtclfXwcuuqr2b1QyOH+JQPKNUWm2hbgSTjgPDA21V8QWYx8LJS2Z3SFUm1srrx2XQ01vQ+8LDUxcTSj/aNa7Gp2URASCj1LIzJZw0khcviyIvKN9ObBOivzFhNTydnGeoaZu7IS3MNTBcBCdO5pBLFJ8wlJTZCaYN3Ub3gy9wuwNb4cicddIgyYpxrFkqq1SemYpe4t6VJA1UaimIac0Azv+5aIIBVDAFVeTqx+9kvDGBJbxeJmht8YPE0qI7aFv2kQgHvR3FnxV3DhkYo46nzkiQEuJb5DCzyeaDMg1PS4j4MOTXvlOR+f2QyCxNe9IFVbwaU7VqdpAiQzKUunZO8RyOLyLU2i6GFVYxDgo1tAuyXRhwylj+d9ejXPXO/+CR0b/+NgSkQJwfJA4kUdOOuCAE46vPVJdZCrPOkl3vIVvysEqacsHcMHDH/0C3nj2fcHivhQEtiL765tU4aWMfn8Zi+KZLGL1FI1e/SbkZqfkvTl2Jaas=
-        ]]>
-    </string>
-    <string name="nfi_message_public_key">
-        <![CDATA[
-        -----BEGIN PUBLIC KEY-----
-        MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu+YzSMrclzGuOzyvnFlQ
-        VadJSW6WNzEOvvj1WsZZl8VlctPOTHJ3JSsfjxSwzqB5cMeAWV+9rXyPzhjJuQQk
-        LokEMY3T/aDa3EcvqCOrSNs6F3lfmp+eaGSpZ8x7WU4npJYkpqpoB7K0b82lSG1V
-        5mEVzjCIJsmaqaoGiRWt+WaQ3sJYSo6lKjfN7qhb9CWW00kJhWzqu+Xp2gvMHQa8
-        YHjPNXbkSbIc9aS+K51STwZve8G9hEVcWschp4pHIwfnAKVMwOYv6dj51gJXyr0o
-        RDEmQesyM8AaBcrmg7ofWjXkKDIstitEW821a5bDYum9wRA3qr4PrhrHtBEPVV4R
-        pQIDAQAB
-        -----END PUBLIC KEY-----
-        ]]>
-    </string>
     <string name="prominent_disclosure_text">This app collects location data to enable collecting and storing network and location data even when the app is closed or not in use.</string>
+    <string name="apply_settings_text">About to apply settings. Are you sure?</string>
 </resources>

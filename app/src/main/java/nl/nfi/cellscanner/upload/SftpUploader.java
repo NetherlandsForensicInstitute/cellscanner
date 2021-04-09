@@ -12,6 +12,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URI;
 
+import nl.nfi.cellscanner.Preferences;
 import nl.nfi.cellscanner.R;
 
 public class SftpUploader implements Uploader {
@@ -34,6 +35,12 @@ public class SftpUploader implements Uploader {
     }
 
     public void upload(Context ctx, URI uri, InputStream source, String dest_filename) throws Exception {
+        String known_hosts = Preferences.getSshKnownHosts(ctx);
+        if (known_hosts != null && !known_hosts.equals("")) {
+            setStrictHostKeyChecking(true);
+            jsch.setKnownHosts(new ByteArrayInputStream(known_hosts.getBytes()));
+        }
+
         String[] userinfo = UploadUtils.getUsernameAndPasswordFromURI(uri);
         int port = uri.getPort();
         Session session = jsch.getSession(userinfo[0], uri.getHost(), port == -1 ? 22 : port);

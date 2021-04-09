@@ -16,6 +16,8 @@ import androidx.preference.SwitchPreferenceCompat;
 
 import com.google.android.gms.location.LocationRequest;
 
+import java.net.URI;
+import java.util.Map;
 import java.util.UUID;
 
 import nl.nfi.cellscanner.recorder.RecorderUtils;
@@ -26,7 +28,7 @@ public class Preferences extends PreferenceFragmentCompat
     // recording preferences
     public final static String PREF_ENABLE = "APP_RECORDING";  // APP should be recording data
     public final static String PREF_CALL_STATE_RECORDING = "CALL_STATE_RECORDING";
-    public final static String PREF_LOCATION_RECORDING = "GPS_RECORDING";  // APP should record GPS data when in Recording state
+    public final static String PREF_LOCATION_RECORDING = "LOCATION_RECORDING";  // APP should record GPS data when in Recording state
     public final static String PREF_LOCATION_ACCURACY = "LOCATION_ACCURACY";
 
     // data management preferences
@@ -39,6 +41,9 @@ public class Preferences extends PreferenceFragmentCompat
     // general preferences
     private static final String PREF_INSTALL_ID = "INSTALL_ID";
     private final static String PREF_ABOUT_CELLSCANNER = "ABOUT_CELLSCANNER";
+
+    private static final String PREF_MESSAGE_PUBLIC_KEY = "MESSAGE_PUBLIC_KEY";
+    private static final String PREF_SSH_KNOWN_HOSTS = "SSH_KNOWN_HOSTS";
 
     protected SwitchPreferenceCompat swRecordingMaster;
     protected SwitchPreferenceCompat swCallState;
@@ -159,6 +164,25 @@ public class Preferences extends PreferenceFragmentCompat
                 .getBoolean(PREF_UPLOAD_ON_WIFI_ONLY, true);
     }
 
+    /**
+     * Check the state of the GPS HIGH precision Recording key.
+     * @return State of the GPS Recording key, when True the app should record GPS data with HIGH precision when
+     *      the recording state is True
+     */
+    public static String getMessagePublicKey(Context context) {
+        String value = android.preference.PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(Preferences.PREF_MESSAGE_PUBLIC_KEY, null);
+        if (value != null && !value.equals(""))
+            return value;
+        else
+            return null;
+    }
+
+    public static String getSshKnownHosts(Context context) {
+        return android.preference.PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(Preferences.PREF_SSH_KNOWN_HOSTS, null);
+    }
+
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.preferences, rootKey);
@@ -178,9 +202,9 @@ public class Preferences extends PreferenceFragmentCompat
         swGPSRecord = findPreference(PREF_LOCATION_RECORDING);
         swLocationAccuracy = findPreference(PREF_LOCATION_ACCURACY);
 
-        swGPSRecord.setEnabled(swRecordingMaster.isChecked());
+        //swGPSRecord.setEnabled(swRecordingMaster.isChecked());
         swLocationAccuracy.setEnabled(swGPSRecord.isEnabled() && swGPSRecord.isChecked());
-        swCallState.setEnabled(swRecordingMaster.isChecked());
+        //swCallState.setEnabled(swRecordingMaster.isChecked());
 
         swRecordingMaster.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
             @Override
@@ -191,9 +215,9 @@ public class Preferences extends PreferenceFragmentCompat
                 intent.putExtra(PREF_ENABLE, enabled);
                 RecorderUtils.applyRecordingPolicy(getContext(), intent);
 
-                swGPSRecord.setEnabled(enabled);
-                swLocationAccuracy.setEnabled(swGPSRecord.isEnabled() && swGPSRecord.isChecked());
-                swCallState.setEnabled(enabled);
+                //swGPSRecord.setEnabled(enabled);
+                //swLocationAccuracy.setEnabled(swGPSRecord.isEnabled() && swGPSRecord.isChecked());
+                //swCallState.setEnabled(enabled);
 
                 return true;
             }

@@ -24,7 +24,6 @@ public class UploadUtils {
         Map<String,Uploader> map = new HashMap<>();
         map.put("ftp", new FtpUploader());
         map.put("sftp", new SftpUploader());
-        map.put("nfi", new NfiUploader());
         //map.put("http", new StompUploader());
         return map;
     }

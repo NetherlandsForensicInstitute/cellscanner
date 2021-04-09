@@ -127,7 +127,9 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
         long last_success_timestamp = ExportResultRepository.getLastSuccessfulUploadTimestamp(getApplicationContext());
 
         StringBuffer statustext = new StringBuffer();
-        statustext.append(String.format("periodic upload: %s\n", Preferences.getAutoUploadEnabled(getApplicationContext()) ? "enabled" : "disabled"));
+        statustext.append(String.format("periodic upload: %s\n", Preferences.getAutoUploadEnabled(getApplicationContext()) ? Preferences.getUploadURL(getApplicationContext()) : "disabled"));
+        if (Preferences.getAutoUploadEnabled(getApplicationContext()))
+            statustext.append(String.format("upload format: %s\n", Preferences.getMessagePublicKey(getApplicationContext()) != null ? "sqlite3.aes.gz" : "sqlite3.gz"));
 
         statustext.append("last upload: " + getDateTimeFromTimeStamp(last_success_timestamp) + "\n");
 

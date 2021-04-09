@@ -118,16 +118,18 @@ public class Crypto {
         try {
             OutputStream os = new GZIPOutputStream(new FileOutputStream(out));
             try {
-                SecretKey aes_key = generateAESKey();
-                writeAESKey(os, getPublicKeyFromPem(public_key_pem), aes_key);
+                if (public_key_pem != null) {
+                    SecretKey aes_key = generateAESKey();
+                    writeAESKey(os, getPublicKeyFromPem(public_key_pem), aes_key);
 
-                IvParameterSpec iv = generateIV();
-                writeIV(os, iv);
+                    IvParameterSpec iv = generateIV();
+                    writeIV(os, iv);
 
-                Cipher aes = getAesInstance();
-                aes.init(Cipher.ENCRYPT_MODE, aes_key, iv);
+                    Cipher aes = getAesInstance();
+                    aes.init(Cipher.ENCRYPT_MODE, aes_key, iv);
 
-                os = new CipherOutputStream(os, aes);
+                    os = new CipherOutputStream(os, aes);
+                }
                 copyStream(is, os);
             } finally {
                 os.close();

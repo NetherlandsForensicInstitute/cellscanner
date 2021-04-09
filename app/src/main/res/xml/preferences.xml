@@ -12,9 +12,9 @@
             app:defaultValue="false"/>
 
         <SwitchPreferenceCompat
-            app:key="GPS_RECORDING"
+            app:key="LOCATION_RECORDING"
             app:title="Store locations"
-            app:summary="Store GPS locations if available (consumes no extra battery)"
+            app:summary="Store GPS locations"
             app:defaultValue="false"/>
 
         <ListPreference

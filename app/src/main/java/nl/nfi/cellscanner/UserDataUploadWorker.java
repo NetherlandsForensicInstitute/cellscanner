@@ -77,14 +77,21 @@ public class UserDataUploadWorker extends Worker {
     }
 
     private static void upload(Context ctx, String url_spec) throws Exception {
-        String pubkey_pem = ctx.getResources().getText(R.string.nfi_message_public_key).toString();
+        String pubkey_pem = Preferences.getMessagePublicKey(ctx);
 
         long timestamp = new Date().getTime() / 1000L;
-        String dest_filename = String.format("%s-%d.sqlite3.aes.gz", Preferences.getInstallID(ctx), timestamp);
+        String dest_filename = String.format("%s-%d.sqlite3", Preferences.getInstallID(ctx), timestamp);
 
         File dbfile = createTempFile(ctx);
         try {
-            Crypto.encrypt(Database.getDataFile(ctx), dbfile, pubkey_pem);
+            if (pubkey_pem != null && !pubkey_pem.equals("")) {
+                Crypto.encrypt(Database.getDataFile(ctx), dbfile, pubkey_pem);
+                dest_filename += ".aes.gz";
+            } else {
+                Crypto.encrypt(Database.getDataFile(ctx), dbfile, null);
+                dest_filename += ".gz";
+            }
+
             InputStream source = new FileInputStream(dbfile);
             try {
                 UploadUtils.upload(ctx, url_spec, source, dest_filename);

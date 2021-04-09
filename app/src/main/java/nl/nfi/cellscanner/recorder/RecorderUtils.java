@@ -64,12 +64,7 @@ public class RecorderUtils {
                                 ActivityCompat.requestPermissions(ctx, missing_permissions.toArray(new String[]{}), PERMISSION_REQUEST_START_RECORDING);
                             }
                         })
-                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                ctx.prefs.setRecordingEnabled(false);
-                            }
-                        });
+                        .setNegativeButton(android.R.string.no, (dialog, which) -> ctx.prefs.setRecordingEnabled(false));
                 AlertDialog alert = builder.create();
                 alert.show();
             } else {
