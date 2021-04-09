@@ -46,5 +46,5 @@ with support from the European Union&apos;s Horizon 2020 research and innovation
     <string name="terms_and_conditions_close">Close</string>
     <string name="valueBaseText">no data</string>
     <string name="prominent_disclosure_text">This app collects location data to enable location logging even when the app is closed or not in use.</string>
-    <string name="apply_settings_text">About to apply settings. Are you sure?</string>
+    <string name="apply_settings_text">WARNING: About to apply settings from a file. Accept only if you trust the source of this file. Proceed?</string>
 </resources>
