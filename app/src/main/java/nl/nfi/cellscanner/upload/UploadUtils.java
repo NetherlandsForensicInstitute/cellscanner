@@ -8,7 +8,11 @@ import android.widget.Toast;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.StringBufferInputStream;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +28,7 @@ public class UploadUtils {
         Map<String,Uploader> map = new HashMap<>();
         map.put("ftp", new FtpUploader());
         map.put("sftp", new SftpUploader());
-        //map.put("http", new StompUploader());
+        map.put("mqtt", new MqttUploader());
         return map;
     }
 
@@ -91,5 +95,24 @@ public class UploadUtils {
         }
 
         return new String[]{username, password};
+    }
+
+    protected static void copyStream(InputStream in, OutputStream out) throws IOException {
+        // Transfer bytes from in to out
+        byte[] buf = new byte[1024];
+        int len;
+        while ((len = in.read(buf)) > 0) {
+            out.write(buf, 0, len);
+        }
+    }
+
+    protected static byte[] readBytes(InputStream is) throws IOException {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        copyStream(is, os);
+        return os.toByteArray();
+    }
+
+    protected static String readString(InputStream is) throws IOException {
+        return new String(readBytes(is), "UTF-8");
     }
 }

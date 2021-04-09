@@ -80,15 +80,6 @@ public class Crypto {
         return kf.generatePrivate(spec);
     }
 
-    private static void copyStream(InputStream in, OutputStream out) throws IOException {
-        // Transfer bytes from in to out
-        byte[] buf = new byte[1024];
-        int len;
-        while ((len = in.read(buf)) > 0) {
-            out.write(buf, 0, len);
-        }
-    }
-
     private static SecretKey decryptKey(byte[] encrypted_key, String private_key_pem) throws Exception {
         PrivateKey rsa_key = Crypto.getPrivateKeyFromPem(private_key_pem);
         Cipher cipher = getRsaInstance();
@@ -130,7 +121,7 @@ public class Crypto {
 
                     os = new CipherOutputStream(os, aes);
                 }
-                copyStream(is, os);
+                UploadUtils.copyStream(is, os);
             } finally {
                 os.close();
             }
@@ -150,7 +141,7 @@ public class Crypto {
 
             OutputStream os = new CipherOutputStream(new FileOutputStream(out), aes);
             try {
-                copyStream(is, os);
+                UploadUtils.copyStream(is, os);
             } finally {
                 os.close();
             }
