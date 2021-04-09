@@ -3,6 +3,7 @@ package nl.nfi.cellscanner.upload;
 import android.content.Context;
 
 import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttClientPersistence;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
@@ -13,6 +14,7 @@ import java.net.URI;
 import nl.nfi.cellscanner.Preferences;
 
 public class MqttUploader implements Uploader {
+    private final MqttClientPersistence persistence = new MemoryPersistence();
     /**
      *
      * @param uri an URI with mqtt scheme, such as mqtt:tcp://hostname:1883 for unsecure or mqtt:ssl://hostname:8883 for secure connections
@@ -30,7 +32,6 @@ public class MqttUploader implements Uploader {
         String client_id = Preferences.getInstallID(ctx); // must be unique on server
         int qos = 2; // only once, guaranteed
         String topic = "cellscanner";
-        MemoryPersistence persistence = new MemoryPersistence();
 
         byte[] content = UploadUtils.readBytes(source);
 
