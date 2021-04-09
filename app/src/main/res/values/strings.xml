@@ -9,76 +9,24 @@ View online: https://sites.google.com/view/cellscanner/homepage
 
 <h2>Purpose of Cellscanner</h2>
 <p>
-The purpose of Cellscanner is to improve the legal system. It is developed by the Netherlands
-Forensic Institute (NFI), one of the world&apos;s leading forensic laboratories. Its activities
-include forensic interpretation of location traces from cell phones. To be able to understand what
-may have happened in a criminal investigation, it is important to know how mobile networks behave
-under different circumstances. To learn how these networks operate, and how to interpret their
-traces in criminal cases, we need data from ordinary users. We will use these data to derive
-aggregated statistics. We will never attempt to reveal the identity of individual users.
-</p>
-
-<h2>Data collection</h2>
-<p>
-When activated, Cellscanner logs two types of location data: addresses of cell towers the device
-connects to, and optionally GPS coordinates along with other GPS data such as their accuracy.
-Cellscanner only collects what is strictly necessary to achieve its goal. That includes network and
-(optionally) GPS data. Network data may reveal the coarse location of the device, depending on the
-number of cell towers in the area. In addition, a device identifier is stored. This identifier is
-used to link different submissions of data from the same user, and is generated randomly, once after
-the app is installed.
-</p>
-
-<p>
-Optionally, these data are sent manually or automatically to the NFI or, alternatively, to a third
-party if the user chooses to change the upload settings. Data submitted to the NFI may be used and
-stored up to a maximum of 30 years after submission, after which they will be deleted.
-We will never attempt to reveal the identity of individual users.
-We will never sell your data or otherwise share your data with anyone else.
-</p>
-
-<h2>User control</h2>
-<p>
-As a user, you control how and when data are collected. You may enable or disable recording at any
-time using the switch button on the main screen. In addition, GPS logging is optional and can be
-enabled or disabled as well. When the app is recording and GPS logging is disabled, only cell tower
-addresses are registered. The user may also configure if and how data are uploaded.
-</p>
-
-<h2>User consent</h2>
-<p>
-By using this app, you indicate that you understand and consent to the above. If you wish to revoke
-your consent, and have your already uploaded data removed from NFI servers, you can delete the app
-and email your deletion request to fbda@nfi.nl. In this email you should mention the name of this
-app (Cellscanner) and your device identifier, which is shown below. This identifier is the only link
-between you and your data. We recommend that you write it down, in case you may wish to revoke your
-consent later.
-</p>
-
-<p>
-In summary, by using this app you consent and understand that:
+The purpose of Cellscanner is to collect and store network and location data.
+When activated, Cellscanner logs the following types data:
 <ul>
-<li>the data collected by this app are stored locally on your device;</li>
-<li>these data are securely uploaded to and stored on NFI servers when you enable the upload feature;</li>
-<li>these data are used by NFI as described above;</li>
-<li>these data are retained by NFI for a maximum of 30 years;</li>
-<li>you may revoke your consent at any time.</li>
+<li>addresses of cell towers the device connects to;</li>
+<li>geo-coordinates along with meta data such as their accuracy; and</li>
+<li>timestamps from the start and end of a call.</li>
 </ul>
+In addition, a device identifier is stored. This identifier is used to link different databases from
+the same device, and is generated randomly, once after the app is installed.
+Cellscanner may be configured to upload data to a remote server.
+<b>No data is collected, stored or shared with us or anyone else without your explicit permission.</b>
 </p>
 ]]>
     </string>
-    <string name="tac_contact_information">
+    <string name="tac_colophon">
         <![CDATA[
-Netherlands Forensic Institute<br/>
-Forensic Big Data Analysis<br/>
-<a href="http://www.forensischinstituut.nl">www.forensischinstituut.nl</a><br/>
-<a href="mailto:info@nfi.nl">fbda@nfi.nl</a><br/>
-Tel.:    <a href="tel:+31708886750">+31 70 88 86 750</a><br/>
-<br/>
-<i>Visiting Address:</i><br/>
-Laan van Ypenburg 6<br/>
-2497 GB Den Haag<br/>
-The Netherlands<br/>
+Cellscanner is developed by the Netherlands Forensic Institute (<a href="http://www.forensischinstituut.nl">www.forensischinstituut.nl</a>)
+with support from the European Union&apos;s Horizon 2020 research and innovation program under grant agreement No. 833635 (project ROXANNE: Real-time network, text, and speaker analytics for combating organized crime, 2019-2022).
 ]]>
     </string>
     <string name="tac_about_app">
@@ -87,7 +35,7 @@ The Netherlands<br/>
 <b>Cellscanner</b> requires the following permissions to operate.
 
 <ul>
-<li><b>Location access</b> is required to collect network information.</li>
+<li><b>Location access</b> is required to collect network or location information.</li>
 <li><b>Phone state access</b> is required if call state logging is switched on, i.e. whether a call is active or not.</li>
 </ul>
 </p>

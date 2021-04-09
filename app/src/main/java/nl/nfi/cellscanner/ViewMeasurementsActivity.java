@@ -122,14 +122,16 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
     }
 
     private void setAutoUploadData() {
-        String upload_message = ExportResultRepository.getLastUploadMsg(getApplicationContext());
-        long last_update_timestamp = ExportResultRepository.getLastUploadTimeStamp(getApplicationContext());
-        long last_success_timestamp = ExportResultRepository.getLastSuccessfulUploadTimestamp(getApplicationContext());
+        Context context = getApplicationContext();
+
+        String upload_message = ExportResultRepository.getLastUploadMsg(context);
+        long last_update_timestamp = ExportResultRepository.getLastUploadTimeStamp(context);
+        long last_success_timestamp = ExportResultRepository.getLastSuccessfulUploadTimestamp(context);
 
         StringBuffer statustext = new StringBuffer();
-        statustext.append(String.format("periodic upload: %s\n", Preferences.getAutoUploadEnabled(getApplicationContext()) ? Preferences.getUploadURL(getApplicationContext()) : "disabled"));
-        if (Preferences.getAutoUploadEnabled(getApplicationContext()))
-            statustext.append(String.format("upload format: %s\n", Preferences.getMessagePublicKey(getApplicationContext()) != null ? "sqlite3.aes.gz" : "sqlite3.gz"));
+        statustext.append(String.format("periodic upload: %s\n", Preferences.getAutoUploadEnabled(context) ? Preferences.getUploadURL(context) : "disabled"));
+        if (Preferences.getAutoUploadEnabled(context))
+            statustext.append(String.format("upload format: %s\n", Preferences.getMessagePublicKey(context) != null ? "sqlite3.aes.gz" : "sqlite3.gz"));
 
         statustext.append("last upload: " + getDateTimeFromTimeStamp(last_success_timestamp) + "\n");
 
@@ -137,6 +139,12 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
             statustext.append("last attempt: " + getDateTimeFromTimeStamp(last_update_timestamp) + "\n");
             statustext.append(upload_message + "\n");
         }
+
+        // Show the device identifier and app version
+        statustext.append(String.format("device identifier: %s\n", Preferences.getInstallID(context)));
+        String version_name = CellScannerApp.getVersionName(context);
+        if (version_name != null)
+            statustext.append(String.format("cellscanner version: %s\n", version_name));
 
         vl_upload_status.setText(statustext);
     }

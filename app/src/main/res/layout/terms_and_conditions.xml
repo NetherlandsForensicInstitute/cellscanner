@@ -150,7 +150,7 @@
                 android:linksClickable="true"
                 android:paddingLeft="3dp"
                 android:paddingRight="3dp"
-                android:text="@string/tac_contact_information"
+                android:text="@string/tac_colophon"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tac_contactInformation" />

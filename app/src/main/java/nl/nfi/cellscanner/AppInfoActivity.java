@@ -36,7 +36,7 @@ public class AppInfoActivity extends AppCompatActivity {
         tv_dynamic.setText(dynamic_content.toString());
 
         // Set textview with string containing HTML for URLs and phonenumbers
-        String contactInformation = getString(R.string.tac_contact_information);
+        String contactInformation = getString(R.string.tac_colophon);
         String dataCollection = getString(R.string.tac_data_collection);
         String aboutApp = getString(R.string.tac_about_app);
 
