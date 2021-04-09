@@ -10,6 +10,7 @@ View online: https://sites.google.com/view/cellscanner/homepage
 <h2>Purpose of Cellscanner</h2>
 <p>
 The purpose of Cellscanner is to collect and store network and location data.
+This app collects location data to enable location logging even when the app is closed or not in use.
 When activated, Cellscanner logs the following types data:
 <ul>
 <li>addresses of cell towers the device connects to;</li>
@@ -44,6 +45,6 @@ with support from the European Union&apos;s Horizon 2020 research and innovation
     <string name="terms_and_conditions_accept">I understand and accept the terms and conditions as listed above</string>
     <string name="terms_and_conditions_close">Close</string>
     <string name="valueBaseText">no data</string>
-    <string name="prominent_disclosure_text">This app collects location data to enable collecting and storing network and location data even when the app is closed or not in use.</string>
+    <string name="prominent_disclosure_text">This app collects location data to enable location logging even when the app is closed or not in use.</string>
     <string name="apply_settings_text">About to apply settings. Are you sure?</string>
 </resources>
