@@ -128,10 +128,12 @@ public class UserDataUploadWorker extends Worker {
         } catch (java.net.ConnectException e) {
             ExportResultRepository.storeExportResult(getApplicationContext(), timestamp, false, "unable to connect", getTags().iterator().next());
             return Result.retry();
+        } catch (java.net.SocketTimeoutException e) {
+            ExportResultRepository.storeExportResult(getApplicationContext(), timestamp, false, "server timeout", getTags().iterator().next());
+            return Result.retry();
         } catch (Exception e) {
-            if (true) throw new RuntimeException(e);
             notifyError(getApplicationContext(), "Cellscanner upload error", e.getMessage());
-            ExportResultRepository.storeExportResult(getApplicationContext(), timestamp, false, e.getMessage(), getTags().iterator().next());
+            ExportResultRepository.storeExportResult(getApplicationContext(), timestamp, false, e.toString(), getTags().iterator().next());
             return Result.retry();
         } finally {
             // resume recording
