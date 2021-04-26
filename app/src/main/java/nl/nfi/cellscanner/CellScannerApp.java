@@ -35,6 +35,8 @@ public class CellScannerApp extends Application {
     // minimum displacement before logging a location
     public static final float LOCATION_MINIMUM_DISPLACEMENT_MTRS = 50;
 
+    public static final String MQTT_DEFAULT_TOPIC = "/cellscanner.db";
+
     private static SQLiteOpenHelper dbhelper;
     private static final int DATABASE_VERSION = Database.VERSION;
 
