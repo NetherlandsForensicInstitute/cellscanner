@@ -97,7 +97,14 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
                 statustext.append(String.format("recording: %s\n", Preferences.isLocationRecordingEnabled(getApplicationContext(), null) ? "enabled" : "disabled"));
                 statustext.append("updated: "+getDateTimeFromTimeStamp(a.getLong("lts")) + "\n");
                 statustext.append(String.format("coordinates: %.5f; %.5f\n", a.getDouble("lat"), a.getDouble("lon")));
-                statustext.append(String.format("accuracy: %.0fm\n", a.getFloat("acc")));
+                if (a.containsKey("acc"))
+                    statustext.append(String.format("accuracy: %dm\n", a.getInt("acc")));
+                if (a.containsKey("spd"))
+                    statustext.append(String.format("speed: %dm/s (+/- %s)\n", a.getInt("spd"), a.getString("spd_acc", "?")));
+                if (a.containsKey("bearing_deg"))
+                    statustext.append(String.format("bearing: %d degrees (+/- %s)\n", a.getInt("bearing_deg"), a.getString("bearing_deg_acc", "?")));
+                if (a.containsKey("alt"))
+                    statustext.append(String.format("altitude: %dm (+/- %s)\n", a.getInt("alt"), a.getString("alt_acc", "?")));
                 String status = db.getLocationUpdateStatus();
                 if (status != null)
                     statustext.append(status);

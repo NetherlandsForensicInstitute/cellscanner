@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
+import android.os.Build;
 import android.telephony.CellInfo;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -23,7 +24,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class Database {
-    protected static final int VERSION = 2;
+    protected static final int VERSION = 3;
 
     private static final String META_VERSION_CODE = "version_code";
     private static final String META_INSTALL_ID = "install_id";
@@ -246,6 +247,7 @@ public class Database {
     }
 
     public void storeLocationInfo(Location location) {
+        // NOTE: some values (accuracy, speed, altitude) may not be available, but database version 2 and earlier has NOT NULL constraint
         ContentValues values = new ContentValues();
         values.put("provider", location.getProvider());
         values.put("timestamp", location.getTime());
@@ -254,6 +256,16 @@ public class Database {
         values.put("longitude", location.getLongitude());
         values.put("altitude", location.getAltitude());
         values.put("speed", location.getSpeed());
+        if (location.hasBearing())
+            values.put("bearing_deg", location.getBearing());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (location.hasSpeedAccuracy())
+                values.put("speed_acc", location.getSpeedAccuracyMetersPerSecond());
+            if (location.hasVerticalAccuracy())
+                values.put("altitude_acc", location.getVerticalAccuracyMeters());
+            if (location.hasBearingAccuracy())
+                values.put("bearing_deg_acc", location.getBearingAccuracyDegrees());
+        }
 
         db.insert("locationinfo", null, values);
     }
@@ -286,7 +298,24 @@ public class Database {
 
 
     protected static void upgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        createTables(db);
+        // TODO: remove NOT NULL constraint to some columns of `locationinfo` (applies to database version 2 and earlier)
+
+        if (oldVersion < 2) {
+            // no upgrade for versions prior to 2
+            createTables(db);
+            return;
+        }
+
+        if (oldVersion < 3) {
+            db.execSQL("ALTER TABLE locationinfo ADD COLUMN altitude_acc INT");
+            db.execSQL("ALTER TABLE locationinfo ADD COLUMN speed_acc INT");
+            db.execSQL("ALTER TABLE locationinfo ADD COLUMN bearing_deg INT");
+            db.execSQL("ALTER TABLE locationinfo ADD COLUMN bearing_deg_acc INT");
+        }
+    }
+
+    private static void createTable(SQLiteDatabase db, String tab, String[] cols) {
+        db.execSQL(String.format("CREATE TABLE IF NOT EXISTS %s (%s)", tab, TextUtils.join(",", cols)));
     }
 
     protected static void createTables(SQLiteDatabase db) {
@@ -323,14 +352,18 @@ public class Database {
 
         db.execSQL("CREATE INDEX IF NOT EXISTS cellinfo_date_end ON cellinfo(date_end)");
 
-        db.execSQL("CREATE TABLE IF NOT EXISTS locationinfo ("+
-                "  provider VARCHAR(200)," +
-                "  accuracy INT NOT NULL," +
-                "  timestamp INT NOT NULL," +
-                "  latitude INT NOT NULL,"+
-                "  longitude INT NOT NULL," +
-                "  altitude INT NOT NULL," +
-                "  speed INT NOT NULL" +
-                ")");
+        createTable(db, "locationinfo", new String[]{
+            "provider VARCHAR(200)",
+            "accuracy INT",  // accuracy in meters
+            "timestamp INT NOT NULL",
+            "latitude INT NOT NULL",
+            "longitude INT NOT NULL",
+            "altitude INT",  // altitude in meters
+            "altitude_acc INT",  // altitude accuracy in meters (available in Oreo and up)
+            "speed INT",  // speed in meters per second
+            "speed_acc INT",  // speed accuracy in meters per second (available in Oreo and up)
+            "bearing_deg INT",  // bearing in degrees
+            "bearing_deg_acc INT",  // bearing accuracy in degrees (available in Oreo and up)
+        });
     }
 }

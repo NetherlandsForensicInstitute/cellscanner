@@ -358,10 +358,23 @@ public class LocationRecordingService extends Service {
             intent.putExtra("lon", location.getLongitude());
             intent.putExtra("lat", location.getLatitude());
             intent.putExtra("lts", location.getTime());
-            intent.putExtra("acc", location.getAccuracy());
+            if (location.hasAccuracy())
+                intent.putExtra("acc", location.getAccuracy());
             intent.putExtra("pro", location.getProvider());
-            intent.putExtra("alt", location.getAltitude());
-            intent.putExtra("spd", location.getSpeed());
+            if (location.hasAltitude())
+                intent.putExtra("alt", location.getAltitude());
+            if (location.hasSpeed())
+                intent.putExtra("spd", location.getSpeed());
+            if (location.hasBearing())
+                intent.putExtra("bearing", location.getBearing());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (location.hasBearingAccuracy())
+                    intent.putExtra("bearing_acc", location.getBearingAccuracyDegrees());
+                if (location.hasSpeedAccuracy())
+                    intent.putExtra("spd_acc", location.getSpeedAccuracyMetersPerSecond());
+                if (location.hasVerticalAccuracy())
+                    intent.putExtra("alt_acc", location.getVerticalAccuracyMeters());
+            }
         } else {
             intent.putExtra("hasLoc", false);
         }
