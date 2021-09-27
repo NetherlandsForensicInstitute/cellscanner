@@ -126,7 +126,24 @@ public class CellStatus {
         );
     }
 
+    @Override
     public String toString() {
         return String.format(Locale.ROOT, "%s%s: %d-%d-%d-%d", registered ? "" : "unregistered: ", radio, mcc, mnc, area, cid);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof CellStatus) {
+            CellStatus other = (CellStatus) o;
+
+            return registered == other.registered
+                    && radio.equals(other.radio)
+                    && mcc == other.mcc
+                    && mnc == other.mnc
+                    && area == other.area
+                    && cid == other.cid;
+        } else {
+            return false;
+        }
     }
 }

@@ -25,9 +25,9 @@ public class PermissionSupport {
 
         if (!PermissionSupport.hasCourseLocationPermission(ctx))
             missing_permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
-        if (Preferences.isLocationRecordingEnabled(ctx, extra) && !PermissionSupport.hasFineLocationPermission(ctx))
+        if (!PermissionSupport.hasFineLocationPermission(ctx))
             missing_permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
-        if (Preferences.isCallStateRecordingEnabled(ctx, extra) && !PermissionSupport.hasCallStatePermission(ctx))
+        if (!PermissionSupport.hasCallStatePermission(ctx))
             missing_permissions.add(Manifest.permission.READ_PHONE_STATE);
 
         return missing_permissions;

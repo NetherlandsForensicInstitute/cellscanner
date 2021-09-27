@@ -15,11 +15,7 @@ import android.os.IBinder;
 
 import android.os.PowerManager;
 import android.provider.Settings;
-import android.telephony.CellInfo;
-import android.telephony.PhoneStateListener;
-import android.telephony.TelephonyManager;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -33,10 +29,8 @@ import com.google.android.gms.location.LocationServices;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import nl.nfi.cellscanner.CellScannerApp;
 import nl.nfi.cellscanner.CellStatus;
@@ -61,12 +55,9 @@ public class LocationRecordingService extends Service {
     private FusedLocationProviderClient fusedLocationProviderClient;
     private Location location;
     private LocationCallback locationCallback;
-    private PhoneStateListener phoneStateCallback;
-    private TelephonyManager telephonyManager;
     private NotificationManager notificationManager;
-    private Timer timer; // Make a cell scan on every tick
-
-    PowerManager.WakeLock wakeLock;
+    private LegacyPhoneState phone_state;
+    private PowerManager.WakeLock wakeLock;
 
     @Override
     public void onCreate() {
@@ -75,8 +66,6 @@ public class LocationRecordingService extends Service {
         startForeground(STATUS_NOTIFICATION_ID, getActivityNotification("started"));
 
         /* construct required constants */
-        timer = new Timer();
-        telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         mDB = CellScannerApp.getDatabase();
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -84,14 +73,6 @@ public class LocationRecordingService extends Service {
         /* store some constants in the database */
         mDB.storeInstallID(getApplicationContext());
         mDB.storeVersionCode(getApplicationContext());
-
-        // start the times, schedule for every second
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                preformCellInfoRetrievalRequest();
-            }
-        }, CellScannerApp.UPDATE_DELAY_MILLIS, CellScannerApp.UPDATE_DELAY_MILLIS);
 
         /*
             initialize a callback function that listens for location updates
@@ -109,16 +90,7 @@ public class LocationRecordingService extends Service {
             }
         };
 
-        phoneStateCallback = new PhoneStateListener() {
-            public void onCallStateChanged(int state, String phoneNumber) {
-                super.onCallStateChanged(state, phoneNumber);
-                try {
-                    processCallStateUpdate(state);
-                } catch (Throwable e) {
-                    CellScannerApp.getDatabase().storeMessage(e);
-                }
-            }
-        };
+        phone_state = new LegacyPhoneState(this);
 
         PowerManager powerManager = (PowerManager)getSystemService(POWER_SERVICE);
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "cellscanner::RecordingWakelock");
@@ -130,7 +102,7 @@ public class LocationRecordingService extends Service {
      * @param ctx: Context of the running service
      */
     @SuppressLint("MissingPermission")
-    private void updateRecordingState(Context ctx, Intent intent) {
+    protected synchronized void updateRecordingState(Context ctx, Intent intent) {
         if (Preferences.isLocationRecordingEnabled(ctx, intent)) {
             // start the request for location updates
             if (PermissionSupport.hasFineLocationPermission(getApplicationContext())) {
@@ -144,16 +116,20 @@ public class LocationRecordingService extends Service {
             fusedLocationProviderClient.removeLocationUpdates(locationCallback);
         }
 
-        if (Preferences.isCallStateRecordingEnabled(ctx, intent)) {
-            // start the request for location updates
-            if (PermissionSupport.hasCallStatePermission(getApplicationContext())) {
-                telephonyManager.listen(phoneStateCallback, PhoneStateListener.LISTEN_CALL_STATE);
-            }
-        } else {
-            telephonyManager.listen(phoneStateCallback, PhoneStateListener.LISTEN_NONE);
-        }
+        phone_state.update(ctx, intent);
 
-        notifyPermissionRequired();
+        if (!notifyPermissionRequired()) {
+            try {
+                String msg = Preferences.isRecordingEnabled(ctx, intent) ? "recording" : "idle";
+                notificationManager.notify(
+                        STATUS_NOTIFICATION_ID,
+                        getActivityNotification(msg)
+                );
+                sendBroadcastMessage();
+            } catch (Throwable e) {
+                CellScannerApp.getDatabase().storeMessage(e);
+            }
+        }
     }
 
     @Override
@@ -167,10 +143,8 @@ public class LocationRecordingService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        // remove the location request timers & updates
-        timer.cancel();
         fusedLocationProviderClient.removeLocationUpdates(locationCallback);
-        telephonyManager.listen(phoneStateCallback, PhoneStateListener.LISTEN_NONE);
+        phone_state.cleanup(getApplicationContext());
         wakeLock.release();
     }
 
@@ -237,11 +211,12 @@ public class LocationRecordingService extends Service {
         return locationRequest;
     }
 
-    private void notifyPermissionRequired() {
+    private boolean notifyPermissionRequired() {
         List<String> missing_permissions = PermissionSupport.getMissingPermissions(getApplication(), null);
-        if (missing_permissions.isEmpty())
+        if (missing_permissions.isEmpty()) {
             notificationManager.cancel(PERMISSION_NOTIFICATION_ID);
-        else {
+            return false;
+        } else {
             Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
             Uri uri = Uri.fromParts("package", getPackageName(), null);
             intent.setData(uri);
@@ -258,72 +233,16 @@ public class LocationRecordingService extends Service {
                     .build();
 
             notificationManager.notify(PERMISSION_NOTIFICATION_ID, notification);
+
+            return true;
         }
     }
 
-    @SuppressLint("MissingPermission")
-    private List<CellInfo> getCellInfo() {
-        /*
-          - This code should not run if the permissions are not there
-          - Code should check and ask for permissions when the 'start recording switch' in the main activity
-            is switched to start running when the permissions are not there
-         */
-        if (PermissionSupport.hasCourseLocationPermission(getApplicationContext())) {
-            notificationManager.cancel(PERMISSION_NOTIFICATION_ID);  // cancel permissions warning if any
-            return telephonyManager.getAllCellInfo();
-        } else {
-            notifyPermissionRequired();
-            return new ArrayList<>();
-        }
-
+    public void registerCellStatus(String subscription, Date date_start, Date date_end, CellStatus status) {
+        mDB.updateCellStatus(subscription, date_start, date_end, status);
+        refreshMeasurementsView();
     }
 
-    private List<CellStatus> storeCellInfo(List<CellInfo> cellinfo) {
-        /*
-        // TODO: Be more clear around this
-
-        This code does not store the records, this code;
-        - creates new records
-        - updates already stored records
-        - turns modified records in a string and reports them back
-
-         */
-        List<CellStatus> cells = new ArrayList<>();
-        for (CellInfo info : cellinfo) {
-            try {
-                CellStatus status = CellStatus.fromCellInfo(info);
-                if (status.isValid())
-                    cells.add(status);
-            } catch (CellStatus.UnsupportedTypeException e) {
-                mDB.storeMessage(e);
-            }
-        }
-
-        mDB.updateCellStatus(cells);
-
-        return cells;
-    }
-
-
-    /**
-     * Retrieve the current CellInfo, update;
-     * - database
-     * - Service notification
-     * - send broadcast to update App
-     */
-    private void preformCellInfoRetrievalRequest() {
-        try {
-            List<CellInfo> cellinfo = getCellInfo();
-            List<CellStatus> cellstr = storeCellInfo(cellinfo);
-            notificationManager.notify(
-                    STATUS_NOTIFICATION_ID,
-                    getActivityNotification(String.format("%d cells registered (%d visible)", cellstr.size(), cellinfo.size()))
-            );
-            sendBroadcastMessage();
-        } catch (Throwable e) {
-            CellScannerApp.getDatabase().storeMessage(e);
-        }
-    }
 
     /**
      * Processes the GPS location update.
@@ -340,7 +259,7 @@ public class LocationRecordingService extends Service {
         sendBroadcastMessage();
     }
 
-    private void processCallStateUpdate(int state) {
+    public void registerCallState(String subscription, int state) {
         // store it in the database
         mDB.storeCallState(state);
     }
@@ -378,6 +297,11 @@ public class LocationRecordingService extends Service {
         } else {
             intent.putExtra("hasLoc", false);
         }
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
+    private void refreshMeasurementsView() {
+        Intent intent = new Intent(LOCATION_DATA_UPDATE_BROADCAST);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 }

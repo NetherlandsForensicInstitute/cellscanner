@@ -8,7 +8,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.os.Build;
-import android.telephony.CellInfo;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -18,13 +17,11 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 public class Database {
-    protected static final int VERSION = 3;
+    protected static final int VERSION = 4;
 
     private static final String META_VERSION_CODE = "version_code";
     private static final String META_INSTALL_ID = "install_id";
@@ -58,25 +55,23 @@ public class Database {
         }
     }
 
-    private String[] getActiveCells(Date date) {
-        List<String> cells = new ArrayList<String>();
-        if (date != null) {
-            Cursor c = db.rawQuery("SELECT radio, mcc, mnc, area, cid FROM cellinfo WHERE ? BETWEEN date_start AND date_end", new String[]{Long.toString(date.getTime())});
-            try {
-                while (c.moveToNext()) {
-                    String radio = c.getString(0);
-                    int mcc = c.getInt(1);
-                    int mnc = c.getInt(2);
-                    int lac = c.getInt(3);
-                    int cid = c.getInt(4);
-                    cells.add(String.format("%s: %d-%d-%d-%d", radio, mcc, mnc, lac, cid));
-                }
-            } finally {
-                c.close();
+    private String getCurrentCell(String subscription) {
+        Date now = new Date();
+        Cursor c = db.rawQuery("SELECT radio, mcc, mnc, area, cid FROM cellinfo WHERE subscription = ? AND date_end > ? ORDER BY date_end DESC LIMIT 1", new String[]{subscription, Long.toString(now.getTime() - 60000)});
+        try {
+            if (c.moveToNext()) {
+                String radio = c.getString(0);
+                int mcc = c.getInt(1);
+                int mnc = c.getInt(2);
+                int lac = c.getInt(3);
+                int cid = c.getInt(4);
+                return String.format("%s: %d-%d-%d-%d", radio, mcc, mnc, lac, cid);
+            } else {
+                return "none";
             }
+        } finally {
+            c.close();
         }
-
-        return cells.toArray(new String[]{});
     }
 
     private Date getTimestampFromSQL(String query) {
@@ -103,75 +98,50 @@ public class Database {
     public String getUpdateStatus() {
         DateFormat fmt = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
 
-        Date last_update_time = getTimestampFromSQL("SELECT MAX(date_end) FROM cellinfo");
-        String[] current_cells = getActiveCells(last_update_time);
-
         StringBuffer s = new StringBuffer();
-        s.append(String.format("updated: %s\n", last_update_time == null ? "never" : fmt.format(last_update_time)));
-        for (String cell: current_cells) {
-            s.append(String.format("current cell: %s\n", cell));
-        }
 
-        Cursor c = db.rawQuery("SELECT mcc, mnc, MIN(date_start), SUM(date_end - date_start) FROM cellinfo GROUP BY mcc, mnc", new String[]{});
+        Cursor c = db.rawQuery("SELECT subscription, MIN(date_start), MAX(date_end), SUM(date_end - date_start) FROM cellinfo GROUP BY subscription", new String[]{});
         try {
-            while (c.moveToNext()) {
-                int mcc = c.getInt(0);
-                int mnc = c.getInt(1);
-                long first = c.getLong(2);
-                long total = c.getLong(3);
+            for (;c.moveToNext();) {
+                String subscription = c.getString(0);
+                long first = c.getLong(1);
+                long last = c.getLong(2);
+                long time_sum = c.getLong(3);
+
                 long now = new Date().getTime();
-                if (now - first > 0)
-                    s.append(String.format("coverage of %d-%d: %d%% since %d minutes\n", mcc, mnc, total * 100 / (now - first), (now - first) / 1000 / 60));
+                long coverage = 100 * time_sum / (now - first);
+                s.append(String.format("current cell %s: %s\n", subscription, getCurrentCell(subscription)));
+                s.append(String.format("updated: %s\n", fmt.format(last)));
+                s.append(String.format("coverage: %d%% since %s\n", coverage, fmt.format(first)));
+                s.append("\n");
             }
+
+            if (s.length() == 0)
+                return "no data";
+            else
+                return s.toString();
+
         } finally {
             c.close();
         }
-
-        return s.toString();
     }
 
     /**
      * Update the current cellular connection status.
      *
-     * @param date the current date
      * @param status the cellular connection status
      */
-    private void updateCellStatus(Date date, CellStatus status, Date previous_date) {
-        ContentValues values = status.getContentValues();
-
-        // if the previous registration has the same values, update the end time only
-        if (previous_date != null) {
-            ContentValues update = new ContentValues();
-            update.put("date_end", date.getTime());
-
-            ArrayList<String> qwhere = new ArrayList<>();
-            ArrayList<String> qargs = new ArrayList<>();
-            qwhere.add("date_end = ?");
-            qargs.add(Long.toString(previous_date.getTime()));
-            for (String key : values.keySet()) {
-                qwhere.add(String.format("%s = ?", key));
-                qargs.add(values.getAsString(key));
-            }
-
-            int nrows = db.update("cellinfo", update, TextUtils.join(" AND ", qwhere), qargs.toArray(new String[0]));
-            if (nrows > 0)
-                return;
-        }
-
-        // if there is no previous registration to be updated, create a new one
-        ContentValues insert = new ContentValues(values);
-        insert.put("date_start", date.getTime());
-        insert.put("date_end", date.getTime());
-        Log.v(CellScannerApp.TITLE, "new cell: "+insert.toString());
-        db.insert("cellinfo", null, insert);
-    }
-
-    public void updateCellStatus(List<CellStatus> cells) {
-        Date date = new Date();
-        Date previous_date = getTimestampFromSQL(String.format("SELECT MAX(date_end) FROM cellinfo WHERE date_end > %d", date.getTime() - CellScannerApp.EVENT_VALIDITY_MILLIS));
-
-        for (CellStatus cell : cells) {
-            updateCellStatus(date, cell, previous_date);
+    public void updateCellStatus(String subscription, Date date_start, Date date_end, CellStatus status) {
+        ContentValues update = new ContentValues();
+        update.put("date_end", date_end.getTime());
+        int nrows = db.update("cellinfo", update, "subscription = ? AND date_start = ?", new String[]{subscription, Long.toString(date_start.getTime())});
+        if (nrows == 0) {
+            ContentValues insert = status.getContentValues();
+            insert.put("subscription", subscription);
+            insert.put("date_start", date_start.getTime());
+            insert.put("date_end", date_end.getTime());
+            db.insert("cellinfo", null, insert);
+            Log.v(CellScannerApp.TITLE, "new cell: "+insert.toString());
         }
     }
 
@@ -291,7 +261,7 @@ public class Database {
     /** drop data until a given timestamp **/
     public void dropDataUntil(long timestamp) {
         db.delete("message", "date <= ?", new String[]{Long.toString(timestamp)});
-        db.delete("cellinfo", "date_end <= ?", new String[]{Long.toString(timestamp - CellScannerApp.EVENT_VALIDITY_MILLIS)});
+        db.delete("cellinfo", "date_end <= ?", new String[]{Long.toString(timestamp)});
         db.delete("locationinfo", "timestamp <= ?", new String[]{Long.toString(timestamp)});
         db.execSQL("VACUUM");
     }
@@ -311,6 +281,10 @@ public class Database {
             db.execSQL("ALTER TABLE locationinfo ADD COLUMN speed_acc INT");
             db.execSQL("ALTER TABLE locationinfo ADD COLUMN bearing_deg INT");
             db.execSQL("ALTER TABLE locationinfo ADD COLUMN bearing_deg_acc INT");
+        }
+
+        if (oldVersion < 4) {
+            db.execSQL("ALTER TABLE cellinfo ADD COLUMN subscription VARCHAR(20) NOT NULL DEFAULT 'unknown'");
         }
     }
 
@@ -335,6 +309,7 @@ public class Database {
                 ")");
 
         db.execSQL("CREATE TABLE IF NOT EXISTS cellinfo ("+
+                "  subscription VARCHAR(20) NOT NULL,"+
                 "  date_start INT NOT NULL,"+
                 "  date_end INT NOT NULL,"+
                 "  registered INT NOT NULL,"+

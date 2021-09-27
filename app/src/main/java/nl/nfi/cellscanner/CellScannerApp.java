@@ -17,12 +17,6 @@ import java.util.Locale;
 public class CellScannerApp extends Application {
     public static final String TITLE = "cellscanner";
 
-    // update frequency of network data
-    public static int UPDATE_DELAY_MILLIS = 1000;
-
-    // contiguous event tolerance: a gap of less than this interval may prolong a previous event
-    public static int EVENT_VALIDITY_MILLIS = UPDATE_DELAY_MILLIS+20000;
-
     // auto upload interval
     public static int UPLOAD_INTERVAL_MINUTES = 55*7;
 

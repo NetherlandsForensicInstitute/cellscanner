@@ -46,6 +46,11 @@
             app:title="Perform upload"
             app:summary="Upload data (clears database)"/>
 
+        <Preference
+            app:key="CLEAR_DATA"
+            app:title="Clear data"
+            app:summary="Irrevocably deletes all measurements"/>
+
         <SwitchPreferenceCompat
             app:key="AUTO_UPLOAD"
             app:title="Periodic upload"

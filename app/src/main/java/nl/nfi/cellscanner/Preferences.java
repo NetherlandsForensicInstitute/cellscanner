@@ -3,6 +3,7 @@ package nl.nfi.cellscanner;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -17,6 +18,7 @@ import androidx.preference.SwitchPreferenceCompat;
 import com.google.android.gms.location.LocationRequest;
 
 import java.net.URI;
+import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
@@ -34,6 +36,7 @@ public class Preferences extends PreferenceFragmentCompat
     // data management preferences
     private static final String PREF_VIEW_MEASUREMENTS = "VIEW_MEASUREMENTS";
     private static final String PREF_START_UPLOAD = "START_UPLOAD";
+    private static final String PREF_CLEAR_DATA = "CLEAR_DATA";
     private static final String PREF_AUTO_UPLOAD = "AUTO_UPLOAD";
     private static final String PREF_UPLOAD_URL = "UPLOAD_URL";
     private static final String PREF_UPLOAD_ON_WIFI_ONLY = "UPLOAD_ON_WIFI_ONLY";
@@ -205,9 +208,8 @@ public class Preferences extends PreferenceFragmentCompat
         swGPSRecord = findPreference(PREF_LOCATION_RECORDING);
         swLocationAccuracy = findPreference(PREF_LOCATION_ACCURACY);
 
-        //swGPSRecord.setEnabled(swRecordingMaster.isChecked());
         swLocationAccuracy.setEnabled(swGPSRecord.isEnabled() && swGPSRecord.isChecked());
-        //swCallState.setEnabled(swRecordingMaster.isChecked());
+        swCallState.setEnabled(getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_TELEPHONY));
 
         swRecordingMaster.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
             @Override
@@ -260,6 +262,7 @@ public class Preferences extends PreferenceFragmentCompat
     private void setupSharing() {
         Preference view_measurements_button = findPreference(PREF_VIEW_MEASUREMENTS);
         final Preference start_upload_button = findPreference(PREF_START_UPLOAD);
+        final Preference clear_data_button = findPreference(PREF_CLEAR_DATA);
         final SwitchPreferenceCompat upload_switch = findPreference(PREF_AUTO_UPLOAD);
         final EditTextPreference upload_server = findPreference(PREF_UPLOAD_URL);
         final SwitchPreferenceCompat wifi_switch = findPreference(PREF_UPLOAD_ON_WIFI_ONLY);
@@ -271,11 +274,17 @@ public class Preferences extends PreferenceFragmentCompat
         });
 
         start_upload_button.setOnPreferenceClickListener(preference -> {
-            if (upload_server.getText().equals(""))
+            if (upload_server.getText().equals("")) {
                 UploadUtils.exportData(Preferences.this.getContext());
-            else
+            } else
                 UserDataUploadWorker.startDataUpload(getContext());
 
+            return true;
+        });
+
+        clear_data_button.setOnPreferenceClickListener(preference -> {
+            CellScannerApp.getDatabase().dropDataUntil(new Date().getTime());
+            Toast.makeText(getContext(), "All data deleted!", Toast.LENGTH_LONG).show();
             return true;
         });
 

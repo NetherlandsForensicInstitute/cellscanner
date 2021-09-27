@@ -3,6 +3,7 @@ package nl.nfi.cellscanner.upload;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
@@ -43,6 +44,7 @@ public class UploadUtils {
             String[] TO = {""};
 
             Uri uri = FileProvider.getUriForFile(ctx, "nl.nfi.cellscanner.fileprovider", Database.getDataFile(ctx));
+            Log.e("cellscanner", "uri "+uri);
 
             Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
 
@@ -52,6 +54,8 @@ public class UploadUtils {
 
             //need this to prompts email client only
             sharingIntent.setDataAndType(uri, "message/rfc822");
+
+            sharingIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
             ActivityCompat.startActivity(ctx, Intent.createChooser(sharingIntent, "Share via"), null);
         }

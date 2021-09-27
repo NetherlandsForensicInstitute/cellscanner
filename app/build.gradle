@@ -17,7 +17,7 @@ android {
     }
     productFlavors {
     }
-    compileSdkVersion 30
+    compileSdkVersion 31
     compileOptions {
         sourceCompatibility 1.8
         targetCompatibility 1.8
@@ -45,5 +45,5 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-    compile files('libs/commons-net-3.7.2.jar')
+    implementation files('libs/commons-net-3.7.2.jar')
 }
