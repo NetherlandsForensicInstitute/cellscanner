@@ -15,8 +15,8 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import static nl.nfi.cellscanner.recorder.PermissionSupport.hasUserConsent;
-import static nl.nfi.cellscanner.recorder.PermissionSupport.setUserConsent;
+import static nl.nfi.cellscanner.PermissionSupport.hasUserConsent;
+import static nl.nfi.cellscanner.PermissionSupport.setUserConsent;
 
 public class AppInfoActivity extends AppCompatActivity {
     @Override
@@ -29,7 +29,7 @@ public class AppInfoActivity extends AppCompatActivity {
         // Show the device identifier and app version
         StringBuffer dynamic_content = new StringBuffer();
         dynamic_content.append(String.format("Device identifier: %s\n", Preferences.getInstallID(context)));
-        String version_name = CellScannerApp.getVersionName(context);
+        String version_name = CellscannerApp.getVersionName(context);
         if (version_name != null)
             dynamic_content.append(String.format("Cellscanner version: %s\n", version_name));
         TextView tv_dynamic = findViewById(R.id.tac_dynamic_content);

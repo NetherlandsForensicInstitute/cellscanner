@@ -1,7 +1,6 @@
 package nl.nfi.cellscanner.upload;
 
 import android.content.Context;
-import android.util.Log;
 
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttClientPersistence;
@@ -12,7 +11,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import java.io.InputStream;
 import java.net.URI;
 
-import nl.nfi.cellscanner.CellScannerApp;
+import nl.nfi.cellscanner.CellscannerApp;
 
 public class MqttUploader implements Uploader {
     private static final MqttClientPersistence persistence = new MemoryPersistence();
@@ -58,6 +57,6 @@ public class MqttUploader implements Uploader {
         URI mqtt_uri = new URI(full_uri.getRawSchemeSpecificPart());
         String[] credentials = UploadUtils.getUsernameAndPasswordFromURI(mqtt_uri);
         URI broker_uri = new URI(mqtt_uri.getScheme(), null, mqtt_uri.getHost(), mqtt_uri.getPort(), mqtt_uri.getPath(), null, null);
-        publish(broker_uri.toString(), CellScannerApp.MQTT_DEFAULT_TOPIC, credentials[0], credentials[1], payload);
+        publish(broker_uri.toString(), CellscannerApp.MQTT_DEFAULT_TOPIC, credentials[0], credentials[1], payload);
     }
 }

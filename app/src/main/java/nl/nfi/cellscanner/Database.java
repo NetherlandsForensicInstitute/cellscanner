@@ -148,7 +148,7 @@ public class Database {
             insert.put("date_start", date_start.getTime());
             insert.put("date_end", date_end.getTime());
             db.insert("cellinfo", null, insert);
-            Log.v(CellScannerApp.TITLE, "new cell: "+insert.toString());
+            Log.v(CellscannerApp.TITLE, "new cell: "+insert.toString());
         }
     }
 

@@ -1,4 +1,4 @@
-package nl.nfi.cellscanner.recorder;
+package nl.nfi.cellscanner;
 
 import android.Manifest;
 import android.content.Context;
@@ -11,14 +11,11 @@ import androidx.core.content.ContextCompat;
 import java.util.ArrayList;
 import java.util.List;
 
-import nl.nfi.cellscanner.CellScannerApp;
-import nl.nfi.cellscanner.Preferences;
-
 /**
  * Utility class used to check if permissions are set
  */
 public class PermissionSupport {
-    final private static String PREFS_NAME = CellScannerApp.TITLE;
+    final private static String PREFS_NAME = CellscannerApp.TITLE;
 
     public static List<String> getMissingPermissions(Context ctx, Intent extra) {
         List<String> missing_permissions = new ArrayList<String>();

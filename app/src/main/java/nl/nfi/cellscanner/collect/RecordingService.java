@@ -1,4 +1,4 @@
-package nl.nfi.cellscanner.recorder;
+package nl.nfi.cellscanner.collect;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -24,21 +24,19 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import java.util.Date;
 import java.util.List;
 
-import nl.nfi.cellscanner.CellScannerApp;
+import nl.nfi.cellscanner.CellscannerApp;
 import nl.nfi.cellscanner.CellStatus;
 import nl.nfi.cellscanner.Database;
 import nl.nfi.cellscanner.Preferences;
 import nl.nfi.cellscanner.ViewMeasurementsActivity;
 import nl.nfi.cellscanner.R;
-import nl.nfi.cellscanner.collect.LocationCollector;
 import nl.nfi.cellscanner.collect.phonestate.PhoneStateDataCollector;
+import nl.nfi.cellscanner.PermissionSupport;
 
 /**
  * Service responsible for recording the Location data and storing it in the database
  * */
-public class LocationRecordingService extends Service {
-
-    public static final String LOCATION_DATA_UPDATE_BROADCAST = "LOCATION_DATA_UPDATE_MESSAGE";
+public class RecordingService extends Service {
 
     private static final String RECORDING_STATUS_CHANNEL = "RECORDING_STATUS_CHANNEL";
     private static final String ACTION_REQUIRED_CHANNEL = "ACTION_REQUIRED_CHANNEL";
@@ -65,7 +63,7 @@ public class LocationRecordingService extends Service {
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         /* store some constants in the database */
-        Database db = CellScannerApp.getDatabase();
+        Database db = CellscannerApp.getDatabase();
         db.storeInstallID(getApplicationContext());
         db.storeVersionCode(getApplicationContext());
 
@@ -95,7 +93,7 @@ public class LocationRecordingService extends Service {
                 );
                 refreshMeasurementsView();
             } catch (Throwable e) {
-                CellScannerApp.getDatabase().storeMessage(e);
+                CellscannerApp.getDatabase().storeMessage(e);
             }
         }
     }
@@ -193,22 +191,22 @@ public class LocationRecordingService extends Service {
     }
 
     public void registerCellStatus(String subscription, Date date_start, Date date_end, CellStatus status) {
-        CellScannerApp.getDatabase().updateCellStatus(subscription, date_start, date_end, status);
+        CellscannerApp.getDatabase().updateCellStatus(subscription, date_start, date_end, status);
         refreshMeasurementsView();
     }
 
     public void registerCallState(String subscription, int state) {
-        CellScannerApp.getDatabase().storeCallState(state);
+        CellscannerApp.getDatabase().storeCallState(state);
         refreshMeasurementsView();
     }
 
     public void registerLocation(Location location) {
-        CellScannerApp.getDatabase().storeLocationInfo(location);
+        CellscannerApp.getDatabase().storeLocationInfo(location);
         refreshMeasurementsView();
     }
 
     private void refreshMeasurementsView() {
-        Intent intent = new Intent(LOCATION_DATA_UPDATE_BROADCAST);
+        Intent intent = new Intent(ViewMeasurementsActivity.REFRESH_BROADCAST);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 }

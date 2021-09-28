@@ -5,12 +5,12 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
-import nl.nfi.cellscanner.CellScannerApp;
-import nl.nfi.cellscanner.recorder.LocationRecordingService;
-import nl.nfi.cellscanner.recorder.PermissionSupport;
+import nl.nfi.cellscanner.CellscannerApp;
+import nl.nfi.cellscanner.collect.RecordingService;
+import nl.nfi.cellscanner.PermissionSupport;
 
 public class CallStateCallback extends AbstractCallback {
-    public CallStateCallback(int subscription_id, String name, TelephonyManager defaultTelephonyManager, LocationRecordingService service) {
+    public CallStateCallback(int subscription_id, String name, TelephonyManager defaultTelephonyManager, RecordingService service) {
         super(subscription_id, name, defaultTelephonyManager, service);
     }
 
@@ -34,7 +34,7 @@ public class CallStateCallback extends AbstractCallback {
         try {
             service.registerCallState(subscription, state);
         } catch (Throwable e) {
-            CellScannerApp.getDatabase().storeMessage(e);
+            CellscannerApp.getDatabase().storeMessage(e);
         }
     }
 }

@@ -10,16 +10,16 @@ import android.util.Log;
 import java.util.Date;
 import java.util.List;
 
-import nl.nfi.cellscanner.CellScannerApp;
+import nl.nfi.cellscanner.CellscannerApp;
 import nl.nfi.cellscanner.CellStatus;
-import nl.nfi.cellscanner.recorder.LocationRecordingService;
-import nl.nfi.cellscanner.recorder.PermissionSupport;
+import nl.nfi.cellscanner.collect.RecordingService;
+import nl.nfi.cellscanner.PermissionSupport;
 
 public class CellInfoCallback extends AbstractCallback {
     private CellStatus cell_status = null;
     private Date cell_start_timestamp = null;
 
-    public CellInfoCallback(int subscription_id, String name, TelephonyManager defaultTelephonyManager, LocationRecordingService service) {
+    public CellInfoCallback(int subscription_id, String name, TelephonyManager defaultTelephonyManager, RecordingService service) {
         super(subscription_id, name, defaultTelephonyManager, service);
     }
 
@@ -67,7 +67,7 @@ public class CellInfoCallback extends AbstractCallback {
                 store(ts);
             }
         } catch (Throwable e) {
-            CellScannerApp.getDatabase().storeMessage(e);
+            CellscannerApp.getDatabase().storeMessage(e);
         }
     }
 

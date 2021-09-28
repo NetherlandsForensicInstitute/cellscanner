@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.telephony.TelephonyManager;
 
 import nl.nfi.cellscanner.Preferences;
-import nl.nfi.cellscanner.recorder.LocationRecordingService;
+import nl.nfi.cellscanner.collect.RecordingService;
 import nl.nfi.cellscanner.collect.SubscriptionDataCollector;
 
 public class PhoneStateFactory {
@@ -16,7 +16,7 @@ public class PhoneStateFactory {
         }
 
         @Override
-        public SubscriptionDataCollector.PhoneStateCallback createCallback(int subscription_id, String name, TelephonyManager defaultTelephonyManager, LocationRecordingService service) {
+        public SubscriptionDataCollector.PhoneStateCallback createCallback(int subscription_id, String name, TelephonyManager defaultTelephonyManager, RecordingService service) {
             return new CellInfoCallback(subscription_id, name, defaultTelephonyManager, service);
         }
     }
@@ -28,7 +28,7 @@ public class PhoneStateFactory {
         }
 
         @Override
-        public SubscriptionDataCollector.PhoneStateCallback createCallback(int subscription_id, String name, TelephonyManager defaultTelephonyManager, LocationRecordingService service) {
+        public SubscriptionDataCollector.PhoneStateCallback createCallback(int subscription_id, String name, TelephonyManager defaultTelephonyManager, RecordingService service) {
             return new CallStateCallback(subscription_id, name, defaultTelephonyManager, service);
         }
     }

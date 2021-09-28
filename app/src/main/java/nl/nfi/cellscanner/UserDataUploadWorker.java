@@ -30,7 +30,7 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import nl.nfi.cellscanner.recorder.RecorderUtils;
+import nl.nfi.cellscanner.collect.RecorderUtils;
 import nl.nfi.cellscanner.upload.Crypto;
 import nl.nfi.cellscanner.upload.UploadUtils;
 
@@ -122,7 +122,7 @@ public class UserDataUploadWorker extends Worker {
 
             // finish up
             ExportResultRepository.storeExportResult(getApplicationContext(), timestamp, true, "success", getTags().iterator().next());
-            CellScannerApp.getDatabase().dropDataUntil(timestamp);
+            CellscannerApp.getDatabase().dropDataUntil(timestamp);
 
             return Result.success();
         } catch (java.net.ConnectException e) {
@@ -182,7 +182,7 @@ public class UserDataUploadWorker extends Worker {
         Constraints constraints = getWorkManagerConstraints(ctx, unmetered_only);
 
         PeriodicWorkRequest uploadWorkRequest = new PeriodicWorkRequest
-                .Builder(UserDataUploadWorker.class, CellScannerApp.UPLOAD_INTERVAL_MINUTES, TimeUnit.MINUTES) // upload every 15 minutes
+                .Builder(UserDataUploadWorker.class, CellscannerApp.UPLOAD_INTERVAL_MINUTES, TimeUnit.MINUTES) // upload every 15 minutes
                 .addTag(ExportResultRepository.AUTO)
                 .setConstraints(constraints)
                 .build();

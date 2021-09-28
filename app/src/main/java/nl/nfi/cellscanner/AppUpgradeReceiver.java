@@ -3,10 +3,8 @@ package nl.nfi.cellscanner;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.widget.Toast;
 
-import nl.nfi.cellscanner.recorder.PermissionSupport;
-import nl.nfi.cellscanner.recorder.RecorderUtils;
+import nl.nfi.cellscanner.collect.RecorderUtils;
 
 /**
  * Responsible for starting the App after device boot

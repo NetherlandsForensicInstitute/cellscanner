@@ -44,7 +44,7 @@
         <Preference
             app:key="START_UPLOAD"
             app:title="Perform upload"
-            app:summary="Upload data (clears database)"/>
+            app:summary="Upload data, or share if no upload server is configured"/>
 
         <Preference
             app:key="CLEAR_DATA"

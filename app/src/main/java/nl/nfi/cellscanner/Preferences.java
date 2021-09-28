@@ -8,10 +8,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.EditTextPreference;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
@@ -22,12 +20,9 @@ import androidx.preference.SwitchPreferenceCompat;
 import com.google.android.gms.location.LocationRequest;
 
 import java.net.URI;
-import java.util.Date;
-import java.util.Map;
 import java.util.UUID;
 
-import nl.nfi.cellscanner.recorder.LocationRecordingService;
-import nl.nfi.cellscanner.recorder.RecorderUtils;
+import nl.nfi.cellscanner.collect.RecorderUtils;
 import nl.nfi.cellscanner.upload.UploadUtils;
 
 public class Preferences extends PreferenceFragmentCompat
@@ -293,7 +288,6 @@ public class Preferences extends PreferenceFragmentCompat
         });
 
         wifi_switch.setEnabled(upload_switch.isChecked());
-
         wifi_switch.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -302,6 +296,7 @@ public class Preferences extends PreferenceFragmentCompat
             }
         });
 
+        upload_switch.setEnabled(!upload_server.getText().equals(""));
         upload_switch.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -358,7 +353,7 @@ public class Preferences extends PreferenceFragmentCompat
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
                     case DialogInterface.BUTTON_POSITIVE:
-                        CellScannerApp.resetDatabase(getContext());
+                        CellscannerApp.resetDatabase(getContext());
                         Toast.makeText(getContext(), "database deleted", Toast.LENGTH_SHORT).show();
                         break;
 

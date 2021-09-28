@@ -14,7 +14,7 @@ import java.util.Locale;
 /**
  * Main application state
  */
-public class CellScannerApp extends Application {
+public class CellscannerApp extends Application {
     public static final String TITLE = "cellscanner";
 
     // auto upload interval

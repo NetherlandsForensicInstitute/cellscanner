@@ -7,13 +7,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import nl.nfi.cellscanner.collect.SubscriptionDataCollector;
-import nl.nfi.cellscanner.recorder.LocationRecordingService;
+import nl.nfi.cellscanner.collect.RecordingService;
 
 public class PhoneStateDataCollector extends SubscriptionDataCollector {
     private Map<String, PhoneStateCallback> cellinfo_callbacks = new HashMap<>();
     private Map<String, PhoneStateCallback> callstate_callbacks = new HashMap<>();
 
-    public PhoneStateDataCollector(LocationRecordingService service) {
+    public PhoneStateDataCollector(RecordingService service) {
         super(service);
     }
 

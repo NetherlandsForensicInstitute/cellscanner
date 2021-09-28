@@ -14,7 +14,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" /><!-- required to keep recording service active -->
 
     <application
-        android:name=".CellScannerApp"
+        android:name=".CellscannerApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -37,7 +37,7 @@
         </receiver>
 
         <service
-            android:name=".recorder.LocationRecordingService"
+            android:name=".collect.RecordingService"
             android:enabled="true"
             android:exported="false"
             android:permission="ACCESS_COARSE_LOCATION|ACCESS_FINE_LOCATION">

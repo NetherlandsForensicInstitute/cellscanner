@@ -10,17 +10,16 @@ import android.telephony.TelephonyManager;
 import java.util.HashMap;
 import java.util.Map;
 
-import nl.nfi.cellscanner.recorder.LocationRecordingService;
-import nl.nfi.cellscanner.recorder.PermissionSupport;
+import nl.nfi.cellscanner.PermissionSupport;
 
-public abstract class SubscriptionDataCollector implements LocationRecordingService.DataCollector {
-    private final LocationRecordingService service;
+public abstract class SubscriptionDataCollector implements RecordingService.DataCollector {
+    private final RecordingService service;
     private SubscriptionManager subscriptionManager;
     private TelephonyManager defaultTelephonyManager;
 
     public interface CallbackFactory {
         boolean getRunState(Context ctx, Intent intent);
-        PhoneStateCallback createCallback(int subscription_id, String name, TelephonyManager defaultTelephonyManager, LocationRecordingService service);
+        PhoneStateCallback createCallback(int subscription_id, String name, TelephonyManager defaultTelephonyManager, RecordingService service);
     }
 
     public interface PhoneStateCallback {
@@ -28,7 +27,7 @@ public abstract class SubscriptionDataCollector implements LocationRecordingServ
         void stop();
     }
 
-    public SubscriptionDataCollector(LocationRecordingService service) {
+    public SubscriptionDataCollector(RecordingService service) {
         this.service = service;
 
         defaultTelephonyManager = (TelephonyManager) service.getSystemService(Context.TELEPHONY_SERVICE);

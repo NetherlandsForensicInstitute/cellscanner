@@ -2,14 +2,11 @@ package nl.nfi.cellscanner;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,7 +23,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
-import nl.nfi.cellscanner.recorder.RecorderUtils;
+import nl.nfi.cellscanner.collect.RecorderUtils;
 
 public class PreferencesActivity
         extends AppCompatActivity
@@ -118,7 +115,7 @@ public class PreferencesActivity
                 prefs.setPreferenceScreen(null);
                 prefs.addPreferencesFromResource(R.xml.preferences);
                 prefs.setup();
-                CellScannerApp.getDatabase().updateSettings(this);
+                CellscannerApp.getDatabase().updateSettings(this);
 
                 Toast.makeText(this, "settings applied", Toast.LENGTH_LONG).show();
             } catch (Exception e) {
@@ -152,33 +149,5 @@ public class PreferencesActivity
         if (requestCode == RecorderUtils.PERMISSION_REQUEST_START_RECORDING) {
             RecorderUtils.applyRecordingPolicy(this);
         }
-    }
-
-    /**
-     * Deletes the database (unused)
-     *
-     * @param view
-     */
-    public void clearDatabase(View view) {
-        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Context ctx = getApplicationContext();
-                switch (which) {
-                    case DialogInterface.BUTTON_POSITIVE:
-                        CellScannerApp.resetDatabase(getApplicationContext());
-                        Toast.makeText(ctx, "database deleted", Toast.LENGTH_SHORT).show();
-                        break;
-
-                    case DialogInterface.BUTTON_NEGATIVE:
-                        Toast.makeText(ctx, "Clear database cancelled", Toast.LENGTH_SHORT).show();
-                        break;
-                }
-            }
-        };
-
-        AlertDialog.Builder ab = new AlertDialog.Builder(this);
-        ab.setMessage("Drop tables. Sure?").setPositiveButton("Yes", dialogClickListener)
-                .setNegativeButton("No", dialogClickListener).show();
     }
 }

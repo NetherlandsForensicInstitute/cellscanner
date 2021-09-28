@@ -3,7 +3,6 @@ package nl.nfi.cellscanner.collect;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.location.Location;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -13,17 +12,16 @@ import com.google.android.gms.location.LocationServices;
 
 import org.jetbrains.annotations.NotNull;
 
-import nl.nfi.cellscanner.CellScannerApp;
+import nl.nfi.cellscanner.CellscannerApp;
 import nl.nfi.cellscanner.Preferences;
-import nl.nfi.cellscanner.recorder.LocationRecordingService;
-import nl.nfi.cellscanner.recorder.PermissionSupport;
+import nl.nfi.cellscanner.PermissionSupport;
 
-public class LocationCollector implements LocationRecordingService.DataCollector {
-    private final LocationRecordingService service;
+public class LocationCollector implements RecordingService.DataCollector {
+    private final RecordingService service;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationCallback locationCallback;
 
-    public LocationCollector(LocationRecordingService service) {
+    public LocationCollector(RecordingService service) {
         this.service = service;
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(service);
@@ -35,7 +33,7 @@ public class LocationCollector implements LocationRecordingService.DataCollector
                 try {
                     service.registerLocation(locationResult.getLastLocation());
                 } catch (Throwable e) {
-                    CellScannerApp.getDatabase().storeMessage(e);
+                    CellscannerApp.getDatabase().storeMessage(e);
                 }
             }
         };
@@ -49,10 +47,10 @@ public class LocationCollector implements LocationRecordingService.DataCollector
     @NotNull
     private LocationRequest createLocationRequest(Intent intent) {
         LocationRequest locationRequest = LocationRequest.create();
-        locationRequest.setInterval(CellScannerApp.LOCATION_INTERVAL_MILLIS);
-        locationRequest.setFastestInterval(CellScannerApp.LOCATION_FASTEST_INTERVAL_MILLIS);
+        locationRequest.setInterval(CellscannerApp.LOCATION_INTERVAL_MILLIS);
+        locationRequest.setFastestInterval(CellscannerApp.LOCATION_FASTEST_INTERVAL_MILLIS);
         locationRequest.setPriority(Preferences.getLocationAccuracy(service, intent));
-        locationRequest.setSmallestDisplacement(CellScannerApp.LOCATION_MINIMUM_DISPLACEMENT_MTRS);
+        locationRequest.setSmallestDisplacement(CellscannerApp.LOCATION_MINIMUM_DISPLACEMENT_MTRS);
         return locationRequest;
     }
 

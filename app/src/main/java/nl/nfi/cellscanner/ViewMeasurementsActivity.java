@@ -17,14 +17,14 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import nl.nfi.cellscanner.recorder.LocationRecordingService;
-
 
 public class ViewMeasurementsActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
+    public static final String REFRESH_BROADCAST = "REFRESH_BROADCAST_MESSAGE";
+
     /*
-    Activity lifecycle, see: https://developer.android.com/guide/components/activities/activity-lifecycle
-    Communicate Activity <-> Service ... https://www.vogella.com/tutorials/AndroidServices/article.html
-     */
+        Activity lifecycle, see: https://developer.android.com/guide/components/activities/activity-lifecycle
+        Communicate Activity <-> Service ... https://www.vogella.com/tutorials/AndroidServices/article.html
+         */
     // ui
     private TextView vlCILastUpdate, vl_location_status, vl_upload_status;
 
@@ -74,12 +74,12 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
                     public void onReceive(Context context, Intent intent) {
                         updateLogViewer();
                     }
-                }, new IntentFilter(LocationRecordingService.LOCATION_DATA_UPDATE_BROADCAST)
+                }, new IntentFilter(REFRESH_BROADCAST)
         );
     }
 
     private void updateLogViewer() {
-        Database db = CellScannerApp.getDatabase();
+        Database db = CellscannerApp.getDatabase();
         StringBuffer ci_status = new StringBuffer();
         ci_status.append(String.format("recording: %s\n\n", Preferences.isRecordingEnabled(getApplicationContext()) ? "enabled" : "disabled"));
         ci_status.append(db.getUpdateStatus());
@@ -123,7 +123,7 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
 
         // Show the device identifier and app version
         statustext.append(String.format("device identifier: %s\n", Preferences.getInstallID(context)));
-        String version_name = CellScannerApp.getVersionName(context);
+        String version_name = CellscannerApp.getVersionName(context);
         if (version_name != null)
             statustext.append(String.format("cellscanner version: %s\n", version_name));
 

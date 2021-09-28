@@ -1,4 +1,4 @@
-package nl.nfi.cellscanner.recorder;
+package nl.nfi.cellscanner.collect;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -6,13 +6,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
-import android.preference.PreferenceManager;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import java.util.List;
 
+import nl.nfi.cellscanner.PermissionSupport;
 import nl.nfi.cellscanner.Preferences;
 import nl.nfi.cellscanner.PreferencesActivity;
 import nl.nfi.cellscanner.R;
@@ -84,7 +84,7 @@ public class RecorderUtils {
      * @param context: Context starting the service
      */
     private static void startService(Context context, Intent extra) {
-        Intent intent = new Intent(context, LocationRecordingService.class);
+        Intent intent = new Intent(context, RecordingService.class);
         if (extra != null)
             intent.putExtras(extra);
 
@@ -105,7 +105,7 @@ public class RecorderUtils {
      * @param context: Context Stopping the service
      */
     public static void stopService(Context context) {
-        Intent serviceIntent = new Intent(context, LocationRecordingService.class);
+        Intent serviceIntent = new Intent(context, RecordingService.class);
         context.stopService(serviceIntent);
     }
 }
