@@ -56,7 +56,7 @@ public class LocationRecordingService extends Service {
     private Location location;
     private LocationCallback locationCallback;
     private NotificationManager notificationManager;
-    private LegacyPhoneState phone_state;
+    private PhoneStateCollector phone_state;
     private PowerManager.WakeLock wakeLock;
 
     @Override
@@ -90,7 +90,7 @@ public class LocationRecordingService extends Service {
             }
         };
 
-        phone_state = new LegacyPhoneState(this);
+        phone_state = new PhoneStateCollector(this);
 
         PowerManager powerManager = (PowerManager)getSystemService(POWER_SERVICE);
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "cellscanner::RecordingWakelock");
