@@ -32,6 +32,7 @@ import nl.nfi.cellscanner.ViewMeasurementsActivity;
 import nl.nfi.cellscanner.R;
 import nl.nfi.cellscanner.collect.phonestate.PhoneStateDataCollector;
 import nl.nfi.cellscanner.PermissionSupport;
+import nl.nfi.cellscanner.collect.telephonycallback.TelephonyDataCollector;
 
 /**
  * Service responsible for recording the Location data and storing it in the database
@@ -67,7 +68,14 @@ public class RecordingService extends Service {
         db.storeInstallID(getApplicationContext());
         db.storeVersionCode(getApplicationContext());
 
-        phone_state_collector = new PhoneStateDataCollector(this);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            phone_state_collector = new PhoneStateDataCollector(this);
+        } else {
+            phone_state_collector = new PhoneStateDataCollector(this);
+            // TODO: test API level 31+
+            //phone_state_collector = new TelephonyDataCollector(this);
+        }
+
         location_collector = new LocationCollector(this);
 
         PowerManager powerManager = (PowerManager)getSystemService(POWER_SERVICE);
