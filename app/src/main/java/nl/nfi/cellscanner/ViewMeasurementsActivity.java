@@ -43,7 +43,7 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
     @Override
     protected void onResume() {
         super.onResume();
-        clearGPSLocationFields();
+        updateLogViewer();
         AppInfoActivity.showIfNoConsent(this);
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
@@ -72,49 +72,23 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
                 new BroadcastReceiver() {
                     @Override
                     public void onReceive(Context context, Intent intent) {
-                        updateLogViewer(intent);
+                        updateLogViewer();
                     }
                 }, new IntentFilter(LocationRecordingService.LOCATION_DATA_UPDATE_BROADCAST)
         );
     }
 
-    // todo: Reconnect with a timer or listener, to update every x =D
     private void updateLogViewer() {
-        updateLogViewer(null);
-    }
-
-    private void updateLogViewer(Intent intent) {
         Database db = CellScannerApp.getDatabase();
         StringBuffer ci_status = new StringBuffer();
         ci_status.append(String.format("recording: %s\n\n", Preferences.isRecordingEnabled(getApplicationContext()) ? "enabled" : "disabled"));
         ci_status.append(db.getUpdateStatus());
         vlCILastUpdate.setText(ci_status);
 
-        if (intent != null) {
-            Bundle a = intent.getExtras();
-            if (a != null && a.getBoolean("hasLoc", false)) {
-                StringBuffer statustext = new StringBuffer();
-                statustext.append(String.format("recording: %s\n", Preferences.isLocationRecordingEnabled(getApplicationContext(), null) ? "enabled" : "disabled"));
-                statustext.append("updated: "+getDateTimeFromTimeStamp(a.getLong("lts")) + "\n");
-                statustext.append(String.format("coordinates: %.5f; %.5f\n", a.getDouble("lat"), a.getDouble("lon")));
-                if (a.containsKey("acc"))
-                    statustext.append(String.format("accuracy: %.0fm\n", a.getFloat("acc")));
-                if (a.containsKey("spd"))
-                    statustext.append(String.format("speed: %.0fm/s (+/- %.0f)\n", a.getFloat("spd"), a.getFloat("spd_acc", 0)));
-                if (a.containsKey("bearing_deg"))
-                    statustext.append(String.format("bearing: %d degrees (+/- %.0f)\n", a.getInt("bearing_deg"), a.getFloat("bearing_deg_acc", 0)));
-                if (a.containsKey("alt"))
-                    statustext.append(String.format("altitude: %.0fm (+/- %.0f)\n", a.getDouble("alt"), a.getFloat("alt_acc", 0)));
-                String status = db.getLocationUpdateStatus();
-                if (status != null)
-                    statustext.append(status);
-                vl_location_status.setText(statustext);
-            }
-        }
-    }
-
-    private void clearGPSLocationFields() {
-        vl_location_status.setText(R.string.valueBaseText);
+        StringBuffer location_status = new StringBuffer();
+        location_status.append(String.format("recording: %s\n\n", Preferences.isLocationRecordingEnabled(getApplicationContext(), null) ? "enabled" : "disabled"));
+        location_status.append(db.getLocationUpdateStatus());
+        vl_location_status.setText(location_status);
     }
 
     private static String getDateTimeFromTimeStamp(Long time) {

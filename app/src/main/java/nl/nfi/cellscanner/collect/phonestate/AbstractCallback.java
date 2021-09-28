@@ -1,13 +1,12 @@
-package nl.nfi.cellscanner.legacyphonestate;
+package nl.nfi.cellscanner.collect.phonestate;
 
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 
-import nl.nfi.cellscanner.CellScannerApp;
 import nl.nfi.cellscanner.recorder.LocationRecordingService;
-import nl.nfi.cellscanner.recorder.PhoneStateCollector;
+import nl.nfi.cellscanner.collect.SubscriptionDataCollector;
 
-public abstract class AbstractCallback extends PhoneStateListener implements PhoneStateCollector.PhoneStateCallback {
+public abstract class AbstractCallback extends PhoneStateListener implements SubscriptionDataCollector.PhoneStateCallback {
     protected final String subscription;
     protected final TelephonyManager mgr;
     protected final LocationRecordingService service;

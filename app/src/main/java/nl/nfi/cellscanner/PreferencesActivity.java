@@ -143,6 +143,7 @@ public class PreferencesActivity
                 prefs.setRecordingEnabled(false);
             }
             if (permissions[i].equals(Manifest.permission.READ_PHONE_STATE) && grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                prefs.setRecordingEnabled(false);
                 prefs.setCallStateRecording(false);
             }
         }

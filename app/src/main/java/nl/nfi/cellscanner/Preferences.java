@@ -1,13 +1,17 @@
 package nl.nfi.cellscanner;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.EditTextPreference;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
@@ -22,6 +26,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
+import nl.nfi.cellscanner.recorder.LocationRecordingService;
 import nl.nfi.cellscanner.recorder.RecorderUtils;
 import nl.nfi.cellscanner.upload.UploadUtils;
 
@@ -283,8 +288,7 @@ public class Preferences extends PreferenceFragmentCompat
         });
 
         clear_data_button.setOnPreferenceClickListener(preference -> {
-            CellScannerApp.getDatabase().dropDataUntil(new Date().getTime());
-            Toast.makeText(getContext(), "All data deleted!", Toast.LENGTH_LONG).show();
+            clearDatabase();
             return true;
         });
 
@@ -346,5 +350,27 @@ public class Preferences extends PreferenceFragmentCompat
         });
 
         wifi_switch.setEnabled(upload_switch.isChecked());
+    }
+
+    public void clearDatabase() {
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case DialogInterface.BUTTON_POSITIVE:
+                        CellScannerApp.resetDatabase(getContext());
+                        Toast.makeText(getContext(), "database deleted", Toast.LENGTH_SHORT).show();
+                        break;
+
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        Toast.makeText(getContext(), "Clear database cancelled", Toast.LENGTH_SHORT).show();
+                        break;
+                }
+            }
+        };
+
+        AlertDialog.Builder ab = new AlertDialog.Builder(getContext());
+        ab.setMessage("Drop tables. Sure?").setPositiveButton("Yes", dialogClickListener)
+                .setNegativeButton("No", dialogClickListener).show();
     }
 }

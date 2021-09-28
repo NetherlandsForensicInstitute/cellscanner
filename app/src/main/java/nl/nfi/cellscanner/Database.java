@@ -80,16 +80,23 @@ public class Database {
     }
 
     public String getLocationUpdateStatus() {
-        Cursor c = db.rawQuery("SELECT MIN(timestamp), COUNT(*) FROM locationinfo", new String[]{});
+        DateFormat fmt = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
+
+        Cursor c = db.rawQuery("SELECT MIN(timestamp), MAX(timestamp), COUNT(*) FROM locationinfo", new String[]{});
         try {
             c.moveToNext();
             long first = c.getLong(0);
-            int count = c.getInt(1);
+            long last = c.getLong(1);
+            int count = c.getInt(2);
             long now = new Date().getTime();
-            if (count > 0 && now > first)
-                return String.format("coverage: %d measurements since %d minutes\n", count, (now - first) / 1000 / 60);
-            else
-                return null;
+            if (count > 0 && now > first) {
+                StringBuffer s = new StringBuffer();
+                s.append(String.format("last updated: %s\n", fmt.format(last)));
+                s.append(String.format("%d measurements since %d minutes\n", count, (now - first) / 1000 / 60));
+                return s.toString();
+            } else {
+                return "No measurements.";
+            }
         } finally {
             c.close();
         }
@@ -117,7 +124,7 @@ public class Database {
             }
 
             if (s.length() == 0)
-                return "no data";
+                return "No measurements.";
             else
                 return s.toString();
 
