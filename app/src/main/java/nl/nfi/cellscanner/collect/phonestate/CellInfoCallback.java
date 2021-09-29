@@ -14,7 +14,6 @@ import nl.nfi.cellscanner.collect.CellInfoState;
 import nl.nfi.cellscanner.collect.DataReceiver;
 import nl.nfi.cellscanner.PermissionSupport;
 
-@Deprecated
 public class CellInfoCallback extends AbstractCallback {
     public static final String[] PERMISSIONS = new String[] {
         Manifest.permission.ACCESS_COARSE_LOCATION,

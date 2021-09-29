@@ -73,10 +73,6 @@ public class RecorderUtils {
         }
     }
 
-    private static void requestStartService(PreferencesActivity context) {
-        requestStartService(context, null);
-    }
-
     /**
      * Starts the recording service
      *
@@ -94,10 +90,6 @@ public class RecorderUtils {
         } else {
             context.startService(intent);
         }
-    }
-
-    private static void startService(Context context) {
-        startService(context, null);
     }
 
     /**

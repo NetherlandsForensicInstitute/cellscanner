@@ -6,6 +6,9 @@ import android.telephony.TelephonyManager;
 import nl.nfi.cellscanner.collect.DataReceiver;
 import nl.nfi.cellscanner.collect.SubscriptionDataCollector;
 
+/**
+ * Uses API which is deprecated at API level 31
+ */
 @Deprecated
 public class PhoneStateFactory {
     @Deprecated

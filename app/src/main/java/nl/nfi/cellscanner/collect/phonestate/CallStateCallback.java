@@ -11,7 +11,6 @@ import nl.nfi.cellscanner.collect.DataReceiver;
 import nl.nfi.cellscanner.collect.RecordingService;
 import nl.nfi.cellscanner.PermissionSupport;
 
-@Deprecated
 public class CallStateCallback extends AbstractCallback {
     public static final String[] PERMISSIONS = new String[]{
             Manifest.permission.READ_PHONE_STATE,
