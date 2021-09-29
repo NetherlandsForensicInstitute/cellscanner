@@ -15,9 +15,9 @@ import java.util.Locale;
 import nl.nfi.cellscanner.collect.DataCollector;
 import nl.nfi.cellscanner.collect.DataReceiver;
 import nl.nfi.cellscanner.collect.LocationCollector;
-import nl.nfi.cellscanner.collect.RecordingService;
 import nl.nfi.cellscanner.collect.SubscriptionDataCollector;
-import nl.nfi.cellscanner.collect.phonestate.PhoneStateFactory;
+import nl.nfi.cellscanner.collect.phonestate.PhoneStateCallStateFactory;
+import nl.nfi.cellscanner.collect.phonestate.PhoneStateCellInfoFactory;
 
 /**
  * Main application state
@@ -104,9 +104,9 @@ public class CellscannerApp extends Application {
     public static DataCollector createCollector(String name, DataReceiver receiver) {
         if (name.equals(Preferences.PREF_CELLINFO_RECORDING)) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-                return new SubscriptionDataCollector(receiver, new PhoneStateFactory.CellInfoFactory());
+                return new SubscriptionDataCollector(receiver, new PhoneStateCellInfoFactory());
             } else {
-                return new SubscriptionDataCollector(receiver, new PhoneStateFactory.CellInfoFactory());
+                return new SubscriptionDataCollector(receiver, new PhoneStateCellInfoFactory());
                 // TODO: test API level 31+
                 //factory = new CellInfoFactory();
             }
@@ -115,9 +115,9 @@ public class CellscannerApp extends Application {
         if (name.equals(Preferences.PREF_CALL_STATE_RECORDING)) {
             SubscriptionDataCollector.SubscriptionCallbackFactory factory;
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-                factory = new PhoneStateFactory.CallStateFactory();
+                factory = new PhoneStateCallStateFactory();
             } else {
-                factory = new PhoneStateFactory.CallStateFactory();
+                factory = new PhoneStateCallStateFactory();
                 // TODO: test API level 31+
                 //factory = new CallStateFactory();
             }
