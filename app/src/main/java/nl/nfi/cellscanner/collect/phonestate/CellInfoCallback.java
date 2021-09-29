@@ -12,11 +12,16 @@ import java.util.List;
 
 import nl.nfi.cellscanner.collect.CellInfoState;
 import nl.nfi.cellscanner.collect.DataReceiver;
-import nl.nfi.cellscanner.collect.RecordingService;
 import nl.nfi.cellscanner.PermissionSupport;
 
 @Deprecated
 public class CellInfoCallback extends AbstractCallback {
+    public static final String[] PERMISSIONS = new String[] {
+        Manifest.permission.ACCESS_COARSE_LOCATION,
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.READ_PHONE_STATE,
+    };
+
     private final Context ctx;
     private final CellInfoState state;
 
@@ -28,7 +33,7 @@ public class CellInfoCallback extends AbstractCallback {
 
     @SuppressLint("MissingPermission")
     public void resume() {
-        if (PermissionSupport.hasCallStatePermission(ctx) && PermissionSupport.hasCourseLocationPermission(ctx) && PermissionSupport.hasFineLocationPermission(ctx)) {
+        if (PermissionSupport.hasPermissions(ctx, PERMISSIONS)) {
             super.listen(PhoneStateListener.LISTEN_CELL_INFO);
             onCellInfoChanged(mgr.getAllCellInfo());
         } else {

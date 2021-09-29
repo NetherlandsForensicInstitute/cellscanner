@@ -22,6 +22,12 @@ import nl.nfi.cellscanner.collect.SubscriptionDataCollector;
 
 @RequiresApi(api = Build.VERSION_CODES.S)
 public class CellInfoFactory implements SubscriptionDataCollector.SubscriptionCallbackFactory {
+    public static final String[] PERMISSIONS = new String[] {
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.READ_PHONE_STATE,
+    };
+
     @Override
     public SubscriptionDataCollector.PhoneStateCallback createCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager, DataReceiver service) {
         return new CellInfoCallback(ctx, subscription_id, name, defaultTelephonyManager, service);
@@ -29,11 +35,7 @@ public class CellInfoFactory implements SubscriptionDataCollector.SubscriptionCa
 
     @Override
     public String[] requiredPermissions() {
-        return new String[] {
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.READ_PHONE_STATE,
-        };
+        return PERMISSIONS;
     }
 
     public static class CellInfoCallback extends TelephonyCallback implements SubscriptionDataCollector.PhoneStateCallback, TelephonyCallback.CellInfoListener {
@@ -52,7 +54,7 @@ public class CellInfoFactory implements SubscriptionDataCollector.SubscriptionCa
 
         @Override
         public void resume() {
-            if (PermissionSupport.hasCallStatePermission(ctx) && PermissionSupport.hasCourseLocationPermission(ctx) && PermissionSupport.hasFineLocationPermission(ctx)) {
+            if (PermissionSupport.hasPermissions(ctx, PERMISSIONS)) {
                 mgr.registerTelephonyCallback(ctx.getMainExecutor(), this);
             } else {
                 Log.w("cellscanner", "insufficient permissions to get cell info");

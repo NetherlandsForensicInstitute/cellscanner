@@ -13,6 +13,10 @@ import nl.nfi.cellscanner.PermissionSupport;
 
 @Deprecated
 public class CallStateCallback extends AbstractCallback {
+    public static final String[] PERMISSIONS = new String[]{
+            Manifest.permission.READ_PHONE_STATE,
+    };
+
     private final Context ctx;
     private final DataReceiver receiver;
 
@@ -24,16 +28,17 @@ public class CallStateCallback extends AbstractCallback {
 
     @Override
     public void resume() {
-        if (PermissionSupport.hasCallStatePermission(ctx)) {
+        if (PermissionSupport.hasPermissions(ctx, PERMISSIONS)) {
             super.listen(PhoneStateListener.LISTEN_CALL_STATE);
         } else {
-            Log.w("cellscanner", "insufficient permissions to get cell info");
+            Log.w("cellscanner", "insufficient permissions to get call state");
             stop();
         }
     }
 
     @Override
     public void stop() {
+        super.listen(PhoneStateListener.LISTEN_NONE);
     }
 
     @Override

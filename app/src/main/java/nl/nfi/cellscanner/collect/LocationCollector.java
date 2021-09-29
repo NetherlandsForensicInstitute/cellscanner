@@ -69,15 +69,12 @@ public class LocationCollector implements DataCollector {
     @SuppressLint("MissingPermission")
     @Override
     public void resume(Context ctx, Intent intent) {
-        if (Preferences.isLocationRecordingEnabled(ctx, intent)) {
-            // start the request for location updates
-            if (PermissionSupport.hasFineLocationPermission(ctx)) {
-                fusedLocationProviderClient.requestLocationUpdates(
-                        createLocationRequest(intent),
-                        locationCallback,
-                        null
-                );
-            }
+        if (PermissionSupport.hasPermissions(ctx, requiredPermissions())) {
+            fusedLocationProviderClient.requestLocationUpdates(
+                    createLocationRequest(intent),
+                    locationCallback,
+                    null
+            );
         } else {
             fusedLocationProviderClient.removeLocationUpdates(locationCallback);
         }

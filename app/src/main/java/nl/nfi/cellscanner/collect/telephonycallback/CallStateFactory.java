@@ -17,11 +17,13 @@ import nl.nfi.cellscanner.collect.SubscriptionDataCollector;
 
 @RequiresApi(api = Build.VERSION_CODES.S)
 public class CallStateFactory implements SubscriptionDataCollector.SubscriptionCallbackFactory {
+    public static final String[] PERMISSIONS = new String[] {
+            Manifest.permission.READ_PHONE_STATE,
+    };
+
     @Override
     public String[] requiredPermissions() {
-        return new String[] {
-                Manifest.permission.READ_PHONE_STATE,
-        };
+        return PERMISSIONS;
     }
 
     @Override
@@ -44,7 +46,7 @@ public class CallStateFactory implements SubscriptionDataCollector.SubscriptionC
 
         @Override
         public void resume() {
-            if (PermissionSupport.hasCallStatePermission(ctx) && PermissionSupport.hasCourseLocationPermission(ctx) && PermissionSupport.hasFineLocationPermission(ctx)) {
+            if (PermissionSupport.hasPermissions(ctx, PERMISSIONS)) {
                 mgr.registerTelephonyCallback(ctx.getMainExecutor(), this);
             } else {
                 Log.w("cellscanner", "insufficient permissions to get cell info");

@@ -15,7 +15,7 @@ import nl.nfi.cellscanner.PermissionSupport;
 public class SubscriptionDataCollector implements DataCollector {
     private final DataReceiver receiver;
     private final SubscriptionCallbackFactory factory;
-    private final SubscriptionManager subscriptionManager;
+    private SubscriptionManager subscriptionManager = null;
     private final TelephonyManager defaultTelephonyManager;
 
     private Map<String, PhoneStateCallback> callbacks = new HashMap<>();
@@ -35,19 +35,12 @@ public class SubscriptionDataCollector implements DataCollector {
         this.factory = factory;
 
         defaultTelephonyManager = (TelephonyManager) receiver.getContext().getSystemService(Context.TELEPHONY_SERVICE);
-        subscriptionManager = (SubscriptionManager) receiver.getContext().getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
-        subscriptionManager.addOnSubscriptionsChangedListener(new SubscriptionManager.OnSubscriptionsChangedListener() {
-            @Override
-            public void onSubscriptionsChanged() {
-                resume(receiver.getContext(), null);
-            }
-        });
     }
 
     @SuppressLint("MissingPermission")
     protected synchronized Map<String, PhoneStateCallback> updateCallbacks(Context ctx, Intent intent, Map<String, PhoneStateCallback> old_list, SubscriptionCallbackFactory factory, boolean enable) {
         Map<String, PhoneStateCallback> new_list = new HashMap<>();
-        if (PermissionSupport.hasCallStatePermission(ctx)) {
+        if (PermissionSupport.hasPermissions(ctx, requiredPermissions())) {
             for (SubscriptionInfo subscr : subscriptionManager.getActiveSubscriptionInfoList()) {
                 String subscription_name = subscr.getDisplayName().toString();
                 if (old_list.containsKey(subscription_name)) {
@@ -86,7 +79,17 @@ public class SubscriptionDataCollector implements DataCollector {
 
     @Override
     public void resume(Context ctx, Intent intent) {
-        update(ctx, intent, true);
+        if (subscriptionManager == null) {
+            subscriptionManager = (SubscriptionManager) receiver.getContext().getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
+            subscriptionManager.addOnSubscriptionsChangedListener(new SubscriptionManager.OnSubscriptionsChangedListener() {
+                @Override
+                public void onSubscriptionsChanged() {
+                resume(receiver.getContext(), null);
+                }
+            });
+        } else {
+            update(ctx, intent, true);
+        }
     }
 
     @Override

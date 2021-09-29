@@ -55,9 +55,8 @@ public class Database {
         }
     }
 
-    private String getCurrentCell(String subscription) {
-        Date now = new Date();
-        Cursor c = db.rawQuery("SELECT radio, mcc, mnc, area, cid FROM cellinfo WHERE subscription = ? AND date_end > ? ORDER BY date_end DESC LIMIT 1", new String[]{subscription, Long.toString(now.getTime() - 60000)});
+    private String getLatestCell(String subscription) {
+        Cursor c = db.rawQuery("SELECT radio, mcc, mnc, area, cid FROM cellinfo WHERE subscription = ? ORDER BY date_end DESC LIMIT 1", new String[]{subscription});
         try {
             if (c.moveToNext()) {
                 String radio = c.getString(0);
@@ -91,7 +90,7 @@ public class Database {
             long now = new Date().getTime();
             if (count > 0 && now > first) {
                 StringBuffer s = new StringBuffer();
-                s.append(String.format("last updated: %s\n", fmt.format(last)));
+                s.append(String.format("updated: %s\n", fmt.format(last)));
                 s.append(String.format("%d measurements since %d minutes\n", count, (now - first) / 1000 / 60));
                 return s.toString();
             } else {
@@ -117,9 +116,9 @@ public class Database {
 
                 long now = new Date().getTime();
                 long coverage = 100 * time_sum / (now - first);
-                s.append(String.format("current cell %s: %s\n", subscription, getCurrentCell(subscription)));
-                s.append(String.format("updated: %s\n", fmt.format(last)));
+                s.append(String.format("%s: %s\n", subscription, getLatestCell(subscription)));
                 s.append(String.format("coverage: %d%% since %s\n", coverage, fmt.format(first)));
+                s.append(String.format("updated: %s\n", fmt.format(last)));
                 s.append("\n");
             }
 

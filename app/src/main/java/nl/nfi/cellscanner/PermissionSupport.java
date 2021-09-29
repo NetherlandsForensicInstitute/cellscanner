@@ -38,16 +38,13 @@ public class PermissionSupport {
         return missing_permissions;
     }
 
-    public static boolean hasCourseLocationPermission(Context ctx) {
-        return hasPermission(ctx, Manifest.permission.ACCESS_COARSE_LOCATION);
-    }
+    public static boolean hasPermissions(Context ctx, String[] permissions) {
+        for (String perm : permissions) {
+            if (!hasPermission(ctx, perm))
+                return false;
+        }
 
-    public static boolean hasFineLocationPermission(Context ctx) {
-        return hasPermission(ctx, Manifest.permission.ACCESS_COARSE_LOCATION) && hasPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION);
-    }
-
-    public static boolean hasCallStatePermission(Context ctx) {
-        return hasPermission(ctx, Manifest.permission.READ_PHONE_STATE);
+        return true;
     }
 
     private static boolean hasPermission(Context ctx, String permission) {

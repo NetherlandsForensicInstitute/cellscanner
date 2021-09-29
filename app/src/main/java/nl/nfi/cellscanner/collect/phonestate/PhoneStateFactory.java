@@ -1,11 +1,8 @@
 package nl.nfi.cellscanner.collect.phonestate;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
 import android.telephony.TelephonyManager;
 
-import nl.nfi.cellscanner.Preferences;
 import nl.nfi.cellscanner.collect.DataReceiver;
 import nl.nfi.cellscanner.collect.SubscriptionDataCollector;
 
@@ -20,11 +17,7 @@ public class PhoneStateFactory {
 
         @Override
         public String[] requiredPermissions() {
-            return new String[] {
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.READ_PHONE_STATE,
-            };
+            return CellInfoCallback.PERMISSIONS;
         }
     }
 
@@ -37,9 +30,7 @@ public class PhoneStateFactory {
 
         @Override
         public String[] requiredPermissions() {
-            return new String[] {
-                    Manifest.permission.READ_PHONE_STATE,
-            };
+            return CallStateCallback.PERMISSIONS;
         }
     }
 }
