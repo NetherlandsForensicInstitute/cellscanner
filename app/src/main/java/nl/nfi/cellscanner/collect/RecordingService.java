@@ -22,7 +22,9 @@ import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import nl.nfi.cellscanner.CellscannerApp;
 import nl.nfi.cellscanner.CellStatus;
@@ -30,9 +32,7 @@ import nl.nfi.cellscanner.Database;
 import nl.nfi.cellscanner.Preferences;
 import nl.nfi.cellscanner.ViewMeasurementsActivity;
 import nl.nfi.cellscanner.R;
-import nl.nfi.cellscanner.collect.phonestate.PhoneStateDataCollector;
 import nl.nfi.cellscanner.PermissionSupport;
-import nl.nfi.cellscanner.collect.telephonycallback.TelephonyDataCollector;
 
 /**
  * Service responsible for recording the Location data and storing it in the database
@@ -45,14 +45,8 @@ public class RecordingService extends Service {
     private static final int PERMISSION_NOTIFICATION_ID = 2;
 
     private NotificationManager notificationManager;
-    private DataCollector phone_state_collector;
-    private DataCollector location_collector;
+    private final Map<String,DataCollector> collectors = new HashMap<>();
     private PowerManager.WakeLock wakeLock;
-
-    public interface DataCollector {
-        void resume(Context ctx, Intent intent);
-        void cleanup(Context ctx);
-    }
 
     @Override
     public void onCreate() {
@@ -68,16 +62,6 @@ public class RecordingService extends Service {
         db.storeInstallID(getApplicationContext());
         db.storeVersionCode(getApplicationContext());
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-            phone_state_collector = new PhoneStateDataCollector(this);
-        } else {
-            phone_state_collector = new PhoneStateDataCollector(this);
-            // TODO: test API level 31+
-            //phone_state_collector = new TelephonyDataCollector(this);
-        }
-
-        location_collector = new LocationCollector(this);
-
         PowerManager powerManager = (PowerManager)getSystemService(POWER_SERVICE);
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "cellscanner::RecordingWakelock");
         wakeLock.acquire();
@@ -89,8 +73,22 @@ public class RecordingService extends Service {
      */
     @SuppressLint("MissingPermission")
     protected synchronized void updateRecordingState(Context ctx, Intent intent) {
-        phone_state_collector.resume(ctx, intent);
-        location_collector.resume(ctx, intent);
+        for (String name : Preferences.COLLECTORS) {
+            if (Preferences.isRecordingEnabled(ctx, intent) && Preferences.isCollectorEnabled(name, ctx, intent)) {
+                if (collectors.containsKey(name))
+                    collectors.get(name).resume(ctx, intent);
+                else {
+                    DataCollector collector = CellscannerApp.createCollector(name, new DataReceiver(this));
+                    collectors.put(name, collector);
+                    collector.resume(ctx, intent);
+                }
+            } else {
+                if (collectors.containsKey(name)) {
+                    collectors.get(name).cleanup(ctx);
+                    collectors.remove(name);
+                }
+            }
+        }
 
         if (!notifyPermissionRequired()) {
             try {
@@ -99,7 +97,7 @@ public class RecordingService extends Service {
                         STATUS_NOTIFICATION_ID,
                         getActivityNotification(msg)
                 );
-                refreshMeasurementsView();
+                ViewMeasurementsActivity.refresh(ctx);
             } catch (Throwable e) {
                 CellscannerApp.getDatabase().storeMessage(e);
             }
@@ -117,8 +115,9 @@ public class RecordingService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        phone_state_collector.cleanup(getApplicationContext());
-        location_collector.cleanup(getApplicationContext());
+        for (DataCollector collector : collectors.values()) {
+            collector.cleanup(getApplicationContext());
+        }
         wakeLock.release();
     }
 
@@ -196,25 +195,5 @@ public class RecordingService extends Service {
 
             return true;
         }
-    }
-
-    public void registerCellStatus(String subscription, Date date_start, Date date_end, CellStatus status) {
-        CellscannerApp.getDatabase().updateCellStatus(subscription, date_start, date_end, status);
-        refreshMeasurementsView();
-    }
-
-    public void registerCallState(String subscription, int state) {
-        CellscannerApp.getDatabase().storeCallState(state);
-        refreshMeasurementsView();
-    }
-
-    public void registerLocation(Location location) {
-        CellscannerApp.getDatabase().storeLocationInfo(location);
-        refreshMeasurementsView();
-    }
-
-    private void refreshMeasurementsView() {
-        Intent intent = new Intent(ViewMeasurementsActivity.REFRESH_BROADCAST);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 }

@@ -6,10 +6,18 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Build;
 import android.util.Log;
 
 import java.io.File;
 import java.util.Locale;
+
+import nl.nfi.cellscanner.collect.DataCollector;
+import nl.nfi.cellscanner.collect.DataReceiver;
+import nl.nfi.cellscanner.collect.LocationCollector;
+import nl.nfi.cellscanner.collect.RecordingService;
+import nl.nfi.cellscanner.collect.SubscriptionDataCollector;
+import nl.nfi.cellscanner.collect.phonestate.PhoneStateFactory;
 
 /**
  * Main application state
@@ -91,5 +99,36 @@ public class CellscannerApp extends Application {
         } catch (PackageManager.NameNotFoundException e) {
             return null;
         }
+    }
+
+    public static DataCollector createCollector(String name, DataReceiver receiver) {
+        if (name.equals(Preferences.PREF_CELLINFO_RECORDING)) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                return new SubscriptionDataCollector(receiver, new PhoneStateFactory.CellInfoFactory());
+            } else {
+                return new SubscriptionDataCollector(receiver, new PhoneStateFactory.CellInfoFactory());
+                // TODO: test API level 31+
+                //factory = new CellInfoFactory();
+            }
+        }
+
+        if (name.equals(Preferences.PREF_CALL_STATE_RECORDING)) {
+            SubscriptionDataCollector.SubscriptionCallbackFactory factory;
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                factory = new PhoneStateFactory.CallStateFactory();
+            } else {
+                factory = new PhoneStateFactory.CallStateFactory();
+                // TODO: test API level 31+
+                //factory = new CallStateFactory();
+            }
+
+            return new SubscriptionDataCollector(receiver, factory);
+        }
+
+        if (name.equals(Preferences.PREF_LOCATION_RECORDING)) {
+            return new LocationCollector(receiver);
+        }
+
+        throw new RuntimeException("no such collector: "+name);
     }
 }

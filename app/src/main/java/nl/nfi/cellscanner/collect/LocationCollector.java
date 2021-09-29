@@ -1,5 +1,6 @@
 package nl.nfi.cellscanner.collect;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -12,26 +13,29 @@ import com.google.android.gms.location.LocationServices;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import nl.nfi.cellscanner.CellscannerApp;
 import nl.nfi.cellscanner.Preferences;
 import nl.nfi.cellscanner.PermissionSupport;
 
-public class LocationCollector implements RecordingService.DataCollector {
-    private final RecordingService service;
+public class LocationCollector implements DataCollector {
+    private final DataReceiver service;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationCallback locationCallback;
 
-    public LocationCollector(RecordingService service) {
+    public LocationCollector(DataReceiver service) {
         this.service = service;
 
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(service);
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(service.getContext());
 
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 super.onLocationResult(locationResult);
                 try {
-                    service.registerLocation(locationResult.getLastLocation());
+                    service.storeLocation(locationResult.getLastLocation());
                 } catch (Throwable e) {
                     CellscannerApp.getDatabase().storeMessage(e);
                 }
@@ -49,9 +53,17 @@ public class LocationCollector implements RecordingService.DataCollector {
         LocationRequest locationRequest = LocationRequest.create();
         locationRequest.setInterval(CellscannerApp.LOCATION_INTERVAL_MILLIS);
         locationRequest.setFastestInterval(CellscannerApp.LOCATION_FASTEST_INTERVAL_MILLIS);
-        locationRequest.setPriority(Preferences.getLocationAccuracy(service, intent));
+        locationRequest.setPriority(Preferences.getLocationAccuracy(service.getContext(), intent));
         locationRequest.setSmallestDisplacement(CellscannerApp.LOCATION_MINIMUM_DISPLACEMENT_MTRS);
         return locationRequest;
+    }
+
+    @Override
+    public String[] requiredPermissions() {
+        return new String[] {
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+        };
     }
 
     @SuppressLint("MissingPermission")

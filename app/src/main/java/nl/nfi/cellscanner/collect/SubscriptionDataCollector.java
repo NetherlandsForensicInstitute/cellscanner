@@ -12,14 +12,17 @@ import java.util.Map;
 
 import nl.nfi.cellscanner.PermissionSupport;
 
-public abstract class SubscriptionDataCollector implements RecordingService.DataCollector {
-    private final RecordingService service;
-    private SubscriptionManager subscriptionManager;
-    private TelephonyManager defaultTelephonyManager;
+public class SubscriptionDataCollector implements DataCollector {
+    private final DataReceiver receiver;
+    private final SubscriptionCallbackFactory factory;
+    private final SubscriptionManager subscriptionManager;
+    private final TelephonyManager defaultTelephonyManager;
 
-    public interface CallbackFactory {
-        boolean getRunState(Context ctx, Intent intent);
-        PhoneStateCallback createCallback(int subscription_id, String name, TelephonyManager defaultTelephonyManager, RecordingService service);
+    private Map<String, PhoneStateCallback> callbacks = new HashMap<>();
+
+    public interface SubscriptionCallbackFactory {
+        String[] requiredPermissions();
+        PhoneStateCallback createCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager, DataReceiver service);
     }
 
     public interface PhoneStateCallback {
@@ -27,21 +30,22 @@ public abstract class SubscriptionDataCollector implements RecordingService.Data
         void stop();
     }
 
-    public SubscriptionDataCollector(RecordingService service) {
-        this.service = service;
+    public SubscriptionDataCollector(DataReceiver receiver, SubscriptionCallbackFactory factory) {
+        this.receiver = receiver;
+        this.factory = factory;
 
-        defaultTelephonyManager = (TelephonyManager) service.getSystemService(Context.TELEPHONY_SERVICE);
-        subscriptionManager = (SubscriptionManager) service.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
+        defaultTelephonyManager = (TelephonyManager) receiver.getContext().getSystemService(Context.TELEPHONY_SERVICE);
+        subscriptionManager = (SubscriptionManager) receiver.getContext().getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
         subscriptionManager.addOnSubscriptionsChangedListener(new SubscriptionManager.OnSubscriptionsChangedListener() {
             @Override
             public void onSubscriptionsChanged() {
-                resume(service.getApplicationContext(), null);
+                resume(receiver.getContext(), null);
             }
         });
     }
 
     @SuppressLint("MissingPermission")
-    protected synchronized Map<String, PhoneStateCallback> updateCallbacks(Context ctx, Intent intent, Map<String, PhoneStateCallback> old_list, CallbackFactory factory, boolean enable) {
+    protected synchronized Map<String, PhoneStateCallback> updateCallbacks(Context ctx, Intent intent, Map<String, PhoneStateCallback> old_list, SubscriptionCallbackFactory factory, boolean enable) {
         Map<String, PhoneStateCallback> new_list = new HashMap<>();
         if (PermissionSupport.hasCallStatePermission(ctx)) {
             for (SubscriptionInfo subscr : subscriptionManager.getActiveSubscriptionInfoList()) {
@@ -50,7 +54,7 @@ public abstract class SubscriptionDataCollector implements RecordingService.Data
                     new_list.put(subscription_name, old_list.get(subscription_name));
                     old_list.remove(subscription_name);
                 } else {
-                    new_list.put(subscription_name, factory.createCallback(subscr.getSubscriptionId(), subscription_name, defaultTelephonyManager, service));
+                    new_list.put(subscription_name, factory.createCallback(ctx, subscr.getSubscriptionId(), subscription_name, defaultTelephonyManager, receiver));
                 }
             }
         }
@@ -62,7 +66,7 @@ public abstract class SubscriptionDataCollector implements RecordingService.Data
 
         // unregister listeners for removed subscriptions
         for (PhoneStateCallback phst : new_list.values()) {
-            if (enable && factory.getRunState(ctx, intent))
+            if (enable)
                 phst.resume();
             else
                 phst.stop();
@@ -71,7 +75,14 @@ public abstract class SubscriptionDataCollector implements RecordingService.Data
         return new_list;
     }
 
-    public abstract void update(Context ctx, Intent intent, boolean enable);
+    public void update(Context ctx, Intent intent, boolean enable) {
+        callbacks = updateCallbacks(ctx, intent, callbacks, factory, enable);
+    }
+
+    @Override
+    public String[] requiredPermissions() {
+        return factory.requiredPermissions();
+    }
 
     @Override
     public void resume(Context ctx, Intent intent) {

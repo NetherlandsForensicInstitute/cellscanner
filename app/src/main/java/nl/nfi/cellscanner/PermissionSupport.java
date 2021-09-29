@@ -5,11 +5,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.util.Log;
 
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import nl.nfi.cellscanner.collect.DataCollector;
+import nl.nfi.cellscanner.collect.DataReceiver;
 
 /**
  * Utility class used to check if permissions are set
@@ -20,12 +24,16 @@ public class PermissionSupport {
     public static List<String> getMissingPermissions(Context ctx, Intent extra) {
         List<String> missing_permissions = new ArrayList<String>();
 
-        if (!PermissionSupport.hasCourseLocationPermission(ctx))
-            missing_permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
-        if (!PermissionSupport.hasFineLocationPermission(ctx))
-            missing_permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
-        if (!PermissionSupport.hasCallStatePermission(ctx))
-            missing_permissions.add(Manifest.permission.READ_PHONE_STATE);
+        for (String name : Preferences.COLLECTORS) {
+            if (Preferences.isRecordingEnabled(ctx, extra) && Preferences.isCollectorEnabled(name, ctx, extra)) {
+                DataCollector collector = CellscannerApp.createCollector(name, new DataReceiver(ctx));
+                for (String perm : collector.requiredPermissions()) {
+                    if (!hasPermission(ctx, perm)) {
+                        missing_permissions.add(perm);
+                    }
+                }
+            }
+        }
 
         return missing_permissions;
     }

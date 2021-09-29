@@ -1,5 +1,6 @@
 package nl.nfi.cellscanner.collect.phonestate;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.telephony.CellInfo;
@@ -10,20 +11,23 @@ import android.util.Log;
 import java.util.List;
 
 import nl.nfi.cellscanner.collect.CellInfoState;
+import nl.nfi.cellscanner.collect.DataReceiver;
 import nl.nfi.cellscanner.collect.RecordingService;
 import nl.nfi.cellscanner.PermissionSupport;
 
+@Deprecated
 public class CellInfoCallback extends AbstractCallback {
+    private final Context ctx;
     private final CellInfoState state;
 
-    public CellInfoCallback(int subscription_id, String name, TelephonyManager defaultTelephonyManager, RecordingService service) {
+    public CellInfoCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager, DataReceiver service) {
         super(subscription_id, name, defaultTelephonyManager, service);
+        this.ctx = ctx;
         state = new CellInfoState(name, service);
     }
 
     @SuppressLint("MissingPermission")
     public void resume() {
-        Context ctx = service.getApplicationContext();
         if (PermissionSupport.hasCallStatePermission(ctx) && PermissionSupport.hasCourseLocationPermission(ctx) && PermissionSupport.hasFineLocationPermission(ctx)) {
             super.listen(PhoneStateListener.LISTEN_CELL_INFO);
             onCellInfoChanged(mgr.getAllCellInfo());

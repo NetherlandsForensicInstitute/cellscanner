@@ -11,12 +11,12 @@ import nl.nfi.cellscanner.CellscannerApp;
 
 public class CellInfoState {
     private final String subscription;
-    private final RecordingService service;
+    private final DataReceiver service;
 
     private CellStatus cell_status = null;
     private Date cell_start_timestamp = null;
 
-    public CellInfoState(String substription, RecordingService service) {
+    public CellInfoState(String substription, DataReceiver service) {
         this.subscription = substription;
         this.service = service;
     }
@@ -63,6 +63,6 @@ public class CellInfoState {
 
     private void store(Date end_date) {
         if (cell_status != null)
-            service.registerCellStatus(subscription, cell_start_timestamp, end_date, cell_status);
+            service.storeCellStatus(subscription, cell_start_timestamp, end_date, cell_status);
     }
 }

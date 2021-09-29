@@ -81,12 +81,12 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
     private void updateLogViewer() {
         Database db = CellscannerApp.getDatabase();
         StringBuffer ci_status = new StringBuffer();
-        ci_status.append(String.format("recording: %s\n\n", Preferences.isRecordingEnabled(getApplicationContext()) ? "enabled" : "disabled"));
+        ci_status.append(String.format("recording: %s\n\n", (Preferences.isRecordingEnabled(this) && Preferences.isCollectorEnabled(Preferences.PREF_CELLINFO_RECORDING, this, null)) ? "enabled" : "disabled"));
         ci_status.append(db.getUpdateStatus());
         vlCILastUpdate.setText(ci_status);
 
         StringBuffer location_status = new StringBuffer();
-        location_status.append(String.format("recording: %s\n\n", Preferences.isLocationRecordingEnabled(getApplicationContext(), null) ? "enabled" : "disabled"));
+        location_status.append(String.format("recording: %s\n\n", (Preferences.isRecordingEnabled(this) && Preferences.isLocationRecordingEnabled(this, null)) ? "enabled" : "disabled"));
         location_status.append(db.getLocationUpdateStatus());
         vl_location_status.setText(location_status);
     }
@@ -139,6 +139,11 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
          */
         Log.i("WORK", key);
         setAutoUploadData();
+    }
+
+    public static void refresh(Context ctx) {
+        Intent intent = new Intent(ViewMeasurementsActivity.REFRESH_BROADCAST);
+        LocalBroadcastManager.getInstance(ctx).sendBroadcast(intent);
     }
 }
 

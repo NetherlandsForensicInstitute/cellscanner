@@ -29,6 +29,7 @@ public class Preferences extends PreferenceFragmentCompat
 {
     // recording preferences
     public final static String PREF_ENABLE = "APP_RECORDING";  // APP should be recording data
+    public final static String PREF_CELLINFO_RECORDING = "CELLINFO_RECORDING";
     public final static String PREF_CALL_STATE_RECORDING = "CALL_STATE_RECORDING";
     public final static String PREF_LOCATION_RECORDING = "LOCATION_RECORDING";  // APP should record GPS data when in Recording state
     public final static String PREF_LOCATION_ACCURACY = "LOCATION_ACCURACY";
@@ -48,7 +49,14 @@ public class Preferences extends PreferenceFragmentCompat
     private static final String PREF_MESSAGE_PUBLIC_KEY = "MESSAGE_PUBLIC_KEY";
     private static final String PREF_SSH_KNOWN_HOSTS = "SSH_KNOWN_HOSTS";
 
+    public static final String[] COLLECTORS = new String[]{
+            PREF_CELLINFO_RECORDING,
+            PREF_CALL_STATE_RECORDING,
+            PREF_LOCATION_RECORDING,
+    };
+
     protected SwitchPreferenceCompat swRecordingMaster;
+    protected SwitchPreferenceCompat swCellInfo;
     protected SwitchPreferenceCompat swCallState;
     protected SwitchPreferenceCompat swGPSRecord;
     protected ListPreference swLocationAccuracy;
@@ -106,13 +114,21 @@ public class Preferences extends PreferenceFragmentCompat
         return value;
     }
 
-    public static boolean isCallStateRecordingEnabled(Context context, Intent intent) {
-        return getBooleanPreference(context, intent, Preferences.PREF_CALL_STATE_RECORDING, false);
+    public static boolean isCollectorEnabled(String name, Context context, Intent intent) {
+        return getBooleanPreference(context, intent, name, false);
     }
 
-    public void setCallStateRecording(boolean enabled) {
-        swCallState.setChecked(enabled);
-        swCallState.callChangeListener(enabled);
+    public void setCollectorEnabled(String name, boolean enabled) {
+        if (name.equals(PREF_CELLINFO_RECORDING)) {
+            swCellInfo.setChecked(enabled);
+            swCellInfo.callChangeListener(enabled);
+        } else if (name.equals(PREF_CALL_STATE_RECORDING)) {
+            swCallState.setChecked(enabled);
+            swCallState.callChangeListener(enabled);
+        } else if (name.equals(PREF_LOCATION_RECORDING)) {
+            swGPSRecord.setChecked(enabled);
+            swGPSRecord.callChangeListener(enabled);
+        }
     }
 
     /**
@@ -204,11 +220,13 @@ public class Preferences extends PreferenceFragmentCompat
 
     private void setupRecording() {
         swRecordingMaster = findPreference(PREF_ENABLE);
+        swCellInfo = findPreference(PREF_CELLINFO_RECORDING);
         swCallState = findPreference(PREF_CALL_STATE_RECORDING);
         swGPSRecord = findPreference(PREF_LOCATION_RECORDING);
         swLocationAccuracy = findPreference(PREF_LOCATION_ACCURACY);
 
         swLocationAccuracy.setEnabled(swGPSRecord.isEnabled() && swGPSRecord.isChecked());
+        swCellInfo.setEnabled(getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_TELEPHONY));
         swCallState.setEnabled(getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_TELEPHONY));
 
         swRecordingMaster.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
@@ -226,6 +244,16 @@ public class Preferences extends PreferenceFragmentCompat
 
                 return true;
             }
+        });
+
+        swCellInfo.setOnPreferenceChangeListener((preference, newValue) -> {
+            boolean enabled = (boolean)newValue;
+
+            Intent intent = new Intent();
+            intent.putExtra(PREF_CELLINFO_RECORDING, enabled);
+            RecorderUtils.applyRecordingPolicy(getContext(), intent);
+
+            return true;
         });
 
         swCallState.setOnPreferenceChangeListener((preference, newValue) -> {

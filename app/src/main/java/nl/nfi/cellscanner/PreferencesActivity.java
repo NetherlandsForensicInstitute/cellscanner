@@ -1,12 +1,12 @@
 package nl.nfi.cellscanner;
 
-import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,6 +23,8 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
+import nl.nfi.cellscanner.collect.DataCollector;
+import nl.nfi.cellscanner.collect.DataReceiver;
 import nl.nfi.cellscanner.collect.RecorderUtils;
 
 public class PreferencesActivity
@@ -135,13 +137,16 @@ public class PreferencesActivity
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         // update switches on denied requests
-        for (int i=0 ; i< permissions.length ; i++) {
-            if (permissions[i].equals(Manifest.permission.ACCESS_COARSE_LOCATION) && grantResults[i] == PackageManager.PERMISSION_DENIED) {
-                prefs.setRecordingEnabled(false);
-            }
-            if (permissions[i].equals(Manifest.permission.READ_PHONE_STATE) && grantResults[i] == PackageManager.PERMISSION_DENIED) {
-                prefs.setRecordingEnabled(false);
-                prefs.setCallStateRecording(false);
+        for (String name : Preferences.COLLECTORS) {
+            if (Preferences.isCollectorEnabled(name, this, null)) {
+                DataCollector collector = CellscannerApp.createCollector(name, new DataReceiver(this));
+                for (String perm : collector.requiredPermissions()) {
+                    for (int i=0 ; i< permissions.length ; i++) {
+                        if (permissions[i].equals(perm) && grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                            prefs.setCollectorEnabled(name, false);
+                        }
+                    }
+                }
             }
         }
 

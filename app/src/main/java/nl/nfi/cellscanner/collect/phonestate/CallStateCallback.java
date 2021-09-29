@@ -1,22 +1,29 @@
 package nl.nfi.cellscanner.collect.phonestate;
 
+import android.Manifest;
 import android.content.Context;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import nl.nfi.cellscanner.CellscannerApp;
+import nl.nfi.cellscanner.collect.DataReceiver;
 import nl.nfi.cellscanner.collect.RecordingService;
 import nl.nfi.cellscanner.PermissionSupport;
 
+@Deprecated
 public class CallStateCallback extends AbstractCallback {
-    public CallStateCallback(int subscription_id, String name, TelephonyManager defaultTelephonyManager, RecordingService service) {
+    private final Context ctx;
+    private final DataReceiver receiver;
+
+    public CallStateCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager, DataReceiver service) {
         super(subscription_id, name, defaultTelephonyManager, service);
+        this.ctx = ctx;
+        this.receiver = service;
     }
 
     @Override
     public void resume() {
-        Context ctx = service.getApplicationContext();
         if (PermissionSupport.hasCallStatePermission(ctx)) {
             super.listen(PhoneStateListener.LISTEN_CALL_STATE);
         } else {
@@ -32,7 +39,7 @@ public class CallStateCallback extends AbstractCallback {
     @Override
     public void onCallStateChanged(int state, String phoneNumber) {
         try {
-            service.registerCallState(subscription, state);
+            receiver.storeCallState(subscription, state);
         } catch (Throwable e) {
             CellscannerApp.getDatabase().storeMessage(e);
         }
