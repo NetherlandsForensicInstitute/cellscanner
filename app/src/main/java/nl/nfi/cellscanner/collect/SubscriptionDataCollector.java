@@ -12,42 +12,41 @@ import java.util.Map;
 
 import nl.nfi.cellscanner.PermissionSupport;
 
-public class SubscriptionDataCollector implements DataCollector {
+public abstract class SubscriptionDataCollector implements DataCollector {
     private final DataReceiver receiver;
-    private final SubscriptionCallbackFactory factory;
     private SubscriptionManager subscriptionManager = null;
     private final TelephonyManager defaultTelephonyManager;
 
     private Map<String, PhoneStateCallback> callbacks = new HashMap<>();
 
-    public interface SubscriptionCallbackFactory {
-        String[] requiredPermissions();
-        PhoneStateCallback createCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager, DataReceiver service);
+    public abstract String[] requiredPermissions();
+
+    public String[] requiredPermissions(Intent intent) {
+        return requiredPermissions();
     }
+    public abstract PhoneStateCallback createCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager, DataReceiver service);
 
     public interface PhoneStateCallback {
         void resume();
         void stop();
     }
 
-    public SubscriptionDataCollector(DataReceiver receiver, SubscriptionCallbackFactory factory) {
+    public SubscriptionDataCollector(DataReceiver receiver) {
         this.receiver = receiver;
-        this.factory = factory;
-
         defaultTelephonyManager = (TelephonyManager) receiver.getContext().getSystemService(Context.TELEPHONY_SERVICE);
     }
 
     @SuppressLint("MissingPermission")
-    protected synchronized Map<String, PhoneStateCallback> updateCallbacks(Context ctx, Intent intent, Map<String, PhoneStateCallback> old_list, SubscriptionCallbackFactory factory, boolean enable) {
+    protected synchronized Map<String, PhoneStateCallback> updateCallbacks(Intent intent, Map<String, PhoneStateCallback> old_list, boolean enable) {
         Map<String, PhoneStateCallback> new_list = new HashMap<>();
-        if (PermissionSupport.hasPermissions(ctx, requiredPermissions())) {
+        if (PermissionSupport.hasPermissions(receiver.getContext(), requiredPermissions())) {
             for (SubscriptionInfo subscr : subscriptionManager.getActiveSubscriptionInfoList()) {
                 String subscription_name = subscr.getDisplayName().toString();
                 if (old_list.containsKey(subscription_name)) {
                     new_list.put(subscription_name, old_list.get(subscription_name));
                     old_list.remove(subscription_name);
                 } else {
-                    new_list.put(subscription_name, factory.createCallback(ctx, subscr.getSubscriptionId(), subscription_name, defaultTelephonyManager, receiver));
+                    new_list.put(subscription_name, createCallback(receiver.getContext(), subscr.getSubscriptionId(), subscription_name, defaultTelephonyManager, receiver));
                 }
             }
         }
@@ -68,32 +67,27 @@ public class SubscriptionDataCollector implements DataCollector {
         return new_list;
     }
 
-    public void update(Context ctx, Intent intent, boolean enable) {
-        callbacks = updateCallbacks(ctx, intent, callbacks, factory, enable);
+    public void update(Intent intent, boolean enable) {
+        callbacks = updateCallbacks(intent, callbacks, enable);
     }
 
     @Override
-    public String[] requiredPermissions() {
-        return factory.requiredPermissions();
-    }
-
-    @Override
-    public void resume(Context ctx, Intent intent) {
+    public void resume(Intent intent) {
         if (subscriptionManager == null) {
             subscriptionManager = (SubscriptionManager) receiver.getContext().getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
             subscriptionManager.addOnSubscriptionsChangedListener(new SubscriptionManager.OnSubscriptionsChangedListener() {
                 @Override
                 public void onSubscriptionsChanged() {
-                resume(receiver.getContext(), null);
+                resume(null);
                 }
             });
         } else {
-            update(ctx, intent, true);
+            update(intent, true);
         }
     }
 
     @Override
-    public void cleanup(Context ctx) {
-        update(ctx, null, false);
+    public void cleanup() {
+        update(null, false);
     }
 }

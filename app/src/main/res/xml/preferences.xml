@@ -7,8 +7,8 @@
 
         <SwitchPreferenceCompat
             app:key="APP_RECORDING"
-            app:title="Recording"
-            app:summary="Enable data recording"
+            app:title="Enable"
+            app:summary="Enable data collection"
             app:defaultValue="false"/>
 
         <SwitchPreferenceCompat
@@ -16,6 +16,14 @@
             app:title="Store cells"
             app:summary="Store cellular network data"
             app:defaultValue="false"/>
+
+        <ListPreference
+            app:key="CELLINFO_METHOD"
+            app:title="Cell data collection method"
+            app:summary="The Android OS offers several alternative APIs for collecting cell data, some of which may not work on buggy handsets. Choose one that works for you."
+            app:entries="@array/CELLINFO_METHOD_NAMES"
+            app:entryValues="@array/CELLINFO_METHOD_VALUES"
+            app:defaultValue="AUTO" />
 
         <SwitchPreferenceCompat
             app:key="LOCATION_RECORDING"

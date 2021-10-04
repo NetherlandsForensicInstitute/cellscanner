@@ -8,7 +8,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
@@ -19,15 +18,12 @@ import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import nl.nfi.cellscanner.CellscannerApp;
-import nl.nfi.cellscanner.CellStatus;
 import nl.nfi.cellscanner.Database;
 import nl.nfi.cellscanner.Preferences;
 import nl.nfi.cellscanner.ViewMeasurementsActivity;
@@ -69,22 +65,21 @@ public class RecordingService extends Service {
 
     /**
      * start or stop recording GPS data based on the app state
-     * @param ctx: Context of the running service
      */
     @SuppressLint("MissingPermission")
-    protected synchronized void updateRecordingState(Context ctx, Intent intent) {
+    protected synchronized void updateRecordingState(Intent intent) {
         for (String name : Preferences.COLLECTORS) {
-            if (Preferences.isRecordingEnabled(ctx, intent) && Preferences.isCollectorEnabled(name, ctx, intent)) {
+            if (Preferences.isRecordingEnabled(this, intent) && Preferences.isCollectorEnabled(name, this, intent)) {
                 if (collectors.containsKey(name))
-                    collectors.get(name).resume(ctx, intent);
+                    collectors.get(name).resume(intent);
                 else {
                     DataCollector collector = CellscannerApp.createCollector(name, new DataReceiver(this));
                     collectors.put(name, collector);
-                    collector.resume(ctx, intent);
+                    collector.resume(intent);
                 }
             } else {
                 if (collectors.containsKey(name)) {
-                    collectors.get(name).cleanup(ctx);
+                    collectors.get(name).cleanup();
                     collectors.remove(name);
                 }
             }
@@ -92,12 +87,12 @@ public class RecordingService extends Service {
 
         if (!notifyPermissionRequired()) {
             try {
-                String msg = Preferences.isRecordingEnabled(ctx, intent) ? "recording" : "idle";
+                String msg = Preferences.isRecordingEnabled(this, intent) ? "recording" : "idle";
                 notificationManager.notify(
                         STATUS_NOTIFICATION_ID,
                         getActivityNotification(msg)
                 );
-                ViewMeasurementsActivity.refresh(ctx);
+                ViewMeasurementsActivity.refresh(this);
             } catch (Throwable e) {
                 CellscannerApp.getDatabase().storeMessage(e);
             }
@@ -107,7 +102,7 @@ public class RecordingService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // Check if the application should start recording GPS
-        updateRecordingState(getApplicationContext(), intent);
+        updateRecordingState(intent);
 
         return START_STICKY;
     }
@@ -116,7 +111,7 @@ public class RecordingService extends Service {
     public void onDestroy() {
         super.onDestroy();
         for (DataCollector collector : collectors.values()) {
-            collector.cleanup(getApplicationContext());
+            collector.cleanup();
         }
         wakeLock.release();
     }

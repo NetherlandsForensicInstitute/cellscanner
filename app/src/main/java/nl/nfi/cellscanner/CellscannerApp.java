@@ -2,6 +2,7 @@ package nl.nfi.cellscanner;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
@@ -12,12 +13,13 @@ import android.util.Log;
 import java.io.File;
 import java.util.Locale;
 
+import nl.nfi.cellscanner.collect.CellInfoCollector;
 import nl.nfi.cellscanner.collect.DataCollector;
 import nl.nfi.cellscanner.collect.DataReceiver;
 import nl.nfi.cellscanner.collect.LocationCollector;
 import nl.nfi.cellscanner.collect.SubscriptionDataCollector;
-import nl.nfi.cellscanner.collect.phonestate.PhoneStateCallStateFactory;
-import nl.nfi.cellscanner.collect.phonestate.PhoneStateCellInfoFactory;
+import nl.nfi.cellscanner.collect.phonestate.PhoneStateCallStateCollector;
+import nl.nfi.cellscanner.collect.phonestate.PhoneStateCellInfoCollector;
 
 /**
  * Main application state
@@ -103,26 +105,17 @@ public class CellscannerApp extends Application {
 
     public static DataCollector createCollector(String name, DataReceiver receiver) {
         if (name.equals(Preferences.PREF_CELLINFO_RECORDING)) {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-                return new SubscriptionDataCollector(receiver, new PhoneStateCellInfoFactory());
-            } else {
-                return new SubscriptionDataCollector(receiver, new PhoneStateCellInfoFactory());
-                // TODO: test API level 31+
-                //factory = new CellInfoFactory();
-            }
+            return new CellInfoCollector(receiver);
         }
 
         if (name.equals(Preferences.PREF_CALL_STATE_RECORDING)) {
-            SubscriptionDataCollector.SubscriptionCallbackFactory factory;
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-                factory = new PhoneStateCallStateFactory();
+                return new PhoneStateCallStateCollector(receiver);
             } else {
-                factory = new PhoneStateCallStateFactory();
+                return new PhoneStateCallStateCollector(receiver);
                 // TODO: test API level 31+
                 //factory = new CallStateFactory();
             }
-
-            return new SubscriptionDataCollector(receiver, factory);
         }
 
         if (name.equals(Preferences.PREF_LOCATION_RECORDING)) {

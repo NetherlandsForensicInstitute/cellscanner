@@ -27,7 +27,7 @@ public class PermissionSupport {
         for (String name : Preferences.COLLECTORS) {
             if (Preferences.isRecordingEnabled(ctx, extra) && Preferences.isCollectorEnabled(name, ctx, extra)) {
                 DataCollector collector = CellscannerApp.createCollector(name, new DataReceiver(ctx));
-                for (String perm : collector.requiredPermissions()) {
+                for (String perm : collector.requiredPermissions(extra)) {
                     if (!hasPermission(ctx, perm)) {
                         missing_permissions.add(perm);
                     }

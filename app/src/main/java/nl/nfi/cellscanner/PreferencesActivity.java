@@ -140,7 +140,7 @@ public class PreferencesActivity
         for (String name : Preferences.COLLECTORS) {
             if (Preferences.isCollectorEnabled(name, this, null)) {
                 DataCollector collector = CellscannerApp.createCollector(name, new DataReceiver(this));
-                for (String perm : collector.requiredPermissions()) {
+                for (String perm : collector.requiredPermissions(null)) {
                     for (int i=0 ; i< permissions.length ; i++) {
                         if (permissions[i].equals(perm) && grantResults[i] == PackageManager.PERMISSION_DENIED) {
                             prefs.setCollectorEnabled(name, false);

@@ -16,10 +16,14 @@ import nl.nfi.cellscanner.collect.DataReceiver;
 import nl.nfi.cellscanner.collect.SubscriptionDataCollector;
 
 @RequiresApi(api = Build.VERSION_CODES.S)
-public class TelephonyCallStateFactory implements SubscriptionDataCollector.SubscriptionCallbackFactory {
+public class TelephonyCallStateCollector extends SubscriptionDataCollector {
     public static final String[] PERMISSIONS = new String[] {
             Manifest.permission.READ_PHONE_STATE,
     };
+
+    public TelephonyCallStateCollector(DataReceiver receiver) {
+        super(receiver);
+    }
 
     @Override
     public String[] requiredPermissions() {

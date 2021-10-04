@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -30,6 +31,7 @@ public class Preferences extends PreferenceFragmentCompat
     // recording preferences
     public final static String PREF_ENABLE = "APP_RECORDING";  // APP should be recording data
     public final static String PREF_CELLINFO_RECORDING = "CELLINFO_RECORDING";
+    public final static String PREF_CELLINFO_METHOD = "CELLINFO_METHOD";
     public final static String PREF_CALL_STATE_RECORDING = "CALL_STATE_RECORDING";
     public final static String PREF_LOCATION_RECORDING = "LOCATION_RECORDING";  // APP should record GPS data when in Recording state
     public final static String PREF_LOCATION_ACCURACY = "LOCATION_ACCURACY";
@@ -57,6 +59,7 @@ public class Preferences extends PreferenceFragmentCompat
 
     protected SwitchPreferenceCompat swRecordingMaster;
     protected SwitchPreferenceCompat swCellInfo;
+    protected ListPreference swCellInfoMethod;
     protected SwitchPreferenceCompat swCallState;
     protected SwitchPreferenceCompat swGPSRecord;
     protected ListPreference swLocationAccuracy;
@@ -129,6 +132,19 @@ public class Preferences extends PreferenceFragmentCompat
             swGPSRecord.setChecked(enabled);
             swGPSRecord.callChangeListener(enabled);
         }
+    }
+
+    public static String getCellInfoMethod(Context context, Intent intent) {
+        String value = null;
+        if (intent != null)
+            value = intent.getStringExtra(Preferences.PREF_CELLINFO_METHOD);
+        if (value == null)
+            value = android.preference.PreferenceManager.getDefaultSharedPreferences(context)
+                    .getString(Preferences.PREF_CELLINFO_METHOD, null);
+        if (value == null)
+            value = "AUTO";
+
+        return value;
     }
 
     /**
@@ -221,12 +237,16 @@ public class Preferences extends PreferenceFragmentCompat
     private void setupRecording() {
         swRecordingMaster = findPreference(PREF_ENABLE);
         swCellInfo = findPreference(PREF_CELLINFO_RECORDING);
+        swCellInfoMethod = findPreference(PREF_CELLINFO_METHOD);
         swCallState = findPreference(PREF_CALL_STATE_RECORDING);
         swGPSRecord = findPreference(PREF_LOCATION_RECORDING);
         swLocationAccuracy = findPreference(PREF_LOCATION_ACCURACY);
 
         swLocationAccuracy.setEnabled(swGPSRecord.isEnabled() && swGPSRecord.isChecked());
+
         swCellInfo.setEnabled(getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_TELEPHONY));
+        swCellInfoMethod.setEnabled(swCellInfo.isEnabled() && swCellInfo.isChecked());
+
         swCallState.setEnabled(getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_TELEPHONY));
 
         swRecordingMaster.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
@@ -251,6 +271,20 @@ public class Preferences extends PreferenceFragmentCompat
 
             Intent intent = new Intent();
             intent.putExtra(PREF_CELLINFO_RECORDING, enabled);
+            RecorderUtils.applyRecordingPolicy(getContext(), intent);
+
+            swCellInfoMethod.setEnabled(enabled);
+
+            return true;
+        });
+
+        swCellInfoMethod.setOnPreferenceChangeListener((preference, newValue) -> {
+            if (newValue.equals("TELEPHONY_CALLBACK") && android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                return false;
+            }
+
+            Intent intent = new Intent();
+            intent.putExtra(PREF_CELLINFO_METHOD, (String)newValue);
             RecorderUtils.applyRecordingPolicy(getContext(), intent);
 
             return true;

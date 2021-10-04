@@ -59,7 +59,7 @@ public class LocationCollector implements DataCollector {
     }
 
     @Override
-    public String[] requiredPermissions() {
+    public String[] requiredPermissions(Intent intent) {
         return new String[] {
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION,
@@ -68,20 +68,16 @@ public class LocationCollector implements DataCollector {
 
     @SuppressLint("MissingPermission")
     @Override
-    public void resume(Context ctx, Intent intent) {
-        if (PermissionSupport.hasPermissions(ctx, requiredPermissions())) {
-            fusedLocationProviderClient.requestLocationUpdates(
-                    createLocationRequest(intent),
-                    locationCallback,
-                    null
-            );
-        } else {
-            fusedLocationProviderClient.removeLocationUpdates(locationCallback);
-        }
+    public void resume(Intent intent) {
+        fusedLocationProviderClient.requestLocationUpdates(
+                createLocationRequest(intent),
+                locationCallback,
+                null
+        );
     }
 
     @Override
-    public void cleanup(Context ctx) {
+    public void cleanup() {
         fusedLocationProviderClient.removeLocationUpdates(locationCallback);
     }
 }

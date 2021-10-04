@@ -21,12 +21,16 @@ import nl.nfi.cellscanner.collect.DataReceiver;
 import nl.nfi.cellscanner.collect.SubscriptionDataCollector;
 
 @RequiresApi(api = Build.VERSION_CODES.S)
-public class TelephonyCellInfoFactory implements SubscriptionDataCollector.SubscriptionCallbackFactory {
+public class TelephonyCellInfoCollector extends SubscriptionDataCollector {
     public static final String[] PERMISSIONS = new String[] {
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.READ_PHONE_STATE,
     };
+
+    public TelephonyCellInfoCollector(DataReceiver receiver) {
+        super(receiver);
+    }
 
     @Override
     public SubscriptionDataCollector.PhoneStateCallback createCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager, DataReceiver service) {
@@ -65,12 +69,12 @@ public class TelephonyCellInfoFactory implements SubscriptionDataCollector.Subsc
         @Override
         public void stop() {
             mgr.unregisterTelephonyCallback(this);
-            state.onCellInfoChanged(null);
+            state.updateCellStatus(null);
         }
 
         @Override
         public void onCellInfoChanged(@NonNull List<CellInfo> list) {
-            state.onCellInfoChanged(list);
+            state.updateCellInfo(list);
         }
     }
 }

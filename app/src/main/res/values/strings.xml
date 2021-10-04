@@ -45,6 +45,6 @@ with support from the European Union&apos;s Horizon 2020 research and innovation
     <string name="terms_and_conditions_accept">I understand and accept the terms and conditions as listed above</string>
     <string name="terms_and_conditions_close">Close</string>
     <string name="valueBaseText">no data</string>
-    <string name="prominent_disclosure_text">This app collects location data to enable location logging even when the app is closed or not in use.</string>
+    <string name="prominent_disclosure_text">This app collects location data to enable location logging even when the app is closed or not in use. NOTE: depending on the Android version you may have to change location permission to "Always" in Android settings for this app.</string>
     <string name="apply_settings_text">WARNING: About to apply settings from a file. Accept only if you trust the source of this file. Proceed?</string>
 </resources>

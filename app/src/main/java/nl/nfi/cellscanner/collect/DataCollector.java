@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 
 public interface DataCollector {
-    String[] requiredPermissions();
-    void resume(Context ctx, Intent intent);
-    void cleanup(Context ctx);
+    String[] requiredPermissions(Intent intent);
+    void resume(Intent intent);
+    void cleanup();
 }
