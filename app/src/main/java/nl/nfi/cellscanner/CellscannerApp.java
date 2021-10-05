@@ -2,7 +2,6 @@ package nl.nfi.cellscanner;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
@@ -13,13 +12,11 @@ import android.util.Log;
 import java.io.File;
 import java.util.Locale;
 
-import nl.nfi.cellscanner.collect.CellInfoCollector;
+import nl.nfi.cellscanner.collect.cellinfo.CellInfoCollector;
 import nl.nfi.cellscanner.collect.DataCollector;
 import nl.nfi.cellscanner.collect.DataReceiver;
 import nl.nfi.cellscanner.collect.LocationCollector;
-import nl.nfi.cellscanner.collect.SubscriptionDataCollector;
 import nl.nfi.cellscanner.collect.phonestate.PhoneStateCallStateCollector;
-import nl.nfi.cellscanner.collect.phonestate.PhoneStateCellInfoCollector;
 
 /**
  * Main application state

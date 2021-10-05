@@ -1,15 +1,11 @@
 package nl.nfi.cellscanner.collect;
 
 import android.content.Context;
-import android.content.Intent;
 import android.location.Location;
-import android.util.Log;
-
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.util.Date;
 
-import nl.nfi.cellscanner.CellStatus;
+import nl.nfi.cellscanner.collect.cellinfo.CellStatus;
 import nl.nfi.cellscanner.CellscannerApp;
 import nl.nfi.cellscanner.ViewMeasurementsActivity;
 

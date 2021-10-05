@@ -1,4 +1,4 @@
-package nl.nfi.cellscanner.collect;
+package nl.nfi.cellscanner.collect.cellinfo;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -17,9 +17,10 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import nl.nfi.cellscanner.CellStatus;
 import nl.nfi.cellscanner.CellscannerApp;
 import nl.nfi.cellscanner.PermissionSupport;
+import nl.nfi.cellscanner.collect.DataCollector;
+import nl.nfi.cellscanner.collect.DataReceiver;
 
 public class TimerCellInfoCollector implements DataCollector {
     // update frequency of network data
@@ -33,7 +34,7 @@ public class TimerCellInfoCollector implements DataCollector {
 
     private final DataReceiver receiver;
     private final TelephonyManager defaultTelephonyManager;
-    private final Map<String,CellInfoState> states = new HashMap<String,CellInfoState>();
+    private final Map<String, CellInfoState> states = new HashMap<String,CellInfoState>();
     private Date last_date = null;
 
     public TimerCellInfoCollector(DataReceiver receiver) {

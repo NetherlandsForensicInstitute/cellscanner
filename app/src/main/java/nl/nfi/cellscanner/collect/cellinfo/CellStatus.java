@@ -1,4 +1,4 @@
-package nl.nfi.cellscanner;
+package nl.nfi.cellscanner.collect.cellinfo;
 
 import android.content.ContentValues;
 import android.telephony.CellInfo;

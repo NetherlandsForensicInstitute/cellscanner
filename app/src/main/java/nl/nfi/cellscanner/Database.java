@@ -20,6 +20,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import nl.nfi.cellscanner.collect.cellinfo.CellStatus;
+
 public class Database {
     protected static final int VERSION = 4;
 

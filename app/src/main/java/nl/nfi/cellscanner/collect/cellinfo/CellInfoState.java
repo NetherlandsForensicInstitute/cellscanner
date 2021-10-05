@@ -1,13 +1,12 @@
-package nl.nfi.cellscanner.collect;
+package nl.nfi.cellscanner.collect.cellinfo;
 
 import android.telephony.CellInfo;
-import android.util.Log;
 
 import java.util.Date;
 import java.util.List;
 
-import nl.nfi.cellscanner.CellStatus;
 import nl.nfi.cellscanner.CellscannerApp;
+import nl.nfi.cellscanner.collect.DataReceiver;
 
 public class CellInfoState {
     private final String subscription;

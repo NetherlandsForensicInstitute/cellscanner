@@ -11,7 +11,7 @@ import android.util.Log;
 import java.util.List;
 
 import nl.nfi.cellscanner.PermissionSupport;
-import nl.nfi.cellscanner.collect.CellInfoState;
+import nl.nfi.cellscanner.collect.cellinfo.CellInfoState;
 import nl.nfi.cellscanner.collect.DataReceiver;
 import nl.nfi.cellscanner.collect.SubscriptionDataCollector;
 
