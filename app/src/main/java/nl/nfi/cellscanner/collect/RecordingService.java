@@ -19,6 +19,7 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,10 +88,15 @@ public class RecordingService extends Service {
 
         if (!notifyPermissionRequired()) {
             try {
-                String msg = Preferences.isRecordingEnabled(this, intent) ? "recording" : "idle";
+                List<String> names = new ArrayList<>();
+                for (int i=0 ; i<Preferences.COLLECTORS.length ; i++) {
+                    if (Preferences.isCollectorEnabled(Preferences.COLLECTORS[i], this, null))
+                        names.add(Preferences.COLLECTOR_NAMES[i]);
+                }
+                String msg = "recording: "+TextUtils.join(", ", names);
                 notificationManager.notify(
                         STATUS_NOTIFICATION_ID,
-                        getActivityNotification(msg)
+                        getActivityNotification(msg.toString())
                 );
                 ViewMeasurementsActivity.refresh(this);
             } catch (Throwable e) {

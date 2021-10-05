@@ -5,11 +5,11 @@
     <PreferenceCategory
         app:title="Recording settings" >
 
-        <SwitchPreferenceCompat
+        <!--SwitchPreferenceCompat
             app:key="APP_RECORDING"
             app:title="Enable"
             app:summary="Enable data collection"
-            app:defaultValue="false"/>
+            app:defaultValue="false"/-->
 
         <SwitchPreferenceCompat
             app:key="CELLINFO_RECORDING"

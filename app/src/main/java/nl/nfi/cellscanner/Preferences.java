@@ -57,6 +57,12 @@ public class Preferences extends PreferenceFragmentCompat
             PREF_LOCATION_RECORDING,
     };
 
+    public static final String[] COLLECTOR_NAMES = new String[]{
+            "cell data",
+            "call state",
+            "locations",
+    };
+
     protected SwitchPreferenceCompat swRecordingMaster;
     protected SwitchPreferenceCompat swCellInfo;
     protected ListPreference swCellInfoMethod;
@@ -95,7 +101,15 @@ public class Preferences extends PreferenceFragmentCompat
      * @return State of the Recording key, when True the app should record cell data
      */
     public static boolean isRecordingEnabled(Context context, Intent intent) {
-        return getBooleanPreference(context, intent, Preferences.PREF_ENABLE, false);
+        if (!getBooleanPreference(context, intent, Preferences.PREF_ENABLE, true))
+            return false;
+
+        for (String collector : COLLECTORS) {
+            if (isCollectorEnabled(collector, context, intent))
+                return true;
+        }
+
+        return false;
     }
 
     public static boolean isRecordingEnabled(Context context) {
@@ -103,8 +117,10 @@ public class Preferences extends PreferenceFragmentCompat
     }
 
     public void setRecordingEnabled(boolean enabled) {
-        swRecordingMaster.setChecked(enabled);
-        swRecordingMaster.callChangeListener(enabled);
+        if (swRecordingMaster != null) {
+            swRecordingMaster.setChecked(enabled);
+            swRecordingMaster.callChangeListener(enabled);
+        }
     }
 
     private static boolean getBooleanPreference(Context context, Intent intent, String key, boolean default_value) {
@@ -249,22 +265,24 @@ public class Preferences extends PreferenceFragmentCompat
 
         swCallState.setEnabled(getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_TELEPHONY));
 
-        swRecordingMaster.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                boolean enabled = (boolean)newValue;
+        if (swRecordingMaster != null) {
+            swRecordingMaster.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    boolean enabled = (boolean) newValue;
 
-                Intent intent = new Intent();
-                intent.putExtra(PREF_ENABLE, enabled);
-                RecorderUtils.applyRecordingPolicy(getContext(), intent);
+                    Intent intent = new Intent();
+                    intent.putExtra(PREF_ENABLE, enabled);
+                    RecorderUtils.applyRecordingPolicy(getContext(), intent);
 
-                //swGPSRecord.setEnabled(enabled);
-                //swLocationAccuracy.setEnabled(swGPSRecord.isEnabled() && swGPSRecord.isChecked());
-                //swCallState.setEnabled(enabled);
+                    //swGPSRecord.setEnabled(enabled);
+                    //swLocationAccuracy.setEnabled(swGPSRecord.isEnabled() && swGPSRecord.isChecked());
+                    //swCallState.setEnabled(enabled);
 
-                return true;
-            }
-        });
+                    return true;
+                }
+            });
+        }
 
         swCellInfo.setOnPreferenceChangeListener((preference, newValue) -> {
             boolean enabled = (boolean)newValue;
