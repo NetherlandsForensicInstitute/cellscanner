@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import nl.nfi.cellscanner.collect.TrafficCollector;
 import nl.nfi.cellscanner.collect.cellinfo.CellStatus;
 
 public class Database {
@@ -92,8 +93,8 @@ public class Database {
             long now = new Date().getTime();
             if (count > 0 && now > first) {
                 StringBuffer s = new StringBuffer();
-                s.append(String.format("updated: %s\n", fmt.format(last)));
-                s.append(String.format("%d measurements since %d minutes\n", count, (now - first) / 1000 / 60));
+                s.append(String.format("updated: %s<br/>", fmt.format(last)));
+                s.append(String.format("%d measurements since %d minutes<br/>", count, (now - first) / 1000 / 60));
                 return s.toString();
             } else {
                 return "No measurements.";
@@ -110,7 +111,7 @@ public class Database {
 
         Cursor c = db.rawQuery("SELECT subscription, MIN(date_start), MAX(date_end), SUM(date_end - date_start) FROM cellinfo GROUP BY subscription", new String[]{});
         try {
-            for (;c.moveToNext();) {
+            for (int i=0 ; c.moveToNext() ; i++) {
                 String subscription = c.getString(0);
                 long first = c.getLong(1);
                 long last = c.getLong(2);
@@ -118,10 +119,11 @@ public class Database {
 
                 long now = new Date().getTime();
                 long coverage = 100 * time_sum / (now - first);
-                s.append(String.format("%s: %s\n", subscription, getLatestCell(subscription)));
-                s.append(String.format("coverage: %d%% since %s\n", coverage, fmt.format(first)));
-                s.append(String.format("updated: %s\n", fmt.format(last)));
-                s.append("\n");
+                if (i > 0)
+                    s.append("<p/>");
+                s.append(String.format("%s: %s<br/>", subscription, getLatestCell(subscription)));
+                s.append(String.format("coverage: %d%% since %s<br/>", coverage, fmt.format(first)));
+                s.append(String.format("updated: %s<br/>", fmt.format(last)));
             }
 
             if (s.length() == 0)
@@ -206,14 +208,14 @@ public class Database {
         setMetaEntry(META_INSTALL_ID, install_id);
     }
 
-    public void storeMessage(Throwable e) {
+    public static void storeMessage(Throwable e) {
         StringWriter msg = new StringWriter();
         PrintWriter writer = new PrintWriter(msg);
         e.printStackTrace(writer);
         storeMessage(msg.toString());
     }
 
-    public void storeMessage(String msg) {
+    public static void storeMessage(String msg) {
         // message should not exceed maximum length
         if (msg.length() > 250)
             msg = msg.substring(0, 250);
@@ -221,7 +223,7 @@ public class Database {
         ContentValues content = new ContentValues();
         content.put("date", new Date().getTime());
         content.put("message", msg);
-        db.insert("message", null, content);
+        CellscannerApp.getDatabaseConnection().insert("message", null, content);
     }
 
     public void storeLocationInfo(Location location) {
@@ -294,9 +296,11 @@ public class Database {
         if (oldVersion < 4) {
             db.execSQL("ALTER TABLE cellinfo ADD COLUMN subscription VARCHAR(20) NOT NULL DEFAULT 'unknown'");
         }
+
+        TrafficCollector.upgradeDatabase(db, oldVersion, newVersion);
     }
 
-    private static void createTable(SQLiteDatabase db, String tab, String[] cols) {
+    public static void createTable(SQLiteDatabase db, String tab, String[] cols) {
         db.execSQL(String.format("CREATE TABLE IF NOT EXISTS %s (%s)", tab, TextUtils.join(",", cols)));
     }
 

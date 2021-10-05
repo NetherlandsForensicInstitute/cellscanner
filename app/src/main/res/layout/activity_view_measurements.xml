@@ -22,7 +22,7 @@
                             android:layout_height="1dp"
                             android:layout_marginTop="20dp"
                             android:background="?android:attr/listDivider"
-                            app:layout_constraintBottom_toTopOf="@+id/cell_status_title"
+                            app:layout_constraintBottom_toTopOf="@+id/status_title"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintHorizontal_bias="1.0"
                             app:layout_constraintStart_toStartOf="parent" />
@@ -37,7 +37,7 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintHorizontal_bias="1.0"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/cell_status" />
+                            app:layout_constraintTop_toBottomOf="@+id/status_text" />
 
                         <View
                             android:id="@+id/dividerdeux2"
@@ -48,66 +48,7 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintHorizontal_bias="1.0"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/location_status" />
-
-                        <TextView
-                            android:id="@+id/location_status"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="25dp"
-                            android:layout_marginEnd="25dp"
-                            android:layout_marginTop="10dp"
-                            android:text="@string/valueBaseText"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/location_status_title" />
-
-
-                        <TextView
-                            android:id="@+id/location_status_title"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:ems="10"
-                            android:text="Location info"
-                            android:textSize="18sp"
-                            android:textStyle="bold"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/dividerdeux" />
-
-                        <TextView
-                            android:id="@+id/upload_status_title"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:ems="10"
-                            android:text="Upload status"
-                            android:textSize="18sp"
-                            android:textStyle="bold"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/dividerdeux2" />
-
-                        <TextView
-                            android:id="@+id/cell_status_title"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:ems="10"
-                            android:text="Cell Info"
-                            android:textSize="18sp"
-                            android:textStyle="bold"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="@+id/divideruno" />
-
-                        <TextView
-                            android:id="@+id/cell_status"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="25dp"
-                            android:layout_marginEnd="25dp"
-                            android:layout_marginTop="10dp"
-                            android:text="@string/valueBaseText"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/cell_status_title" />
+                            app:layout_constraintTop_toBottomOf="@+id/upload_status_content" />
 
                         <TextView
                             android:id="@+id/upload_status_content"
@@ -119,6 +60,42 @@
                             android:text="@string/valueBaseText"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@+id/upload_status_title" />
+
+
+                        <TextView
+                            android:id="@+id/upload_status_title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:ems="10"
+                            android:text="Upload status"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/dividerdeux" />
+
+                        <TextView
+                            android:id="@+id/status_title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:ems="10"
+                            android:text="Cellscanner Status"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="@+id/divideruno" />
+
+                        <TextView
+                            android:id="@+id/status_text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="25dp"
+                            android:layout_marginEnd="25dp"
+                            android:layout_marginTop="10dp"
+                            android:text="@string/valueBaseText"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/status_title" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
         </ScrollView>

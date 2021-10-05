@@ -21,9 +21,18 @@ import androidx.preference.SwitchPreferenceCompat;
 import com.google.android.gms.location.LocationRequest;
 
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
+import nl.nfi.cellscanner.collect.CollectorFactory;
+import nl.nfi.cellscanner.collect.DataCollector;
+import nl.nfi.cellscanner.collect.LocationCollector;
 import nl.nfi.cellscanner.collect.RecorderUtils;
+import nl.nfi.cellscanner.collect.TrafficCollector;
+import nl.nfi.cellscanner.collect.cellinfo.CellInfoCollectorFactory;
+import nl.nfi.cellscanner.collect.phonestate.PhoneStateCallStateCollector;
 import nl.nfi.cellscanner.upload.UploadUtils;
 
 public class Preferences extends PreferenceFragmentCompat
@@ -35,6 +44,7 @@ public class Preferences extends PreferenceFragmentCompat
     public final static String PREF_CALL_STATE_RECORDING = "CALL_STATE_RECORDING";
     public final static String PREF_LOCATION_RECORDING = "LOCATION_RECORDING";  // APP should record GPS data when in Recording state
     public final static String PREF_LOCATION_ACCURACY = "LOCATION_ACCURACY";
+    public final static String PREF_ENABLE_IP_TRAFFIC = "ENABLE_IP_TRAFFIC";
 
     // data management preferences
     private static final String PREF_VIEW_MEASUREMENTS = "VIEW_MEASUREMENTS";
@@ -51,17 +61,13 @@ public class Preferences extends PreferenceFragmentCompat
     private static final String PREF_MESSAGE_PUBLIC_KEY = "MESSAGE_PUBLIC_KEY";
     private static final String PREF_SSH_KNOWN_HOSTS = "SSH_KNOWN_HOSTS";
 
-    public static final String[] COLLECTORS = new String[]{
-            PREF_CELLINFO_RECORDING,
-            PREF_CALL_STATE_RECORDING,
-            PREF_LOCATION_RECORDING,
-    };
-
-    public static final String[] COLLECTOR_NAMES = new String[]{
-            "cell data",
-            "call state",
-            "locations",
-    };
+    public static final Map<String, CollectorFactory> COLLECTORS = new HashMap<>();
+    static {
+        COLLECTORS.put(Preferences.PREF_CELLINFO_RECORDING, new CellInfoCollectorFactory());
+        COLLECTORS.put(Preferences.PREF_LOCATION_RECORDING, new LocationCollector.Factory());
+        COLLECTORS.put(Preferences.PREF_CALL_STATE_RECORDING, new PhoneStateCallStateCollector.Factory());
+        COLLECTORS.put(Preferences.PREF_ENABLE_IP_TRAFFIC, new TrafficCollector.Factory());
+    }
 
     protected SwitchPreferenceCompat swRecordingMaster;
     protected SwitchPreferenceCompat swCellInfo;
@@ -69,6 +75,7 @@ public class Preferences extends PreferenceFragmentCompat
     protected SwitchPreferenceCompat swCallState;
     protected SwitchPreferenceCompat swGPSRecord;
     protected ListPreference swLocationAccuracy;
+    protected SwitchPreferenceCompat swEnableIPTraffic;
 
     /**
      * Returns a unique identifier (UUID) for this Cellscanner setup. The value should be the same for
@@ -104,7 +111,7 @@ public class Preferences extends PreferenceFragmentCompat
         if (!getBooleanPreference(context, intent, Preferences.PREF_ENABLE, true))
             return false;
 
-        for (String collector : COLLECTORS) {
+        for (String collector : COLLECTORS.keySet()) {
             if (isCollectorEnabled(collector, context, intent))
                 return true;
         }
@@ -133,6 +140,13 @@ public class Preferences extends PreferenceFragmentCompat
         return value;
     }
 
+    public static DataCollector createCollector(String name, Context ctx) {
+        if (!COLLECTORS.containsKey(name))
+            throw new RuntimeException("no such collector: "+name);
+
+        return COLLECTORS.get(name).createCollector(ctx);
+    }
+
     public static boolean isCollectorEnabled(String name, Context context, Intent intent) {
         return getBooleanPreference(context, intent, name, false);
     }
@@ -147,6 +161,9 @@ public class Preferences extends PreferenceFragmentCompat
         } else if (name.equals(PREF_LOCATION_RECORDING)) {
             swGPSRecord.setChecked(enabled);
             swGPSRecord.callChangeListener(enabled);
+        } else if (name.equals(PREF_ENABLE_IP_TRAFFIC)) {
+            swEnableIPTraffic.setChecked(enabled);
+            swEnableIPTraffic.callChangeListener(enabled);
         }
     }
 
@@ -257,6 +274,7 @@ public class Preferences extends PreferenceFragmentCompat
         swCallState = findPreference(PREF_CALL_STATE_RECORDING);
         swGPSRecord = findPreference(PREF_LOCATION_RECORDING);
         swLocationAccuracy = findPreference(PREF_LOCATION_ACCURACY);
+        swEnableIPTraffic = findPreference(PREF_ENABLE_IP_TRAFFIC);
 
         swLocationAccuracy.setEnabled(swGPSRecord.isEnabled() && swGPSRecord.isChecked());
 
@@ -334,6 +352,18 @@ public class Preferences extends PreferenceFragmentCompat
             Intent intent = new Intent();
             intent.putExtra(PREF_LOCATION_ACCURACY, (String)newValue);
             RecorderUtils.applyRecordingPolicy(getContext(), intent);
+
+            return true;
+        });
+
+        swEnableIPTraffic.setOnPreferenceChangeListener((preference, newValue) -> {
+            boolean enabled = (boolean)newValue;
+
+            Intent intent = new Intent();
+            intent.putExtra(PREF_ENABLE_IP_TRAFFIC, enabled);
+            RecorderUtils.applyRecordingPolicy(getContext(), intent);
+
+            swEnableIPTraffic.setEnabled(enabled);
 
             return true;
         });

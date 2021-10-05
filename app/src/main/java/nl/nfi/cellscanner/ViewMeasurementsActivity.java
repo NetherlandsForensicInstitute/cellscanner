@@ -10,12 +10,16 @@ import android.util.Log;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.text.HtmlCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
 
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.Map;
 import java.util.TimeZone;
+
+import nl.nfi.cellscanner.collect.CollectorFactory;
 
 
 public class ViewMeasurementsActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -26,7 +30,8 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
         Communicate Activity <-> Service ... https://www.vogella.com/tutorials/AndroidServices/article.html
          */
     // ui
-    private TextView vlCILastUpdate, vl_location_status, vl_upload_status;
+    private TextView status_view;
+    private TextView upload_status;
 
     /**
      * Fires when the system first creates the activity
@@ -60,9 +65,8 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
     private void showRecorderScreen() {
         setContentView(nl.nfi.cellscanner.R.layout.activity_view_measurements);
 
-        vlCILastUpdate = findViewById(R.id.cell_status);
-        vl_location_status = findViewById(R.id.location_status);
-        vl_upload_status = findViewById(R.id.upload_status_content);
+        status_view = findViewById(R.id.status_text);
+        upload_status = findViewById(R.id.upload_status_content);
 
         // run initial update to inform the end user
         updateLogViewer();
@@ -79,16 +83,16 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
     }
 
     private void updateLogViewer() {
-        Database db = CellscannerApp.getDatabase();
-        StringBuffer ci_status = new StringBuffer();
-        ci_status.append(String.format("recording: %s\n\n", (Preferences.isRecordingEnabled(this) && Preferences.isCollectorEnabled(Preferences.PREF_CELLINFO_RECORDING, this, null)) ? "enabled" : "disabled"));
-        ci_status.append(db.getUpdateStatus());
-        vlCILastUpdate.setText(ci_status);
+        StringBuffer status = new StringBuffer();
+        for (Map.Entry<String, CollectorFactory> collector : Preferences.COLLECTORS.entrySet()) {
+            String enabled_text = (Preferences.isRecordingEnabled(this) && Preferences.isCollectorEnabled(collector.getKey(), this, null)) ? "enabled" : "disabled";
+            status.append("<p>");
+            status.append(String.format("<b>%s</b>: %s<br/>", collector.getValue().getTitle(), enabled_text));
+            status.append(collector.getValue().getStatusText());
+            status.append("</p>");
+        }
 
-        StringBuffer location_status = new StringBuffer();
-        location_status.append(String.format("recording: %s\n\n", (Preferences.isRecordingEnabled(this) && Preferences.isLocationRecordingEnabled(this, null)) ? "enabled" : "disabled"));
-        location_status.append(db.getLocationUpdateStatus());
-        vl_location_status.setText(location_status);
+        status_view.setText(HtmlCompat.fromHtml(status.toString(), 0));
     }
 
     private static String getDateTimeFromTimeStamp(Long time) {
@@ -127,7 +131,7 @@ public class ViewMeasurementsActivity extends AppCompatActivity implements Share
         if (version_name != null)
             statustext.append(String.format("cellscanner version: %s\n", version_name));
 
-        vl_upload_status.setText(statustext);
+        upload_status.setText(statustext);
     }
 
     @Override

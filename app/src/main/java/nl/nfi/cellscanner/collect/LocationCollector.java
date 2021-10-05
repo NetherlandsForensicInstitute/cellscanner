@@ -19,6 +19,7 @@ import java.util.List;
 import nl.nfi.cellscanner.CellscannerApp;
 import nl.nfi.cellscanner.Preferences;
 import nl.nfi.cellscanner.PermissionSupport;
+import nl.nfi.cellscanner.collect.phonestate.PhoneStateCallStateCollector;
 
 public class LocationCollector implements DataCollector {
     private final DataReceiver service;
@@ -79,5 +80,22 @@ public class LocationCollector implements DataCollector {
     @Override
     public void cleanup() {
         fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+    }
+
+    public static class Factory extends CollectorFactory {
+        @Override
+        public String getTitle() {
+            return "location";
+        }
+
+        @Override
+        public String getStatusText() {
+            return CellscannerApp.getDatabase().getLocationUpdateStatus();
+        }
+
+        @Override
+        public DataCollector createCollector(Context ctx) {
+            return new LocationCollector(new DataReceiver(ctx));
+        }
     }
 }

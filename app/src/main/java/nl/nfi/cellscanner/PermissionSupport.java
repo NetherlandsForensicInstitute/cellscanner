@@ -24,9 +24,9 @@ public class PermissionSupport {
     public static List<String> getMissingPermissions(Context ctx, Intent extra) {
         List<String> missing_permissions = new ArrayList<String>();
 
-        for (String name : Preferences.COLLECTORS) {
+        for (String name : Preferences.COLLECTORS.keySet()) {
             if (Preferences.isRecordingEnabled(ctx, extra) && Preferences.isCollectorEnabled(name, ctx, extra)) {
-                DataCollector collector = CellscannerApp.createCollector(name, new DataReceiver(ctx));
+                DataCollector collector = Preferences.createCollector(name, ctx);
                 for (String perm : collector.requiredPermissions(extra)) {
                     if (!hasPermission(ctx, perm)) {
                         missing_permissions.add(perm);

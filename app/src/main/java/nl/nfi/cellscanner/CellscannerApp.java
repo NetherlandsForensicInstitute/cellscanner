@@ -2,6 +2,7 @@ package nl.nfi.cellscanner;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
@@ -10,12 +11,17 @@ import android.os.Build;
 import android.util.Log;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
+import nl.nfi.cellscanner.collect.CollectorFactory;
+import nl.nfi.cellscanner.collect.TrafficCollector;
 import nl.nfi.cellscanner.collect.cellinfo.CellInfoCollector;
 import nl.nfi.cellscanner.collect.DataCollector;
 import nl.nfi.cellscanner.collect.DataReceiver;
 import nl.nfi.cellscanner.collect.LocationCollector;
+import nl.nfi.cellscanner.collect.cellinfo.CellInfoCollectorFactory;
 import nl.nfi.cellscanner.collect.phonestate.PhoneStateCallStateCollector;
 
 /**
@@ -41,12 +47,16 @@ public class CellscannerApp extends Application {
     private static SQLiteOpenHelper dbhelper;
     private static final int DATABASE_VERSION = Database.VERSION;
 
+    public static SQLiteDatabase getDatabaseConnection() {
+        return dbhelper.getWritableDatabase();
+    }
+
     /**
      * get or create a database to use within the application
      * @return Database
      */
     public static Database getDatabase() {
-        return new Database(dbhelper.getWritableDatabase());
+        return new Database(getDatabaseConnection());
     }
 
     /**
@@ -98,27 +108,5 @@ public class CellscannerApp extends Application {
         } catch (PackageManager.NameNotFoundException e) {
             return null;
         }
-    }
-
-    public static DataCollector createCollector(String name, DataReceiver receiver) {
-        if (name.equals(Preferences.PREF_CELLINFO_RECORDING)) {
-            return new CellInfoCollector(receiver);
-        }
-
-        if (name.equals(Preferences.PREF_CALL_STATE_RECORDING)) {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-                return new PhoneStateCallStateCollector(receiver);
-            } else {
-                return new PhoneStateCallStateCollector(receiver);
-                // TODO: test API level 31+
-                //factory = new CallStateFactory();
-            }
-        }
-
-        if (name.equals(Preferences.PREF_LOCATION_RECORDING)) {
-            return new LocationCollector(receiver);
-        }
-
-        throw new RuntimeException("no such collector: "+name);
     }
 }

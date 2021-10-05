@@ -137,9 +137,9 @@ public class PreferencesActivity
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         // update switches on denied requests
-        for (String name : Preferences.COLLECTORS) {
+        for (String name : Preferences.COLLECTORS.keySet()) {
             if (Preferences.isCollectorEnabled(name, this, null)) {
-                DataCollector collector = CellscannerApp.createCollector(name, new DataReceiver(this));
+                DataCollector collector = Preferences.createCollector(name, this);
                 for (String perm : collector.requiredPermissions(null)) {
                     for (int i=0 ; i< permissions.length ; i++) {
                         if (permissions[i].equals(perm) && grantResults[i] == PackageManager.PERMISSION_DENIED) {

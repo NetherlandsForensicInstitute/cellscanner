@@ -69,12 +69,12 @@ public class RecordingService extends Service {
      */
     @SuppressLint("MissingPermission")
     protected synchronized void updateRecordingState(Intent intent) {
-        for (String name : Preferences.COLLECTORS) {
+        for (String name : Preferences.COLLECTORS.keySet()) {
             if (Preferences.isRecordingEnabled(this, intent) && Preferences.isCollectorEnabled(name, this, intent)) {
                 if (collectors.containsKey(name))
                     collectors.get(name).resume(intent);
                 else {
-                    DataCollector collector = CellscannerApp.createCollector(name, new DataReceiver(this));
+                    DataCollector collector = Preferences.createCollector(name, this);
                     collectors.put(name, collector);
                     collector.resume(intent);
                 }
@@ -89,9 +89,9 @@ public class RecordingService extends Service {
         if (!notifyPermissionRequired()) {
             try {
                 List<String> names = new ArrayList<>();
-                for (int i=0 ; i<Preferences.COLLECTORS.length ; i++) {
-                    if (Preferences.isCollectorEnabled(Preferences.COLLECTORS[i], this, null))
-                        names.add(Preferences.COLLECTOR_NAMES[i]);
+                for (String name : Preferences.COLLECTORS.keySet()) {
+                    if (Preferences.isCollectorEnabled(name, this, null))
+                        names.add(Preferences.COLLECTORS.get(name).getTitle());
                 }
                 String msg = "recording: "+TextUtils.join(", ", names);
                 notificationManager.notify(

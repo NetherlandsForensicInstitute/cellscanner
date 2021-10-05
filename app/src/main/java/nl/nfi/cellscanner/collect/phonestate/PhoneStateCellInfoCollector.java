@@ -3,6 +3,7 @@ package nl.nfi.cellscanner.collect.phonestate;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.telephony.CellInfo;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -11,9 +12,12 @@ import android.util.Log;
 import java.util.List;
 
 import nl.nfi.cellscanner.PermissionSupport;
+import nl.nfi.cellscanner.collect.CollectorFactory;
+import nl.nfi.cellscanner.collect.DataCollector;
 import nl.nfi.cellscanner.collect.cellinfo.CellInfoState;
 import nl.nfi.cellscanner.collect.DataReceiver;
 import nl.nfi.cellscanner.collect.SubscriptionDataCollector;
+import nl.nfi.cellscanner.collect.telephonycallback.TelephonyCellInfoCollector;
 
 /**
  * Uses API which is deprecated at API level 31

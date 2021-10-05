@@ -2,6 +2,7 @@ package nl.nfi.cellscanner.collect.telephonycallback;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.telephony.CellInfo;
 import android.telephony.TelephonyCallback;
@@ -14,6 +15,9 @@ import androidx.annotation.RequiresApi;
 import java.util.List;
 
 import nl.nfi.cellscanner.PermissionSupport;
+import nl.nfi.cellscanner.collect.CollectorFactory;
+import nl.nfi.cellscanner.collect.DataCollector;
+import nl.nfi.cellscanner.collect.LocationCollector;
 import nl.nfi.cellscanner.collect.cellinfo.CellInfoState;
 import nl.nfi.cellscanner.collect.DataReceiver;
 import nl.nfi.cellscanner.collect.SubscriptionDataCollector;

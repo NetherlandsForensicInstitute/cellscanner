@@ -1,9 +1,11 @@
 package nl.nfi.cellscanner.collect.cellinfo;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 
 import nl.nfi.cellscanner.Preferences;
+import nl.nfi.cellscanner.collect.CollectorFactory;
 import nl.nfi.cellscanner.collect.DataCollector;
 import nl.nfi.cellscanner.collect.DataReceiver;
 import nl.nfi.cellscanner.collect.phonestate.PhoneStateCellInfoCollector;

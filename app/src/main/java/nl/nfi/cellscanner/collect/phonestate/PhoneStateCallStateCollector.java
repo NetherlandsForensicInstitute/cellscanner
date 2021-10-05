@@ -2,14 +2,19 @@ package nl.nfi.cellscanner.collect.phonestate;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import nl.nfi.cellscanner.CellscannerApp;
 import nl.nfi.cellscanner.PermissionSupport;
+import nl.nfi.cellscanner.collect.CollectorFactory;
+import nl.nfi.cellscanner.collect.DataCollector;
 import nl.nfi.cellscanner.collect.DataReceiver;
 import nl.nfi.cellscanner.collect.SubscriptionDataCollector;
+import nl.nfi.cellscanner.collect.cellinfo.CellInfoCollector;
+import nl.nfi.cellscanner.collect.telephonycallback.TelephonyCellInfoCollector;
 
 /**
  * Uses API which is deprecated at API level 31
@@ -66,6 +71,23 @@ public class PhoneStateCallStateCollector extends SubscriptionDataCollector {
             } catch (Throwable e) {
                 CellscannerApp.getDatabase().storeMessage(e);
             }
+        }
+    }
+
+    public static class Factory extends CollectorFactory {
+        @Override
+        public String getTitle() {
+            return "call state";
+        }
+
+        @Override
+        public String getStatusText() {
+            return "";
+        }
+
+        @Override
+        public DataCollector createCollector(Context ctx) {
+            return new PhoneStateCallStateCollector(new DataReceiver(ctx));
         }
     }
 }

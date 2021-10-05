@@ -13,7 +13,7 @@
 
         <SwitchPreferenceCompat
             app:key="CELLINFO_RECORDING"
-            app:title="Store cells"
+            app:title="Enable cell recording"
             app:summary="Store cellular network data"
             app:defaultValue="false"/>
 
@@ -27,7 +27,7 @@
 
         <SwitchPreferenceCompat
             app:key="LOCATION_RECORDING"
-            app:title="Store locations"
+            app:title="Enable location recording"
             app:summary="Store GPS locations"
             app:defaultValue="false"/>
 
@@ -41,8 +41,14 @@
 
         <SwitchPreferenceCompat
             app:key="CALL_STATE_RECORDING"
-            app:title="Store call state"
+            app:title="Enable call state recording"
             app:summary="Store a timestamp at the start and end of a call"
+            app:defaultValue="false"/>
+
+        <SwitchPreferenceCompat
+            app:key="ENABLE_IP_TRAFFIC"
+            app:title="Enable IP traffic"
+            app:summary="Generate IP traffic by downloading a 1MB file every 15 minutes"
             app:defaultValue="false"/>
 
     </PreferenceCategory>

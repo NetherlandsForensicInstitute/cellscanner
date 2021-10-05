@@ -12,6 +12,8 @@ import androidx.annotation.RequiresApi;
 
 import nl.nfi.cellscanner.PermissionSupport;
 import nl.nfi.cellscanner.Preferences;
+import nl.nfi.cellscanner.collect.CollectorFactory;
+import nl.nfi.cellscanner.collect.DataCollector;
 import nl.nfi.cellscanner.collect.DataReceiver;
 import nl.nfi.cellscanner.collect.SubscriptionDataCollector;
 
@@ -66,6 +68,23 @@ public class TelephonyCallStateCollector extends SubscriptionDataCollector {
         @Override
         public void onCallStateChanged(int i) {
             service.storeCallState(subscription, i);
+        }
+    }
+
+    public static class Factory extends CollectorFactory {
+        @Override
+        public String getTitle() {
+            return "call state";
+        }
+
+        @Override
+        public String getStatusText() {
+            return "";
+        }
+
+        @Override
+        public DataCollector createCollector(Context ctx) {
+            return new TelephonyCallStateCollector(new DataReceiver(ctx));
         }
     }
 }

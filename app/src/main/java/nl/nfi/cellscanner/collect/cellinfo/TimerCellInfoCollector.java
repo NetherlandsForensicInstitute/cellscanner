@@ -19,8 +19,10 @@ import java.util.TimerTask;
 
 import nl.nfi.cellscanner.CellscannerApp;
 import nl.nfi.cellscanner.PermissionSupport;
+import nl.nfi.cellscanner.collect.CollectorFactory;
 import nl.nfi.cellscanner.collect.DataCollector;
 import nl.nfi.cellscanner.collect.DataReceiver;
+import nl.nfi.cellscanner.collect.LocationCollector;
 
 public class TimerCellInfoCollector implements DataCollector {
     // update frequency of network data
@@ -42,7 +44,7 @@ public class TimerCellInfoCollector implements DataCollector {
         defaultTelephonyManager = (TelephonyManager) receiver.getContext().getSystemService(Context.TELEPHONY_SERVICE);
     }
 
-    private final Timer timer = new Timer();
+    private Timer timer = null;
 
     @Override
     public String[] requiredPermissions(Intent intent) {
@@ -50,18 +52,24 @@ public class TimerCellInfoCollector implements DataCollector {
     }
 
     @Override
-    public void resume(Intent intent) {
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                retrieveCellInfo();
-            }
-        }, UPDATE_DELAY_MILLIS, UPDATE_DELAY_MILLIS);
+    public synchronized void resume(Intent intent) {
+        if (timer == null) {
+            timer = new Timer();
+            timer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    retrieveCellInfo();
+                }
+            }, UPDATE_DELAY_MILLIS, UPDATE_DELAY_MILLIS);
+        }
     }
 
     @Override
-    public void cleanup() {
-        timer.cancel();
+    public synchronized void cleanup() {
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
     }
 
     /**

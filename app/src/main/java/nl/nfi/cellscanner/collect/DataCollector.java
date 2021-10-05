@@ -1,6 +1,5 @@
 package nl.nfi.cellscanner.collect;
 
-import android.content.Context;
 import android.content.Intent;
 
 public interface DataCollector {
