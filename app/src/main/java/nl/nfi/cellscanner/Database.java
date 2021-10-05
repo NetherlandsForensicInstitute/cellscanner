@@ -20,6 +20,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import nl.nfi.cellscanner.collect.CollectorFactory;
+import nl.nfi.cellscanner.collect.LocationCollector;
 import nl.nfi.cellscanner.collect.TrafficCollector;
 import nl.nfi.cellscanner.collect.cellinfo.CellStatus;
 
@@ -44,20 +46,6 @@ public class Database {
         this.db = db;
     }
 
-    private Long getLongFromSQL(String query) {
-        Cursor c = db.rawQuery(query, new String[]{});
-        try {
-            c.moveToNext();
-            if (c.isNull(0)) {
-                return null;
-            } else {
-                return c.getLong(0);
-            }
-        } finally {
-            c.close();
-        }
-    }
-
     private String getLatestCell(String subscription) {
         Cursor c = db.rawQuery("SELECT radio, mcc, mnc, area, cid FROM cellinfo WHERE subscription = ? ORDER BY date_end DESC LIMIT 1", new String[]{subscription});
         try {
@@ -70,34 +58,6 @@ public class Database {
                 return String.format("%s: %d-%d-%d-%d", radio, mcc, mnc, lac, cid);
             } else {
                 return "none";
-            }
-        } finally {
-            c.close();
-        }
-    }
-
-    private Date getTimestampFromSQL(String query) {
-        Long v = getLongFromSQL(query);
-        return v == null ? null : new Date(v);
-    }
-
-    public String getLocationUpdateStatus() {
-        DateFormat fmt = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
-
-        Cursor c = db.rawQuery("SELECT MIN(timestamp), MAX(timestamp), COUNT(*) FROM locationinfo", new String[]{});
-        try {
-            c.moveToNext();
-            long first = c.getLong(0);
-            long last = c.getLong(1);
-            int count = c.getInt(2);
-            long now = new Date().getTime();
-            if (count > 0 && now > first) {
-                StringBuffer s = new StringBuffer();
-                s.append(String.format("updated: %s<br/>", fmt.format(last)));
-                s.append(String.format("%d measurements since %d minutes<br/>", count, (now - first) / 1000 / 60));
-                return s.toString();
-            } else {
-                return "No measurements.";
             }
         } finally {
             c.close();
@@ -271,40 +231,18 @@ public class Database {
     /** drop data until a given timestamp **/
     public void dropDataUntil(long timestamp) {
         db.delete("message", "date <= ?", new String[]{Long.toString(timestamp)});
-        db.delete("cellinfo", "date_end <= ?", new String[]{Long.toString(timestamp)});
-        db.delete("locationinfo", "timestamp <= ?", new String[]{Long.toString(timestamp)});
+
+        for (CollectorFactory f : Preferences.COLLECTORS.values())
+            f.dropDataUntil(db, timestamp);
+
         db.execSQL("VACUUM");
-    }
-
-
-    protected static void upgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // TODO: remove NOT NULL constraint to some columns of `locationinfo` (applies to database version 2 and earlier)
-
-        if (oldVersion < 2) {
-            // no upgrade for versions prior to 2
-            createTables(db);
-            return;
-        }
-
-        if (oldVersion < 3) {
-            db.execSQL("ALTER TABLE locationinfo ADD COLUMN altitude_acc INT");
-            db.execSQL("ALTER TABLE locationinfo ADD COLUMN speed_acc INT");
-            db.execSQL("ALTER TABLE locationinfo ADD COLUMN bearing_deg INT");
-            db.execSQL("ALTER TABLE locationinfo ADD COLUMN bearing_deg_acc INT");
-        }
-
-        if (oldVersion < 4) {
-            db.execSQL("ALTER TABLE cellinfo ADD COLUMN subscription VARCHAR(20) NOT NULL DEFAULT 'unknown'");
-        }
-
-        TrafficCollector.upgradeDatabase(db, oldVersion, newVersion);
     }
 
     public static void createTable(SQLiteDatabase db, String tab, String[] cols) {
         db.execSQL(String.format("CREATE TABLE IF NOT EXISTS %s (%s)", tab, TextUtils.join(",", cols)));
     }
 
-    protected static void createTables(SQLiteDatabase db) {
+    public static void createTables(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS meta ("+
                 "  entry VARCHAR(200) NOT NULL PRIMARY KEY,"+
                 "  value TEXT NOT NULL"+
@@ -315,42 +253,12 @@ public class Database {
                 "  message VARCHAR(250) NOT NULL"+
                 ")");
 
-        db.execSQL("CREATE TABLE IF NOT EXISTS call_state ("+
-                "  date INT NOT NULL,"+
-                "  state VARCHAR(20) NOT NULL"+
-                ")");
+        for (CollectorFactory f : Preferences.COLLECTORS.values())
+            f.createTables(db);
+    }
 
-        db.execSQL("CREATE TABLE IF NOT EXISTS cellinfo ("+
-                "  subscription VARCHAR(20) NOT NULL,"+
-                "  date_start INT NOT NULL,"+
-                "  date_end INT NOT NULL,"+
-                "  registered INT NOT NULL,"+
-                "  radio VARCHAR(10) NOT NULL,"+ // radio technology (GSM, UMTS, LTE)
-                "  mcc INT NOT NULL,"+
-                "  mnc INT NOT NULL,"+
-                "  area INT NOT NULL,"+ // Location Area Code (GSM, UMTS) or TAC (LTE)
-                "  cid INT NOT NULL,"+ // Cell Identity (GSM: 16 bit; LTE: 28 bit)
-                "  bsic INT,"+ // Base Station Identity Code (GSM only)
-                "  arfcn INT,"+ // Absolute RF Channel Number (GSM only)
-                "  psc INT,"+ // 9-bit UMTS Primary Scrambling Code described in TS 25.331 (UMTS only/)
-                "  uarfcn INT,"+ // 16-bit UMTS Absolute RF Channel Number (UMTS only)
-                "  pci INT"+ // Physical Cell Id 0..503, Integer.MAX_VALUE if unknown (LTE only)
-                ")");
-
-        db.execSQL("CREATE INDEX IF NOT EXISTS cellinfo_date_end ON cellinfo(date_end)");
-
-        createTable(db, "locationinfo", new String[]{
-            "provider VARCHAR(200)",
-            "accuracy INT",  // accuracy in meters
-            "timestamp INT NOT NULL",
-            "latitude INT NOT NULL",
-            "longitude INT NOT NULL",
-            "altitude INT",  // altitude in meters
-            "altitude_acc INT",  // altitude accuracy in meters (available in Oreo and up)
-            "speed INT",  // speed in meters per second
-            "speed_acc INT",  // speed accuracy in meters per second (available in Oreo and up)
-            "bearing_deg INT",  // bearing in degrees
-            "bearing_deg_acc INT",  // bearing accuracy in degrees (available in Oreo and up)
-        });
+    public static void upgradeDatabase(SQLiteDatabase db, int oldVersion, int newVersion) {
+        for (CollectorFactory f : Preferences.COLLECTORS.values())
+            f.upgradeDatabase(db, oldVersion, newVersion);
     }
 }

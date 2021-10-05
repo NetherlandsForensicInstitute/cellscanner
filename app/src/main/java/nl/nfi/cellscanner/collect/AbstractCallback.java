@@ -1,4 +1,4 @@
-package nl.nfi.cellscanner.collect.phonestate;
+package nl.nfi.cellscanner.collect;
 
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;

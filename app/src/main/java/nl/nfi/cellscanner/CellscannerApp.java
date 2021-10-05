@@ -2,27 +2,16 @@ package nl.nfi.cellscanner;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.Build;
 import android.util.Log;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 import nl.nfi.cellscanner.collect.CollectorFactory;
-import nl.nfi.cellscanner.collect.TrafficCollector;
-import nl.nfi.cellscanner.collect.cellinfo.CellInfoCollector;
-import nl.nfi.cellscanner.collect.DataCollector;
-import nl.nfi.cellscanner.collect.DataReceiver;
-import nl.nfi.cellscanner.collect.LocationCollector;
-import nl.nfi.cellscanner.collect.cellinfo.CellInfoCollectorFactory;
-import nl.nfi.cellscanner.collect.phonestate.PhoneStateCallStateCollector;
 
 /**
  * Main application state
@@ -84,13 +73,13 @@ public class CellscannerApp extends Application {
         }
 
         @Override
-        public void onCreate(SQLiteDatabase sqLiteDatabase) {
-            Database.createTables(sqLiteDatabase);
+        public void onCreate(SQLiteDatabase db) {
+            Database.createTables(db);
         }
 
         @Override
-        public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-            Database.upgrade(sqLiteDatabase, oldVersion, newVersion);
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            Database.upgradeDatabase(db, oldVersion, newVersion);
         }
     }
 

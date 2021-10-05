@@ -36,6 +36,7 @@ public class TrafficCollector implements DataCollector {
     }
 
     public static void upgradeDatabase(SQLiteDatabase db, int oldVersion, int newVersion) {
+        new TrafficDatabase(db).createTables();
     }
 
     @Override
@@ -79,8 +80,6 @@ public class TrafficCollector implements DataCollector {
         }
 
         public void updateRecord(Context ctx, Date date_start, Date date_end, int bytes_read) {
-            createTables();
-
             ContentValues values = new ContentValues();
             values.put("date_end", date_end != null ? date_end.getTime() : -1);
             int nrows = db.update(TABLE_NAME, values, "date_start = ?", new String[]{Long.toString(date_start.getTime())});
@@ -97,7 +96,6 @@ public class TrafficCollector implements DataCollector {
         public String getStatusText() {
             DateFormat fmt = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
 
-            createTables();
             Cursor cur = db.rawQuery("SELECT MIN(date_start), MAX(date_end), COUNT(*) FROM "+TABLE_NAME+" WHERE date_end is NOT NULL", new String[]{});
             try {
                 cur.moveToNext();
@@ -169,6 +167,21 @@ public class TrafficCollector implements DataCollector {
         @Override
         public DataCollector createCollector(Context ctx) {
             return new TrafficCollector(ctx);
+        }
+
+        @Override
+        public void createTables(SQLiteDatabase db) {
+            new TrafficDatabase(db).createTables();
+        }
+
+        @Override
+        public void upgradeDatabase(SQLiteDatabase db, int oldVersion, int newVersion) {
+            new TrafficDatabase(db).createTables();
+        }
+
+        @Override
+        public void dropDataUntil(SQLiteDatabase db, long timestamp) {
+            db.delete(TABLE_NAME, "date_start <= ?", new String[]{Long.toString(timestamp)});
         }
     }
 }

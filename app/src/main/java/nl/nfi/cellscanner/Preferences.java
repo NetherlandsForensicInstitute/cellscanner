@@ -23,7 +23,6 @@ import com.google.android.gms.location.LocationRequest;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import nl.nfi.cellscanner.collect.CollectorFactory;
@@ -31,8 +30,9 @@ import nl.nfi.cellscanner.collect.DataCollector;
 import nl.nfi.cellscanner.collect.LocationCollector;
 import nl.nfi.cellscanner.collect.RecorderUtils;
 import nl.nfi.cellscanner.collect.TrafficCollector;
+import nl.nfi.cellscanner.collect.callstate.CallStateCollectorFactory;
 import nl.nfi.cellscanner.collect.cellinfo.CellInfoCollectorFactory;
-import nl.nfi.cellscanner.collect.phonestate.PhoneStateCallStateCollector;
+import nl.nfi.cellscanner.collect.callstate.PhoneStateCallStateCollector;
 import nl.nfi.cellscanner.upload.UploadUtils;
 
 public class Preferences extends PreferenceFragmentCompat
@@ -65,7 +65,7 @@ public class Preferences extends PreferenceFragmentCompat
     static {
         COLLECTORS.put(Preferences.PREF_CELLINFO_RECORDING, new CellInfoCollectorFactory());
         COLLECTORS.put(Preferences.PREF_LOCATION_RECORDING, new LocationCollector.Factory());
-        COLLECTORS.put(Preferences.PREF_CALL_STATE_RECORDING, new PhoneStateCallStateCollector.Factory());
+        COLLECTORS.put(Preferences.PREF_CALL_STATE_RECORDING, new CallStateCollectorFactory());
         COLLECTORS.put(Preferences.PREF_ENABLE_IP_TRAFFIC, new TrafficCollector.Factory());
     }
 

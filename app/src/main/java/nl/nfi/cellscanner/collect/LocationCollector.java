@@ -4,6 +4,8 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -13,13 +15,12 @@ import com.google.android.gms.location.LocationServices;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.text.DateFormat;
+import java.util.Date;
 
 import nl.nfi.cellscanner.CellscannerApp;
+import nl.nfi.cellscanner.Database;
 import nl.nfi.cellscanner.Preferences;
-import nl.nfi.cellscanner.PermissionSupport;
-import nl.nfi.cellscanner.collect.phonestate.PhoneStateCallStateCollector;
 
 public class LocationCollector implements DataCollector {
     private final DataReceiver service;
@@ -82,6 +83,58 @@ public class LocationCollector implements DataCollector {
         fusedLocationProviderClient.removeLocationUpdates(locationCallback);
     }
 
+    private static LocationDatabase getDatabase() {
+        return new LocationDatabase(CellscannerApp.getDatabaseConnection());
+    }
+
+    private static class LocationDatabase {
+        private final SQLiteDatabase db;
+
+        public LocationDatabase(SQLiteDatabase db) {
+            this.db = db;
+        }
+
+        public void createTables() {
+            Database.createTable(db, "locationinfo", new String[]{
+                    "provider VARCHAR(200)",
+                    "accuracy INT",  // accuracy in meters
+                    "timestamp INT NOT NULL",
+                    "latitude INT NOT NULL",
+                    "longitude INT NOT NULL",
+                    "altitude INT",  // altitude in meters
+                    "altitude_acc INT",  // altitude accuracy in meters (available in Oreo and up)
+                    "speed INT",  // speed in meters per second
+                    "speed_acc INT",  // speed accuracy in meters per second (available in Oreo and up)
+                    "bearing_deg INT",  // bearing in degrees
+                    "bearing_deg_acc INT",  // bearing accuracy in degrees (available in Oreo and up)
+            });
+        }
+
+        public String getStatusText() {
+            DateFormat fmt = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
+
+            createTables();
+            Cursor c = db.rawQuery("SELECT MIN(timestamp), MAX(timestamp), COUNT(*) FROM locationinfo", new String[]{});
+            try {
+                c.moveToNext();
+                long first = c.getLong(0);
+                long last = c.getLong(1);
+                int count = c.getInt(2);
+                long now = new Date().getTime();
+                if (count > 0 && now > first) {
+                    StringBuffer s = new StringBuffer();
+                    s.append(String.format("updated: %s<br/>", fmt.format(last)));
+                    s.append(String.format("%d measurements since %d minutes<br/>", count, (now - first) / 1000 / 60));
+                    return s.toString();
+                } else {
+                    return "No measurements.";
+                }
+            } finally {
+                c.close();
+            }
+        }
+    }
+
     public static class Factory extends CollectorFactory {
         @Override
         public String getTitle() {
@@ -90,12 +143,38 @@ public class LocationCollector implements DataCollector {
 
         @Override
         public String getStatusText() {
-            return CellscannerApp.getDatabase().getLocationUpdateStatus();
+            return getDatabase().getStatusText();
         }
 
         @Override
         public DataCollector createCollector(Context ctx) {
             return new LocationCollector(new DataReceiver(ctx));
+        }
+
+        @Override
+        public void createTables(SQLiteDatabase db) {
+            new LocationDatabase(db).createTables();
+        }
+
+        @Override
+        public void upgradeDatabase(SQLiteDatabase db, int oldVersion, int newVersion) {
+            if (oldVersion < 2) {
+                // no upgrade for versions prior to 2
+                new LocationDatabase(db).createTables();
+                return;
+            }
+
+            if (oldVersion < 3) {
+                db.execSQL("ALTER TABLE locationinfo ADD COLUMN altitude_acc INT");
+                db.execSQL("ALTER TABLE locationinfo ADD COLUMN speed_acc INT");
+                db.execSQL("ALTER TABLE locationinfo ADD COLUMN bearing_deg INT");
+                db.execSQL("ALTER TABLE locationinfo ADD COLUMN bearing_deg_acc INT");
+            }
+        }
+
+        @Override
+        public void dropDataUntil(SQLiteDatabase db, long timestamp) {
+            db.delete("locationinfo", "timestamp <= ?", new String[]{Long.toString(timestamp)});
         }
     }
 }
