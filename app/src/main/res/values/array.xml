@@ -20,8 +20,8 @@
     </string-array>
     <string-array name="CELLINFO_METHOD_VALUES">
         <item>AUTO</item>
-        <item>TELEPHONY_CALLBACK</item>
-        <item>PHONE_STATE</item>
-        <item>BASIC</item>
+        <!-- item>TELEPHONY_CALLBACK</item -->
+        <!-- item>PHONE_STATE</item -->
+        <!-- item>BASIC</item -->
     </string-array>
 </resources>

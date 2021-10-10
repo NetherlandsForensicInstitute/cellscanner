@@ -4,18 +4,17 @@ import android.content.Context;
 import android.content.Intent;
 
 import nl.nfi.cellscanner.collect.DataCollector;
-import nl.nfi.cellscanner.collect.DataReceiver;
 
 public class CallStateCollector implements DataCollector {
-    private final DataReceiver receiver;
+    private final Context ctx;
     private DataCollector collector = null;
 
     public CallStateCollector(Context ctx) {
-        this.receiver = new DataReceiver(ctx);
+        this.ctx = ctx;
     }
 
     private DataCollector createCollector(Intent intent) {
-        return new PhoneStateCallStateCollector(receiver);
+        return new PhoneStateCallStateCollector(ctx);
     }
 
     private void updateCollector(Intent intent) {
@@ -30,14 +29,14 @@ public class CallStateCollector implements DataCollector {
     }
 
     @Override
-    public void resume(Intent intent) {
+    public void start(Intent intent) {
         updateCollector(intent);
-        collector.resume(intent);
+        collector.start(intent);
     }
 
     @Override
-    public void cleanup() {
+    public void stop() {
         updateCollector(null);
-        collector.cleanup();
+        collector.stop();
     }
 }

@@ -2,16 +2,12 @@ package nl.nfi.cellscanner.collect.callstate;
 
 import android.Manifest;
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import nl.nfi.cellscanner.CellscannerApp;
 import nl.nfi.cellscanner.PermissionSupport;
-import nl.nfi.cellscanner.collect.CollectorFactory;
-import nl.nfi.cellscanner.collect.DataCollector;
-import nl.nfi.cellscanner.collect.DataReceiver;
 import nl.nfi.cellscanner.collect.SubscriptionDataCollector;
 import nl.nfi.cellscanner.collect.AbstractCallback;
 
@@ -24,13 +20,13 @@ public class PhoneStateCallStateCollector extends SubscriptionDataCollector {
             Manifest.permission.READ_PHONE_STATE,
     };
 
-    public PhoneStateCallStateCollector(DataReceiver receiver) {
-        super(receiver);
+    public PhoneStateCallStateCollector(Context ctx) {
+        super(ctx);
     }
 
     @Override
-    public SubscriptionDataCollector.PhoneStateCallback createCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager, DataReceiver service) {
-        return new CallStateCallback(ctx, subscription_id, name, defaultTelephonyManager, service);
+    public SubscriptionDataCollector.PhoneStateCallback createCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager) {
+        return new CallStateCallback(ctx, subscription_id, name, defaultTelephonyManager);
     }
 
     @Override
@@ -40,16 +36,14 @@ public class PhoneStateCallStateCollector extends SubscriptionDataCollector {
 
     public static class CallStateCallback extends AbstractCallback {
         private final Context ctx;
-        private final DataReceiver receiver;
 
-        public CallStateCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager, DataReceiver service) {
-            super(subscription_id, name, defaultTelephonyManager, service);
+        public CallStateCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager) {
+            super(subscription_id, name, defaultTelephonyManager);
             this.ctx = ctx;
-            this.receiver = service;
         }
 
         @Override
-        public void resume() {
+        public void start() {
             if (PermissionSupport.hasPermissions(ctx, PERMISSIONS)) {
                 super.listen(PhoneStateListener.LISTEN_CALL_STATE);
             } else {
@@ -66,7 +60,7 @@ public class PhoneStateCallStateCollector extends SubscriptionDataCollector {
         @Override
         public void onCallStateChanged(int state, String phoneNumber) {
             try {
-                receiver.storeCallState(subscription, state);
+                CallStateCollectorFactory.storeCallState(subscription, state);
             } catch (Throwable e) {
                 CellscannerApp.getDatabase().storeMessage(e);
             }

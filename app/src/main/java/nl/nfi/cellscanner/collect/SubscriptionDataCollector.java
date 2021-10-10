@@ -13,7 +13,7 @@ import java.util.Map;
 import nl.nfi.cellscanner.PermissionSupport;
 
 public abstract class SubscriptionDataCollector implements DataCollector {
-    private final DataReceiver receiver;
+    private final Context ctx;
     private SubscriptionManager subscriptionManager = null;
     private final TelephonyManager defaultTelephonyManager;
 
@@ -24,29 +24,29 @@ public abstract class SubscriptionDataCollector implements DataCollector {
     public String[] requiredPermissions(Intent intent) {
         return requiredPermissions();
     }
-    public abstract PhoneStateCallback createCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager, DataReceiver service);
+    public abstract PhoneStateCallback createCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager);
 
     public interface PhoneStateCallback {
-        void resume();
+        void start();
         void stop();
     }
 
-    public SubscriptionDataCollector(DataReceiver receiver) {
-        this.receiver = receiver;
-        defaultTelephonyManager = (TelephonyManager) receiver.getContext().getSystemService(Context.TELEPHONY_SERVICE);
+    public SubscriptionDataCollector(Context ctx) {
+        this.ctx = ctx;
+        defaultTelephonyManager = (TelephonyManager) ctx.getSystemService(Context.TELEPHONY_SERVICE);
     }
 
     @SuppressLint("MissingPermission")
     protected synchronized Map<String, PhoneStateCallback> updateCallbacks(Intent intent, Map<String, PhoneStateCallback> old_list, boolean enable) {
         Map<String, PhoneStateCallback> new_list = new HashMap<>();
-        if (PermissionSupport.hasPermissions(receiver.getContext(), requiredPermissions())) {
+        if (PermissionSupport.hasPermissions(ctx, requiredPermissions())) {
             for (SubscriptionInfo subscr : subscriptionManager.getActiveSubscriptionInfoList()) {
                 String subscription_name = subscr.getDisplayName().toString();
                 if (old_list.containsKey(subscription_name)) {
                     new_list.put(subscription_name, old_list.get(subscription_name));
                     old_list.remove(subscription_name);
                 } else {
-                    new_list.put(subscription_name, createCallback(receiver.getContext(), subscr.getSubscriptionId(), subscription_name, defaultTelephonyManager, receiver));
+                    new_list.put(subscription_name, createCallback(ctx, subscr.getSubscriptionId(), subscription_name, defaultTelephonyManager));
                 }
             }
         }
@@ -59,7 +59,7 @@ public abstract class SubscriptionDataCollector implements DataCollector {
         // unregister listeners for removed subscriptions
         for (PhoneStateCallback phst : new_list.values()) {
             if (enable)
-                phst.resume();
+                phst.start();
             else
                 phst.stop();
         }
@@ -72,13 +72,13 @@ public abstract class SubscriptionDataCollector implements DataCollector {
     }
 
     @Override
-    public void resume(Intent intent) {
+    public void start(Intent intent) {
         if (subscriptionManager == null) {
-            subscriptionManager = (SubscriptionManager) receiver.getContext().getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
+            subscriptionManager = (SubscriptionManager) ctx.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
             subscriptionManager.addOnSubscriptionsChangedListener(new SubscriptionManager.OnSubscriptionsChangedListener() {
                 @Override
                 public void onSubscriptionsChanged() {
-                resume(null);
+                start(null);
                 }
             });
         } else {
@@ -87,7 +87,7 @@ public abstract class SubscriptionDataCollector implements DataCollector {
     }
 
     @Override
-    public void cleanup() {
+    public void stop() {
         update(null, false);
     }
 }

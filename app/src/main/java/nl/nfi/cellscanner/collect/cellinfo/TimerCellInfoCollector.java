@@ -19,10 +19,7 @@ import java.util.TimerTask;
 
 import nl.nfi.cellscanner.CellscannerApp;
 import nl.nfi.cellscanner.PermissionSupport;
-import nl.nfi.cellscanner.collect.CollectorFactory;
 import nl.nfi.cellscanner.collect.DataCollector;
-import nl.nfi.cellscanner.collect.DataReceiver;
-import nl.nfi.cellscanner.collect.LocationCollector;
 
 public class TimerCellInfoCollector implements DataCollector {
     // update frequency of network data
@@ -34,14 +31,14 @@ public class TimerCellInfoCollector implements DataCollector {
             Manifest.permission.ACCESS_FINE_LOCATION,
     };
 
-    private final DataReceiver receiver;
+    private final Context ctx;
     private final TelephonyManager defaultTelephonyManager;
     private final Map<String, CellInfoState> states = new HashMap<String,CellInfoState>();
     private Date last_date = null;
 
-    public TimerCellInfoCollector(DataReceiver receiver) {
-        this.receiver = receiver;
-        defaultTelephonyManager = (TelephonyManager) receiver.getContext().getSystemService(Context.TELEPHONY_SERVICE);
+    public TimerCellInfoCollector(Context ctx) {
+        this.ctx = ctx;
+        defaultTelephonyManager = (TelephonyManager) ctx.getSystemService(Context.TELEPHONY_SERVICE);
     }
 
     private Timer timer = null;
@@ -52,7 +49,7 @@ public class TimerCellInfoCollector implements DataCollector {
     }
 
     @Override
-    public synchronized void resume(Intent intent) {
+    public synchronized void start(Intent intent) {
         if (timer == null) {
             timer = new Timer();
             timer.scheduleAtFixedRate(new TimerTask() {
@@ -65,7 +62,7 @@ public class TimerCellInfoCollector implements DataCollector {
     }
 
     @Override
-    public synchronized void cleanup() {
+    public synchronized void stop() {
         if (timer != null) {
             timer.cancel();
             timer = null;
@@ -80,7 +77,7 @@ public class TimerCellInfoCollector implements DataCollector {
      */
     private void retrieveCellInfo() {
         try {
-            if (PermissionSupport.hasPermissions(receiver.getContext(), PERMISSIONS)) {
+            if (PermissionSupport.hasPermissions(ctx, PERMISSIONS)) {
                 if (last_date != null && new Date().getTime() > last_date.getTime() + UPDATE_RESET_MILLIS) {
                     // cell status has expired
                     states.clear();
@@ -97,7 +94,7 @@ public class TimerCellInfoCollector implements DataCollector {
                         String name = String.format("%d-%d", status.mcc, status.mnc);
 
                         if (!states.containsKey(name))
-                            states.put(name, new CellInfoState(name, receiver));
+                            states.put(name, new CellInfoState(name));
 
                         states.get(name).updateCellStatus(status);
                         seen.add(name);
@@ -111,7 +108,7 @@ public class TimerCellInfoCollector implements DataCollector {
                 }
             } else {
                 Log.w("cellscanner", "insufficient permissions to get cell info");
-                cleanup();
+                stop();
             }
         } catch (Throwable e) {
             CellscannerApp.getDatabase().storeMessage(e);

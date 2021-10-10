@@ -11,7 +11,6 @@ import android.util.Log;
 import java.util.List;
 
 import nl.nfi.cellscanner.PermissionSupport;
-import nl.nfi.cellscanner.collect.DataReceiver;
 import nl.nfi.cellscanner.collect.SubscriptionDataCollector;
 import nl.nfi.cellscanner.collect.AbstractCallback;
 
@@ -26,13 +25,13 @@ public class PhoneStateCellInfoCollector extends SubscriptionDataCollector {
             Manifest.permission.READ_PHONE_STATE,
     };
 
-    public PhoneStateCellInfoCollector(DataReceiver receiver) {
-        super(receiver);
+    public PhoneStateCellInfoCollector(Context ctx) {
+        super(ctx);
     }
 
     @Override
-    public SubscriptionDataCollector.PhoneStateCallback createCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager, DataReceiver service) {
-        return new CellInfoCallback(ctx, subscription_id, name, defaultTelephonyManager, service);
+    public SubscriptionDataCollector.PhoneStateCallback createCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager) {
+        return new CellInfoCallback(ctx, subscription_id, name, defaultTelephonyManager);
     }
 
     @Override
@@ -44,14 +43,14 @@ public class PhoneStateCellInfoCollector extends SubscriptionDataCollector {
         private final Context ctx;
         private final CellInfoState state;
 
-        public CellInfoCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager, DataReceiver service) {
-            super(subscription_id, name, defaultTelephonyManager, service);
+        public CellInfoCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager) {
+            super(subscription_id, name, defaultTelephonyManager);
             this.ctx = ctx;
-            state = new CellInfoState(name, service);
+            state = new CellInfoState(name);
         }
 
         @SuppressLint("MissingPermission")
-        public void resume() {
+        public void start() {
             if (PermissionSupport.hasPermissions(ctx, PERMISSIONS)) {
                 super.listen(PhoneStateListener.LISTEN_CELL_INFO);
                 onCellInfoChanged(mgr.getAllCellInfo());

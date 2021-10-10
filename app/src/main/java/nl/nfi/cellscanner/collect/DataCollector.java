@@ -4,6 +4,6 @@ import android.content.Intent;
 
 public interface DataCollector {
     String[] requiredPermissions(Intent intent);
-    void resume(Intent intent);
-    void cleanup();
+    void start(Intent intent);
+    void stop();
 }

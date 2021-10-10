@@ -10,9 +10,6 @@ import android.util.Log;
 import androidx.annotation.RequiresApi;
 
 import nl.nfi.cellscanner.PermissionSupport;
-import nl.nfi.cellscanner.collect.CollectorFactory;
-import nl.nfi.cellscanner.collect.DataCollector;
-import nl.nfi.cellscanner.collect.DataReceiver;
 import nl.nfi.cellscanner.collect.SubscriptionDataCollector;
 
 @RequiresApi(api = Build.VERSION_CODES.S)
@@ -21,8 +18,8 @@ public class TelephonyCallStateCollector extends SubscriptionDataCollector {
             Manifest.permission.READ_PHONE_STATE,
     };
 
-    public TelephonyCallStateCollector(DataReceiver receiver) {
-        super(receiver);
+    public TelephonyCallStateCollector(Context ctx) {
+        super(ctx);
     }
 
     @Override
@@ -31,25 +28,23 @@ public class TelephonyCallStateCollector extends SubscriptionDataCollector {
     }
 
     @Override
-    public SubscriptionDataCollector.PhoneStateCallback createCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager, DataReceiver service) {
-        return new CellInfoCallback(ctx, subscription_id, name, defaultTelephonyManager, service);
+    public SubscriptionDataCollector.PhoneStateCallback createCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager) {
+        return new CellInfoCallback(ctx, subscription_id, name, defaultTelephonyManager);
     }
 
     public static class CellInfoCallback extends TelephonyCallback implements SubscriptionDataCollector.PhoneStateCallback, TelephonyCallback.CallStateListener {
         private final Context ctx;
-        private final DataReceiver service;
         private final TelephonyManager mgr;
         private final String subscription;
 
-        public CellInfoCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager, DataReceiver service) {
+        public CellInfoCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager) {
             this.ctx = ctx;
-            this.service = service;
             mgr = defaultTelephonyManager.createForSubscriptionId(subscription_id);
             subscription = name;
         }
 
         @Override
-        public void resume() {
+        public void start() {
             if (PermissionSupport.hasPermissions(ctx, PERMISSIONS)) {
                 mgr.registerTelephonyCallback(ctx.getMainExecutor(), this);
             } else {
@@ -65,7 +60,7 @@ public class TelephonyCallStateCollector extends SubscriptionDataCollector {
 
         @Override
         public void onCallStateChanged(int i) {
-            service.storeCallState(subscription, i);
+            CallStateCollectorFactory.storeCallState(subscription, i);
         }
     }
 }

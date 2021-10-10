@@ -72,15 +72,15 @@ public class RecordingService extends Service {
         for (String name : Preferences.COLLECTORS.keySet()) {
             if (Preferences.isRecordingEnabled(this, intent) && Preferences.isCollectorEnabled(name, this, intent)) {
                 if (collectors.containsKey(name))
-                    collectors.get(name).resume(intent);
+                    collectors.get(name).start(intent);
                 else {
                     DataCollector collector = Preferences.createCollector(name, this);
                     collectors.put(name, collector);
-                    collector.resume(intent);
+                    collector.start(intent);
                 }
             } else {
                 if (collectors.containsKey(name)) {
-                    collectors.get(name).cleanup();
+                    collectors.get(name).stop();
                     collectors.remove(name);
                 }
             }
@@ -117,7 +117,7 @@ public class RecordingService extends Service {
     public void onDestroy() {
         super.onDestroy();
         for (DataCollector collector : collectors.values()) {
-            collector.cleanup();
+            collector.stop();
         }
         wakeLock.release();
     }

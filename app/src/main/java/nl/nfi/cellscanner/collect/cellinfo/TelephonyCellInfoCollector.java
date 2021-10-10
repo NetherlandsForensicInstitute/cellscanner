@@ -2,7 +2,6 @@ package nl.nfi.cellscanner.collect.cellinfo;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
 import android.telephony.CellInfo;
 import android.telephony.TelephonyCallback;
@@ -15,11 +14,6 @@ import androidx.annotation.RequiresApi;
 import java.util.List;
 
 import nl.nfi.cellscanner.PermissionSupport;
-import nl.nfi.cellscanner.collect.CollectorFactory;
-import nl.nfi.cellscanner.collect.DataCollector;
-import nl.nfi.cellscanner.collect.LocationCollector;
-import nl.nfi.cellscanner.collect.cellinfo.CellInfoState;
-import nl.nfi.cellscanner.collect.DataReceiver;
 import nl.nfi.cellscanner.collect.SubscriptionDataCollector;
 
 @RequiresApi(api = Build.VERSION_CODES.S)
@@ -30,13 +24,13 @@ public class TelephonyCellInfoCollector extends SubscriptionDataCollector {
             Manifest.permission.READ_PHONE_STATE,
     };
 
-    public TelephonyCellInfoCollector(DataReceiver receiver) {
-        super(receiver);
+    public TelephonyCellInfoCollector(Context ctx) {
+        super(ctx);
     }
 
     @Override
-    public SubscriptionDataCollector.PhoneStateCallback createCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager, DataReceiver service) {
-        return new CellInfoCallback(ctx, subscription_id, name, defaultTelephonyManager, service);
+    public SubscriptionDataCollector.PhoneStateCallback createCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager) {
+        return new CellInfoCallback(ctx, subscription_id, name, defaultTelephonyManager);
     }
 
     @Override
@@ -46,20 +40,18 @@ public class TelephonyCellInfoCollector extends SubscriptionDataCollector {
 
     public static class CellInfoCallback extends TelephonyCallback implements SubscriptionDataCollector.PhoneStateCallback, TelephonyCallback.CellInfoListener {
         private final Context ctx;
-        private final DataReceiver service;
         private final TelephonyManager mgr;
 
         private final CellInfoState state;
 
-        public CellInfoCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager, DataReceiver service) {
+        public CellInfoCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager) {
             this.ctx = ctx;
-            this.service = service;
             mgr = defaultTelephonyManager.createForSubscriptionId(subscription_id);
-            state = new CellInfoState(name, service);
+            state = new CellInfoState(name);
         }
 
         @Override
-        public void resume() {
+        public void start() {
             if (PermissionSupport.hasPermissions(ctx, PERMISSIONS)) {
                 mgr.registerTelephonyCallback(ctx.getMainExecutor(), this);
             } else {

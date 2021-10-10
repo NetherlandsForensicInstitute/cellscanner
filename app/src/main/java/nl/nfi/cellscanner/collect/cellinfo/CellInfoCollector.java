@@ -1,22 +1,22 @@
 package nl.nfi.cellscanner.collect.cellinfo;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 
 import nl.nfi.cellscanner.Preferences;
 import nl.nfi.cellscanner.collect.DataCollector;
-import nl.nfi.cellscanner.collect.DataReceiver;
 
 public class CellInfoCollector implements DataCollector {
-    private final DataReceiver receiver;
+    private final Context ctx;
     private DataCollector collector = null;
 
-    public CellInfoCollector(DataReceiver receiver) {
-        this.receiver = receiver;
+    public CellInfoCollector(Context ctx) {
+        this.ctx = ctx;
     }
 
     private DataCollector createCollector(Intent intent) {
-        String method = Preferences.getCellInfoMethod(receiver.getContext(), intent);
+        String method = Preferences.getCellInfoMethod(ctx, intent);
 
         if (method.equals("AUTO")) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -27,20 +27,20 @@ public class CellInfoCollector implements DataCollector {
         }
 
         if (method.equals("TELEPHONY_CALLBACK") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-            return new TelephonyCellInfoCollector(receiver);
+            return new TelephonyCellInfoCollector(ctx);
         else if (method.equals("PHONE_STATE"))
-            return new PhoneStateCellInfoCollector(receiver);
+            return new PhoneStateCellInfoCollector(ctx);
         else if (method.equals("BASIC"))
-            return new TimerCellInfoCollector(receiver);
+            return new TimerCellInfoCollector(ctx);
         else
-            return new PhoneStateCellInfoCollector(receiver);
+            return new PhoneStateCellInfoCollector(ctx);
     }
 
     private void updateCollector(Intent intent) {
         if (collector == null)
             collector = createCollector(intent);
         else if (intent != null && intent.getStringExtra(Preferences.PREF_CELLINFO_METHOD) != null) {
-            collector.cleanup();
+            collector.stop();
             collector = createCollector(intent);
         }
     }
@@ -52,14 +52,16 @@ public class CellInfoCollector implements DataCollector {
     }
 
     @Override
-    public void resume(Intent intent) {
+    public void start(Intent intent) {
         updateCollector(intent);
-        collector.resume(intent);
+        collector.start(intent);
     }
 
     @Override
-    public void cleanup() {
-        updateCollector(null);
-        collector.cleanup();
+    public void stop() {
+        if (collector != null) {
+            collector.stop();
+            collector = null;
+        }
     }
 }

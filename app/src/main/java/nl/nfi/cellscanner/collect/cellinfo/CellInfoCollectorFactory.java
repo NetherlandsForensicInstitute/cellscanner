@@ -1,13 +1,15 @@
 package nl.nfi.cellscanner.collect.cellinfo;
 
+import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
+
+import java.util.Date;
 
 import nl.nfi.cellscanner.CellscannerApp;
 import nl.nfi.cellscanner.collect.CollectorFactory;
 import nl.nfi.cellscanner.collect.DataCollector;
-import nl.nfi.cellscanner.collect.DataReceiver;
 
 public class CellInfoCollectorFactory extends CollectorFactory {
     @Override
@@ -22,7 +24,7 @@ public class CellInfoCollectorFactory extends CollectorFactory {
 
     @Override
     public DataCollector createCollector(Context ctx) {
-        return new CellInfoCollector(new DataReceiver(ctx));
+        return new CellInfoCollector(ctx);
     }
 
     @Override
@@ -63,4 +65,24 @@ public class CellInfoCollectorFactory extends CollectorFactory {
     public void dropDataUntil(SQLiteDatabase db, long timestamp) {
         db.delete("cellinfo", "date_end <= ?", new String[]{Long.toString(timestamp)});
     }
+
+    /**
+     * Update the current cellular connection status.
+     *
+     * @param status the cellular connection status
+     */
+    protected static void updateCellStatus(SQLiteDatabase db, String subscription, Date date_start, Date date_end, CellStatus status) {
+        ContentValues update = new ContentValues();
+        update.put("date_end", date_end.getTime());
+        int nrows = db.update("cellinfo", update, "subscription = ? AND date_start = ?", new String[]{subscription, Long.toString(date_start.getTime())});
+        if (nrows == 0) {
+            ContentValues insert = status.getContentValues();
+            insert.put("subscription", subscription);
+            insert.put("date_start", date_start.getTime());
+            insert.put("date_end", date_end.getTime());
+            db.insert("cellinfo", null, insert);
+            Log.v(CellscannerApp.TITLE, "new cell: "+insert.toString());
+        }
+    }
+
 }

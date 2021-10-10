@@ -45,7 +45,7 @@ public class TrafficCollector implements DataCollector {
     }
 
     @Override
-    public void resume(Intent intent) {
+    public void start(Intent intent) {
         if (workManager == null) {
             workManager = WorkManager.getInstance(ctx);
             workManager.enqueue(new PeriodicWorkRequest.Builder(Downloader.class, PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS, TimeUnit.MILLISECONDS).build());
@@ -53,7 +53,7 @@ public class TrafficCollector implements DataCollector {
     }
 
     @Override
-    public void cleanup() {
+    public void stop() {
         if (workManager != null) {
             workManager.cancelAllWork();
             workManager = null;

@@ -1,11 +1,9 @@
 package nl.nfi.cellscanner;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.util.Log;
 
 import androidx.core.content.ContextCompat;
 
@@ -13,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nl.nfi.cellscanner.collect.DataCollector;
-import nl.nfi.cellscanner.collect.DataReceiver;
 
 /**
  * Utility class used to check if permissions are set

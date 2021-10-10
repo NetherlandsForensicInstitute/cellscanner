@@ -1,23 +1,21 @@
 package nl.nfi.cellscanner.collect.cellinfo;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.telephony.CellInfo;
 
 import java.util.Date;
 import java.util.List;
 
 import nl.nfi.cellscanner.CellscannerApp;
-import nl.nfi.cellscanner.collect.DataReceiver;
 
 public class CellInfoState {
     private final String subscription;
-    private final DataReceiver service;
 
     private CellStatus cell_status = null;
     private Date cell_start_timestamp = null;
 
-    public CellInfoState(String substription, DataReceiver service) {
+    public CellInfoState(String substription) {
         this.subscription = substription;
-        this.service = service;
     }
 
     public void updateCellInfo(List<CellInfo> cellInfo) {
@@ -62,7 +60,13 @@ public class CellInfoState {
     }
 
     private void store(Date end_date) {
-        if (cell_status != null)
-            service.storeCellStatus(subscription, cell_start_timestamp, end_date, cell_status);
+        if (cell_status != null) {
+            SQLiteDatabase db = CellscannerApp.getDatabaseConnection();
+            try {
+                CellInfoCollectorFactory.updateCellStatus(db, subscription, cell_start_timestamp, end_date, cell_status);
+            } finally {
+                db.close();
+            }
+        }
     }
 }

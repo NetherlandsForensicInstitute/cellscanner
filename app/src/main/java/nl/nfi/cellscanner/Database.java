@@ -6,9 +6,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.location.Location;
-import android.os.Build;
-import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -21,9 +18,6 @@ import java.util.Date;
 import java.util.Locale;
 
 import nl.nfi.cellscanner.collect.CollectorFactory;
-import nl.nfi.cellscanner.collect.LocationCollector;
-import nl.nfi.cellscanner.collect.TrafficCollector;
-import nl.nfi.cellscanner.collect.cellinfo.CellStatus;
 
 public class Database {
     protected static final int VERSION = 4;
@@ -96,25 +90,6 @@ public class Database {
         }
     }
 
-    /**
-     * Update the current cellular connection status.
-     *
-     * @param status the cellular connection status
-     */
-    public void updateCellStatus(String subscription, Date date_start, Date date_end, CellStatus status) {
-        ContentValues update = new ContentValues();
-        update.put("date_end", date_end.getTime());
-        int nrows = db.update("cellinfo", update, "subscription = ? AND date_start = ?", new String[]{subscription, Long.toString(date_start.getTime())});
-        if (nrows == 0) {
-            ContentValues insert = status.getContentValues();
-            insert.put("subscription", subscription);
-            insert.put("date_start", date_start.getTime());
-            insert.put("date_end", date_end.getTime());
-            db.insert("cellinfo", null, insert);
-            Log.v(CellscannerApp.TITLE, "new cell: "+insert.toString());
-        }
-    }
-
     protected String getMetaEntry(String name) {
         Cursor c = db.query("meta", new String[]{"value"}, "entry = ?", new String[]{"versionCode"}, null, null, null);
         try {
@@ -183,49 +158,12 @@ public class Database {
         ContentValues content = new ContentValues();
         content.put("date", new Date().getTime());
         content.put("message", msg);
-        CellscannerApp.getDatabaseConnection().insert("message", null, content);
-    }
-
-    public void storeLocationInfo(Location location) {
-        // NOTE: some values (accuracy, speed, altitude) may not be available, but database version 2 and earlier has NOT NULL constraint
-        ContentValues values = new ContentValues();
-        values.put("provider", location.getProvider());
-        values.put("timestamp", location.getTime());
-        values.put("accuracy", location.getAccuracy());
-        values.put("latitude", location.getLatitude());
-        values.put("longitude", location.getLongitude());
-        values.put("altitude", location.getAltitude());
-        values.put("speed", location.getSpeed());
-        if (location.hasBearing())
-            values.put("bearing_deg", location.getBearing());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (location.hasSpeedAccuracy())
-                values.put("speed_acc", location.getSpeedAccuracyMetersPerSecond());
-            if (location.hasVerticalAccuracy())
-                values.put("altitude_acc", location.getVerticalAccuracyMeters());
-            if (location.hasBearingAccuracy())
-                values.put("bearing_deg_acc", location.getBearingAccuracyDegrees());
+        SQLiteDatabase db = CellscannerApp.getDatabaseConnection();
+        try {
+            db.insert("message", null, content);
+        } finally {
+            db.close();
         }
-
-        db.insert("locationinfo", null, values);
-    }
-
-    public void storeCallState(int state) {
-        String state_name;
-        if (state == TelephonyManager.CALL_STATE_IDLE)
-            state_name = "idle";
-        else if (state == TelephonyManager.CALL_STATE_RINGING)
-            state_name = "ringing";
-        else if (state == TelephonyManager.CALL_STATE_OFFHOOK)
-            state_name = "offhook";
-        else
-            state_name = "invalid";
-
-        ContentValues values = new ContentValues();
-        values.put("date", new Date().getTime());
-        values.put("state", state_name);
-
-        db.insert("call_state", null, values);
     }
 
     /** drop data until a given timestamp **/

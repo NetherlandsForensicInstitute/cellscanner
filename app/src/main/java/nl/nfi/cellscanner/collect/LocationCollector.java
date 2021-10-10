@@ -2,10 +2,13 @@ package nl.nfi.cellscanner.collect;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.location.Location;
+import android.os.Build;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -21,25 +24,27 @@ import java.util.Date;
 import nl.nfi.cellscanner.CellscannerApp;
 import nl.nfi.cellscanner.Database;
 import nl.nfi.cellscanner.Preferences;
+import nl.nfi.cellscanner.collect.cellinfo.TelephonyCellInfoCollector;
 
 public class LocationCollector implements DataCollector {
-    private final DataReceiver service;
+    private final Context ctx;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationCallback locationCallback;
 
-    public LocationCollector(DataReceiver service) {
-        this.service = service;
+    public LocationCollector(Context ctx) {
+        this.ctx = ctx;
 
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(service.getContext());
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(ctx);
 
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 super.onLocationResult(locationResult);
+
                 try {
-                    service.storeLocation(locationResult.getLastLocation());
+                    Factory.storeLocation(locationResult.getLastLocation());
                 } catch (Throwable e) {
-                    CellscannerApp.getDatabase().storeMessage(e);
+                    Database.storeMessage(e);
                 }
             }
         };
@@ -55,7 +60,7 @@ public class LocationCollector implements DataCollector {
         LocationRequest locationRequest = LocationRequest.create();
         locationRequest.setInterval(CellscannerApp.LOCATION_INTERVAL_MILLIS);
         locationRequest.setFastestInterval(CellscannerApp.LOCATION_FASTEST_INTERVAL_MILLIS);
-        locationRequest.setPriority(Preferences.getLocationAccuracy(service.getContext(), intent));
+        locationRequest.setPriority(Preferences.getLocationAccuracy(ctx, intent));
         locationRequest.setSmallestDisplacement(CellscannerApp.LOCATION_MINIMUM_DISPLACEMENT_MTRS);
         return locationRequest;
     }
@@ -70,7 +75,7 @@ public class LocationCollector implements DataCollector {
 
     @SuppressLint("MissingPermission")
     @Override
-    public void resume(Intent intent) {
+    public void start(Intent intent) {
         fusedLocationProviderClient.requestLocationUpdates(
                 createLocationRequest(intent),
                 locationCallback,
@@ -79,41 +84,32 @@ public class LocationCollector implements DataCollector {
     }
 
     @Override
-    public void cleanup() {
+    public void stop() {
         fusedLocationProviderClient.removeLocationUpdates(locationCallback);
     }
 
-    private static LocationDatabase getDatabase() {
-        return new LocationDatabase(CellscannerApp.getDatabaseConnection());
+    public static void createTables(SQLiteDatabase db) {
+        Database.createTable(db, "locationinfo", new String[]{
+                "provider VARCHAR(200)",
+                "accuracy INT",  // accuracy in meters
+                "timestamp INT NOT NULL",
+                "latitude INT NOT NULL",
+                "longitude INT NOT NULL",
+                "altitude INT",  // altitude in meters
+                "altitude_acc INT",  // altitude accuracy in meters (available in Oreo and up)
+                "speed INT",  // speed in meters per second
+                "speed_acc INT",  // speed accuracy in meters per second (available in Oreo and up)
+                "bearing_deg INT",  // bearing in degrees
+                "bearing_deg_acc INT",  // bearing accuracy in degrees (available in Oreo and up)
+        });
     }
 
-    private static class LocationDatabase {
-        private final SQLiteDatabase db;
+    public static String getStatusText() {
+        DateFormat fmt = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
 
-        public LocationDatabase(SQLiteDatabase db) {
-            this.db = db;
-        }
-
-        public void createTables() {
-            Database.createTable(db, "locationinfo", new String[]{
-                    "provider VARCHAR(200)",
-                    "accuracy INT",  // accuracy in meters
-                    "timestamp INT NOT NULL",
-                    "latitude INT NOT NULL",
-                    "longitude INT NOT NULL",
-                    "altitude INT",  // altitude in meters
-                    "altitude_acc INT",  // altitude accuracy in meters (available in Oreo and up)
-                    "speed INT",  // speed in meters per second
-                    "speed_acc INT",  // speed accuracy in meters per second (available in Oreo and up)
-                    "bearing_deg INT",  // bearing in degrees
-                    "bearing_deg_acc INT",  // bearing accuracy in degrees (available in Oreo and up)
-            });
-        }
-
-        public String getStatusText() {
-            DateFormat fmt = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
-
-            createTables();
+        SQLiteDatabase db = CellscannerApp.getDatabaseConnection();
+        createTables(db);
+        try {
             Cursor c = db.rawQuery("SELECT MIN(timestamp), MAX(timestamp), COUNT(*) FROM locationinfo", new String[]{});
             try {
                 c.moveToNext();
@@ -132,6 +128,8 @@ public class LocationCollector implements DataCollector {
             } finally {
                 c.close();
             }
+        } finally {
+            db.close();
         }
     }
 
@@ -143,24 +141,24 @@ public class LocationCollector implements DataCollector {
 
         @Override
         public String getStatusText() {
-            return getDatabase().getStatusText();
+            return getStatusText();
         }
 
         @Override
         public DataCollector createCollector(Context ctx) {
-            return new LocationCollector(new DataReceiver(ctx));
+            return new LocationCollector(ctx);
         }
 
         @Override
         public void createTables(SQLiteDatabase db) {
-            new LocationDatabase(db).createTables();
+            LocationCollector.createTables(db);
         }
 
         @Override
         public void upgradeDatabase(SQLiteDatabase db, int oldVersion, int newVersion) {
             if (oldVersion < 2) {
                 // no upgrade for versions prior to 2
-                new LocationDatabase(db).createTables();
+                createTables(db);
                 return;
             }
 
@@ -175,6 +173,35 @@ public class LocationCollector implements DataCollector {
         @Override
         public void dropDataUntil(SQLiteDatabase db, long timestamp) {
             db.delete("locationinfo", "timestamp <= ?", new String[]{Long.toString(timestamp)});
+        }
+
+        public static void storeLocation(Location location) {
+            // NOTE: some values (accuracy, speed, altitude) may not be available, but database version 2 and earlier has NOT NULL constraint
+            ContentValues values = new ContentValues();
+            values.put("provider", location.getProvider());
+            values.put("timestamp", location.getTime());
+            values.put("accuracy", location.getAccuracy());
+            values.put("latitude", location.getLatitude());
+            values.put("longitude", location.getLongitude());
+            values.put("altitude", location.getAltitude());
+            values.put("speed", location.getSpeed());
+            if (location.hasBearing())
+                values.put("bearing_deg", location.getBearing());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (location.hasSpeedAccuracy())
+                    values.put("speed_acc", location.getSpeedAccuracyMetersPerSecond());
+                if (location.hasVerticalAccuracy())
+                    values.put("altitude_acc", location.getVerticalAccuracyMeters());
+                if (location.hasBearingAccuracy())
+                    values.put("bearing_deg_acc", location.getBearingAccuracyDegrees());
+            }
+
+            SQLiteDatabase db = CellscannerApp.getDatabaseConnection();
+            try {
+                db.insert("locationinfo", null, values);
+            } finally {
+                db.close();
+            }
         }
     }
 }
