@@ -13,13 +13,13 @@
 
         <SwitchPreferenceCompat
             app:key="CELLINFO_RECORDING"
-            app:title="Enable cell recording"
+            app:title="Record cell info"
             app:summary="Store cellular network data"
             app:defaultValue="false"/>
 
         <ListPreference
             app:key="CELLINFO_METHOD"
-            app:title="Cell data collection method"
+            app:title="Cell info collection method"
             app:summary="The Android OS offers several alternative APIs for collecting cell data, some of which may not work on buggy handsets. Choose one that works for you."
             app:entries="@array/CELLINFO_METHOD_NAMES"
             app:entryValues="@array/CELLINFO_METHOD_VALUES"
@@ -27,8 +27,8 @@
 
         <SwitchPreferenceCompat
             app:key="LOCATION_RECORDING"
-            app:title="Enable location recording"
-            app:summary="Store GPS locations"
+            app:title="Record locations"
+            app:summary="Store geographic locations (e.g. GPS)"
             app:defaultValue="false"/>
 
         <ListPreference
@@ -41,14 +41,14 @@
 
         <SwitchPreferenceCompat
             app:key="CALL_STATE_RECORDING"
-            app:title="Enable call state recording"
+            app:title="Record call state"
             app:summary="Store a timestamp at the start and end of a call"
             app:defaultValue="false"/>
 
         <SwitchPreferenceCompat
             app:key="ENABLE_IP_TRAFFIC"
-            app:title="Enable IP traffic"
-            app:summary="Generate IP traffic by downloading a 1MB file every 15 minutes"
+            app:title="Generate IP traffic"
+            app:summary="Download a 1MB file every 15 minutes"
             app:defaultValue="false"/>
 
     </PreferenceCategory>

@@ -141,7 +141,7 @@ public class LocationCollector implements DataCollector {
 
         @Override
         public String getStatusText() {
-            return getStatusText();
+            return LocationCollector.getStatusText();
         }
 
         @Override
