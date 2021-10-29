@@ -13,15 +13,15 @@
         <item>PASSIVE</item>
     </string-array>
     <string-array name="CELLINFO_METHOD_NAMES">
-        <item>Automatic</item>
-        <item>Telephony callback (requires android 12+)</item>
-        <item>Phone state</item>
-        <item>Basic (avoid with roaming devices)</item>
+        <item>Automatic (recommended)</item>
+        <!--item>Telephony callback (experimental, requires android 12+)</item>
+        <item>Phone state (experimental)</item>
+        <item>Basic (avoid with multi-sim roaming devices)</item-->
     </string-array>
     <string-array name="CELLINFO_METHOD_VALUES">
         <item>AUTO</item>
-        <!-- item>TELEPHONY_CALLBACK</item -->
-        <!-- item>PHONE_STATE</item -->
-        <!-- item>BASIC</item -->
+        <!--item>TELEPHONY_CALLBACK</item>
+        <item>PHONE_STATE</item>
+        <item>BASIC</item-->
     </string-array>
 </resources>

@@ -24,7 +24,7 @@ public abstract class SubscriptionDataCollector implements DataCollector {
     public String[] requiredPermissions(Intent intent) {
         return requiredPermissions();
     }
-    public abstract PhoneStateCallback createCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager);
+    public abstract PhoneStateCallback createCallback(Context ctx, TelephonyManager telephonyManager, String name);
 
     public interface PhoneStateCallback {
         void start();
@@ -46,7 +46,8 @@ public abstract class SubscriptionDataCollector implements DataCollector {
                     new_list.put(subscription_name, old_list.get(subscription_name));
                     old_list.remove(subscription_name);
                 } else {
-                    new_list.put(subscription_name, createCallback(ctx, subscr.getSubscriptionId(), subscription_name, defaultTelephonyManager));
+                    TelephonyManager mgr = defaultTelephonyManager.createForSubscriptionId(subscr.getSubscriptionId());
+                    new_list.put(subscription_name, createCallback(ctx, mgr, subscription_name));
                 }
             }
         }

@@ -25,8 +25,8 @@ public class PhoneStateCallStateCollector extends SubscriptionDataCollector {
     }
 
     @Override
-    public SubscriptionDataCollector.PhoneStateCallback createCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager) {
-        return new CallStateCallback(ctx, subscription_id, name, defaultTelephonyManager);
+    public SubscriptionDataCollector.PhoneStateCallback createCallback(Context ctx, TelephonyManager telephonyManager, String name) {
+        return new CallStateCallback(ctx, telephonyManager, name);
     }
 
     @Override
@@ -37,8 +37,8 @@ public class PhoneStateCallStateCollector extends SubscriptionDataCollector {
     public static class CallStateCallback extends AbstractCallback {
         private final Context ctx;
 
-        public CallStateCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager) {
-            super(subscription_id, name, defaultTelephonyManager);
+        public CallStateCallback(Context ctx, TelephonyManager telephonyManager, String name) {
+            super(telephonyManager, name);
             this.ctx = ctx;
         }
 

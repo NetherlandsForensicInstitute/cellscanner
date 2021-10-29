@@ -22,7 +22,7 @@ public class CellInfoCollector implements DataCollector {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 method = "TELEPHONY_CALLBACK";
             } else {
-                method = "PHONE_STATE";
+                method = "BASIC";
             }
         }
 

@@ -30,8 +30,8 @@ public class PhoneStateCellInfoCollector extends SubscriptionDataCollector {
     }
 
     @Override
-    public SubscriptionDataCollector.PhoneStateCallback createCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager) {
-        return new CellInfoCallback(ctx, subscription_id, name, defaultTelephonyManager);
+    public SubscriptionDataCollector.PhoneStateCallback createCallback(Context ctx, TelephonyManager telephonyManager, String name) {
+        return new CellInfoCallback(ctx, telephonyManager, name);
     }
 
     @Override
@@ -43,8 +43,8 @@ public class PhoneStateCellInfoCollector extends SubscriptionDataCollector {
         private final Context ctx;
         private final CellInfoState state;
 
-        public CellInfoCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager) {
-            super(subscription_id, name, defaultTelephonyManager);
+        public CellInfoCallback(Context ctx, TelephonyManager telephonyManager, String name) {
+            super(telephonyManager, name);
             this.ctx = ctx;
             state = new CellInfoState(name);
         }

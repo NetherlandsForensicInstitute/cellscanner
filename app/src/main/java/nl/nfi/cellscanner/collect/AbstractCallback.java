@@ -8,9 +8,9 @@ public abstract class AbstractCallback extends PhoneStateListener implements Sub
     protected final TelephonyManager mgr;
     private int listen_events = PhoneStateListener.LISTEN_NONE;
 
-    public AbstractCallback(int subscription_id, String name, TelephonyManager defaultTelephonyManager) {
+    public AbstractCallback(TelephonyManager telephonyManager, String name) {
         subscription = name;
-        mgr = defaultTelephonyManager.createForSubscriptionId(subscription_id);
+        mgr = telephonyManager;
     }
 
     protected void listen(int events) {

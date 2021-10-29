@@ -316,6 +316,7 @@ public class Preferences extends PreferenceFragmentCompat
 
         swCellInfoMethod.setOnPreferenceChangeListener((preference, newValue) -> {
             if (newValue.equals("TELEPHONY_CALLBACK") && android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                // TODO: show dialog
                 return false;
             }
 

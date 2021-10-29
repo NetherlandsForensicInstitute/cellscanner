@@ -29,8 +29,8 @@ public class TelephonyCellInfoCollector extends SubscriptionDataCollector {
     }
 
     @Override
-    public SubscriptionDataCollector.PhoneStateCallback createCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager) {
-        return new CellInfoCallback(ctx, subscription_id, name, defaultTelephonyManager);
+    public SubscriptionDataCollector.PhoneStateCallback createCallback(Context ctx, TelephonyManager telephonyManager, String name) {
+        return new CellInfoCallback(ctx, telephonyManager, name);
     }
 
     @Override
@@ -44,9 +44,9 @@ public class TelephonyCellInfoCollector extends SubscriptionDataCollector {
 
         private final CellInfoState state;
 
-        public CellInfoCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager) {
+        public CellInfoCallback(Context ctx, TelephonyManager telephonyManager, String name) {
             this.ctx = ctx;
-            mgr = defaultTelephonyManager.createForSubscriptionId(subscription_id);
+            mgr = telephonyManager;
             state = new CellInfoState(name);
         }
 

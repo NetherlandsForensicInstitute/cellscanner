@@ -37,7 +37,7 @@
             app:summary="Choose location accuracy, may affect power consumption"
             app:entries="@array/LOCATION_PRIORITY_NAMES"
             app:entryValues="@array/LOCATION_PRIORITY_VALUES"
-            app:defaultValue="LOW" />
+            app:defaultValue="BALANCED" />
 
         <SwitchPreferenceCompat
             app:key="CALL_STATE_RECORDING"

@@ -28,8 +28,8 @@ public class TelephonyCallStateCollector extends SubscriptionDataCollector {
     }
 
     @Override
-    public SubscriptionDataCollector.PhoneStateCallback createCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager) {
-        return new CellInfoCallback(ctx, subscription_id, name, defaultTelephonyManager);
+    public SubscriptionDataCollector.PhoneStateCallback createCallback(Context ctx, TelephonyManager telephonyManager, String name) {
+        return new CellInfoCallback(ctx, telephonyManager, name);
     }
 
     public static class CellInfoCallback extends TelephonyCallback implements SubscriptionDataCollector.PhoneStateCallback, TelephonyCallback.CallStateListener {
@@ -37,9 +37,9 @@ public class TelephonyCallStateCollector extends SubscriptionDataCollector {
         private final TelephonyManager mgr;
         private final String subscription;
 
-        public CellInfoCallback(Context ctx, int subscription_id, String name, TelephonyManager defaultTelephonyManager) {
+        public CellInfoCallback(Context ctx, TelephonyManager telephonyManager, String name) {
             this.ctx = ctx;
-            mgr = defaultTelephonyManager.createForSubscriptionId(subscription_id);
+            mgr = telephonyManager;
             subscription = name;
         }
 
