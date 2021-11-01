@@ -33,6 +33,7 @@ The release package is built in `app/release`. Upload this file to google and cr
 ```sh
 git push --tags
 git checkout main
+git merge release
 git branch -D release
 ```
 
