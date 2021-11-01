@@ -16,8 +16,8 @@ version part should be even.
 
 ```sh
 git add app/build.gradle
-git commit
-git tag VERSION
+git commit -m 'bump relase version'
+git tag vX.Y.Z
 ```
 
 ## Build release package
@@ -41,3 +41,8 @@ git branch -D release
 
 In `app/build.gradle`, increase `versionCode` and `versionName` again. This time, the minor version
 should be odd numbered.
+
+```sh
+git add app/build.gradle
+git commit -m 'bump development version'
+```
