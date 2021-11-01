@@ -8,6 +8,7 @@ import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import nl.nfi.cellscanner.PermissionSupport;
@@ -40,14 +41,17 @@ public abstract class SubscriptionDataCollector implements DataCollector {
     protected synchronized Map<String, PhoneStateCallback> updateCallbacks(Intent intent, Map<String, PhoneStateCallback> old_list, boolean enable) {
         Map<String, PhoneStateCallback> new_list = new HashMap<>();
         if (PermissionSupport.hasPermissions(ctx, requiredPermissions())) {
-            for (SubscriptionInfo subscr : subscriptionManager.getActiveSubscriptionInfoList()) {
-                String subscription_name = subscr.getDisplayName().toString();
-                if (old_list.containsKey(subscription_name)) {
-                    new_list.put(subscription_name, old_list.get(subscription_name));
-                    old_list.remove(subscription_name);
-                } else {
-                    TelephonyManager mgr = defaultTelephonyManager.createForSubscriptionId(subscr.getSubscriptionId());
-                    new_list.put(subscription_name, createCallback(ctx, mgr, subscription_name));
+            List<SubscriptionInfo> subscriptions = subscriptionManager.getActiveSubscriptionInfoList();
+            if (subscriptions != null) {
+                for (SubscriptionInfo subscr : subscriptions) {
+                    String subscription_name = subscr.getDisplayName().toString();
+                    if (old_list.containsKey(subscription_name)) {
+                        new_list.put(subscription_name, old_list.get(subscription_name));
+                        old_list.remove(subscription_name);
+                    } else {
+                        TelephonyManager mgr = defaultTelephonyManager.createForSubscriptionId(subscr.getSubscriptionId());
+                        new_list.put(subscription_name, createCallback(ctx, mgr, subscription_name));
+                    }
                 }
             }
         }
