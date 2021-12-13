@@ -40,10 +40,11 @@ public class CellInfoCollectorFactory extends CollectorFactory {
                 "  area INT NOT NULL,"+ // Location Area Code (GSM, UMTS) or TAC (LTE)
                 "  cid INT NOT NULL,"+ // Cell Identity (GSM: 16 bit; LTE: 28 bit)
                 "  bsic INT,"+ // Base Station Identity Code (GSM only)
-                "  arfcn INT,"+ // Absolute RF Channel Number (GSM only)
+                "  arfcn INT,"+ // Absolute RF Channel Number (GSM, LTE, NR)
                 "  psc INT,"+ // 9-bit UMTS Primary Scrambling Code described in TS 25.331 (UMTS only/)
                 "  uarfcn INT,"+ // 16-bit UMTS Absolute RF Channel Number (UMTS only)
-                "  pci INT"+ // Physical Cell Id 0..503, Integer.MAX_VALUE if unknown (LTE only)
+                "  pci INT,"+ // Physical Cell Id (LTE: 0..503 or Integer.MAX_VALUE if unknown; NR: 0..1007 or CellInfo.UNAVAILABLE)
+                "  bandwidth INT"+ // bandwidth in KHz (LTE only)
                 ")");
 
         db.execSQL("CREATE INDEX IF NOT EXISTS cellinfo_date_end ON cellinfo(date_end)");
@@ -58,6 +59,10 @@ public class CellInfoCollectorFactory extends CollectorFactory {
 
         if (oldVersion < 4) {
             db.execSQL("ALTER TABLE cellinfo ADD COLUMN subscription VARCHAR(20) NOT NULL DEFAULT 'unknown'");
+        }
+
+        if (oldVersion < 5) {
+            db.execSQL("ALTER TABLE cellinfo ADD COLUMN bandwidth INT");
         }
     }
 

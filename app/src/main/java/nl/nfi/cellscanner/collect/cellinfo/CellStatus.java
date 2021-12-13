@@ -1,11 +1,16 @@
 package nl.nfi.cellscanner.collect.cellinfo;
 
 import android.content.ContentValues;
+import android.os.Build;
+import android.telephony.CellIdentityNr;
 import android.telephony.CellInfo;
 import android.telephony.CellInfoCdma;
 import android.telephony.CellInfoGsm;
 import android.telephony.CellInfoLte;
+import android.telephony.CellInfoNr;
 import android.telephony.CellInfoWcdma;
+
+import androidx.annotation.RequiresApi;
 
 import java.util.Locale;
 
@@ -15,12 +20,13 @@ public class CellStatus {
     public final int mcc;
     public final int mnc;
     public final int area;
-    public final int cid;
+    public final long cid;
     public final int bsic; // gsm
-    public final int arfcn; // gsm
+    public final int arfcn; // gsm, lte, nr
     public final int psc; // umts
     public final int uarfcn; // umts
     public final int pci; // lte
+    public final int lte_bandwidth; // lte
 
     public static class UnsupportedTypeException extends Exception {
         UnsupportedTypeException(String msg) {
@@ -28,7 +34,7 @@ public class CellStatus {
         }
     }
 
-    public CellStatus(boolean registered, String radio, int mcc, int mnc, int area, int cid, int bsic, int arfcn, int psc, int uarfcn, int pci) {
+    public CellStatus(boolean registered, String radio, int mcc, int mnc, int area, long cid, int bsic, int arfcn, int psc, int uarfcn, int pci, int lte_bandwidth) {
         this.registered = registered;
         this.radio = radio;
         this.mcc = mcc;
@@ -40,6 +46,7 @@ public class CellStatus {
         this.psc = psc;
         this.uarfcn = uarfcn;
         this.pci = pci;
+        this.lte_bandwidth = lte_bandwidth;
     }
 
     public boolean isValid() {
@@ -66,6 +73,7 @@ public class CellStatus {
         values.put("psc", psc);
         values.put("uarfcn", uarfcn);
         values.put("pci", pci);
+        values.put("bandwidth", lte_bandwidth);
 
         return values;
     }
@@ -94,7 +102,7 @@ public class CellStatus {
             info.getCellIdentity().getCid(),
             info.getCellIdentity().getBsic(),
             info.getCellIdentity().getArfcn(),
-            -1, -1,-1
+            -1, -1,-1, -1
         );
     }
 
@@ -109,11 +117,15 @@ public class CellStatus {
                 -1, -1,
                 info.getCellIdentity().getPsc(),
                 info.getCellIdentity().getUarfcn(),
-                -1
+                -1, -1
         );
     }
 
     private static CellStatus fromCellInfoLte(CellInfoLte info) {
+        int bandwidth = -1;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            bandwidth = info.getCellIdentity().getBandwidth();
+        }
         return new CellStatus(
                 info.isRegistered(),
                 "LTE",
@@ -121,8 +133,41 @@ public class CellStatus {
                 info.getCellIdentity().getMnc(),
                 info.getCellIdentity().getTac(),
                 info.getCellIdentity().getCi(),
-                -1, -1, -1, -1,
-                info.getCellIdentity().getPci()
+                -1,
+                info.getCellIdentity().getEarfcn(),
+                -1,
+                -1,
+                info.getCellIdentity().getPci(),
+                bandwidth
+        );
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    private static CellStatus fromCellInfoNr(CellInfoNr info) {
+        CellIdentityNr ci = (CellIdentityNr) info.getCellIdentity();
+
+        int mcc;
+        int mnc;
+        try {
+            mcc = Integer.valueOf(ci.getMccString());
+            mnc = Integer.valueOf(ci.getMncString());
+        } catch (NumberFormatException e) {
+            mcc = -1;
+            mnc = -1;
+        }
+
+        return new CellStatus(
+                info.isRegistered(),
+                "NR",
+                mcc, mnc,
+                ci.getTac(),
+                ci.getNci(),
+                -1,
+                ci.getNrarfcn(),
+                -1,
+                -1,
+                ci.getPci(),
+                -1
         );
     }
 

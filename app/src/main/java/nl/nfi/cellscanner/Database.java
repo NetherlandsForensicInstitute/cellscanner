@@ -20,7 +20,7 @@ import java.util.Locale;
 import nl.nfi.cellscanner.collect.CollectorFactory;
 
 public class Database {
-    protected static final int VERSION = 4;
+    protected static final int VERSION = 5;
 
     private static final String META_VERSION_CODE = "version_code";
     private static final String META_INSTALL_ID = "install_id";
