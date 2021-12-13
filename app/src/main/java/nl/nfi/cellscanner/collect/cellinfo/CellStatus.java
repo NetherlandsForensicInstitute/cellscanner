@@ -10,6 +10,7 @@ import android.telephony.CellInfoLte;
 import android.telephony.CellInfoNr;
 import android.telephony.CellInfoWcdma;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import java.util.Locale;
@@ -54,10 +55,7 @@ public class CellStatus {
         if (!registered)
             return false;
 
-        if (mcc == 0 || mcc == 0x7fffffff)
-            return false;
-
-        return true;
+        return mcc != 0 && mcc != 0x7fffffff;
     }
 
     public ContentValues getContentValues() {
@@ -87,6 +85,8 @@ public class CellStatus {
             return fromCellInfoWcdma((CellInfoWcdma)info);
         } else if (info instanceof CellInfoLte) {
             return fromCellInfoLte((CellInfoLte) info);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && info instanceof CellInfoNr) {
+            return fromCellInfoNr((CellInfoNr) info);
         } else {
             throw new UnsupportedTypeException("Unrecognized cell info object: "+info.getClass().getName());
         }
@@ -149,8 +149,8 @@ public class CellStatus {
         int mcc;
         int mnc;
         try {
-            mcc = Integer.valueOf(ci.getMccString());
-            mnc = Integer.valueOf(ci.getMncString());
+            mcc = Integer.parseInt(ci.getMccString());
+            mnc = Integer.parseInt(ci.getMncString());
         } catch (NumberFormatException e) {
             mcc = -1;
             mnc = -1;
@@ -171,6 +171,7 @@ public class CellStatus {
         );
     }
 
+    @NonNull
     @Override
     public String toString() {
         return String.format(Locale.ROOT, "%s%s: %d-%d-%d-%d", registered ? "" : "unregistered: ", radio, mcc, mnc, area, cid);
