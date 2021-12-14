@@ -3,8 +3,8 @@ apply plugin: 'com.android.application'
 android {
     defaultConfig {
         applicationId "nl.nfi.cellscanner"
-        versionCode 38
-        versionName '1.3.6'
+        versionCode 39
+        versionName '1.3.7'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         targetSdkVersion 30
         minSdkVersion 24
