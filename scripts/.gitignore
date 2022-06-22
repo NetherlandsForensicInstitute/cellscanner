@@ -1,0 +1,5 @@
+*~
+__pycache__
+/.idea
+/local.yaml
+/venv

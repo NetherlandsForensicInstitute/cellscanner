@@ -1,0 +1,4 @@
+confidence
+psycopg2-binary
+pytz
+

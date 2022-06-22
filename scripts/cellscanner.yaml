@@ -1,0 +1,7 @@
+database:
+  credentials:
+    user: cellscanner
+    host: localhost
+    port: 6543
+    database: cellscanner
+  schema: test_cellscanner
