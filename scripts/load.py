@@ -11,7 +11,17 @@ import cellscanner.cellscanner_file
 import cellscanner.database
 
 
-if __name__ == '__main__':
+def load_file(path: str, db: cellscanner.database.CellscannerDatabase, tag: str = None):
+    assert os.path.exists(path), f'file not found: {path}'
+    with sqlite3.connect(path) as source_connection:
+        csfile = cellscanner.cellscanner_file.CellscannerFile(source_connection)
+        install_id = csfile.get_install_id()
+        device_handle = db.add_device(install_id, tag)
+        db.add_locationinfo(device_handle, csfile.get_locationinfo())
+        db.add_cellinfo(device_handle, csfile.get_cellinfo())
+
+
+def main():
     cfg = confidence.load_name('cellscanner', 'local')
 
     parser = argparse.ArgumentParser(description='Loads cellscanner sqlite data into a postgres database')
@@ -28,14 +38,15 @@ if __name__ == '__main__':
             drop_schema(con, args.schema)
         create_schema(con, args.schema)
 
-    with pgconnect(credentials=cfg.database.credentials, schema=args.schema, use_wrapper=False) as target_connection:
-        db = cellscanner.database.CellscannerDatabase(target_connection)
+    with pgconnect(credentials=cfg.database.credentials, schema=args.schema, use_wrapper=False) as con:
+        db = cellscanner.database.CellscannerDatabase(con)
         db.create_tables()
         for filename in args.files:
-            assert os.path.exists(filename), f'file not found: {filename}'
-            with sqlite3.connect(filename) as source_connection:
-                csfile = cellscanner.cellscanner_file.CellscannerFile(source_connection)
-                install_id = csfile.get_install_id()
-                device_handle = db.add_device(install_id, args.tag)
-                db.add_locationinfo(device_handle, csfile.get_locationinfo())
-                db.add_cellinfo(device_handle, csfile.get_cellinfo())
+            try:
+                load_file(filename, db, args.tag)
+            except Exception as e:
+                print(f"{filename}: error: {e}")
+
+
+if __name__ == '__main__':
+    main()

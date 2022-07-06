@@ -2,6 +2,6 @@ database:
   credentials:
     user: cellscanner
     host: localhost
-    port: 6543
+    port: 5432
     database: cellscanner
-  schema: test_cellscanner
+  schema: public

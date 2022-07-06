@@ -91,20 +91,22 @@ class CellscannerDatabase:
             cur.execute("""INSERT INTO device(install_id, tag) VALUES(%s, %s) RETURNING id""", (install_id, tag))
             return cur.fetchone()[0]
 
-    def add_locationinfo(self, device_id, records: Iterable[Tuple]):
+    def add_locationinfo(self, device_id, records: Iterable[dict]):
         with self._con.cursor() as cur:
             for record in records:
+                columns, values = zip(*record.items())
                 cur.execute(f"""
-                    INSERT INTO locationinfo(device_id, {",".join(col for col in LOCATION_COLUMNS)})
-                    VALUES(%s, {",".join("%s" for col in LOCATION_COLUMNS)})
+                    INSERT INTO locationinfo(device_id, {",".join(col for col in columns)})
+                    VALUES(%s, {",".join("%s" for col in columns)})
                     ON CONFLICT (device_id, timestamp) DO NOTHING
-                """, [device_id] + list(record))
+                """, [device_id] + list(values))
 
     def add_cellinfo(self, device_id, records: Iterable[Tuple]):
         with self._con.cursor() as cur:
             for record in records:
+                columns, values = zip(*record.items())
                 cur.execute(f"""
-                    INSERT INTO cellinfo(device_id, {",".join(col for col in CELL_COLUMNS)})
-                    VALUES(%s, {",".join("%s" for col in CELL_COLUMNS)})
+                    INSERT INTO cellinfo(device_id, {",".join(col for col in columns)})
+                    VALUES(%s, {",".join("%s" for col in columns)})
                     ON CONFLICT(device_id, subscription, date_start) DO NOTHING
-                """, [device_id] + list(record))
+                """, [device_id] + list(values))
