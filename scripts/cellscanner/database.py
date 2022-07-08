@@ -11,13 +11,14 @@ class CellscannerDatabase:
         with self._con.cursor() as cur:
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS device (
-                    id SERIAL NOT NULL PRIMARY KEY,
+                    id SERIAL PRIMARY KEY,
                     install_id VARCHAR(255) UNIQUE NOT NULL,
                     tag VARCHAR(100) NULL
                 )""")
 
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS message (
+                    id SERIAL PRIMARY KEY,
                     device_id INT NOT NULL REFERENCES device(id),
                     date TIMESTAMP WITH TIME ZONE NOT NULL,
                     message VARCHAR(250) NOT NULL
@@ -26,6 +27,7 @@ class CellscannerDatabase:
 
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS ip_traffic (
+                    id SERIAL PRIMARY KEY,
                     device_id INT NOT NULL REFERENCES device(id),
                     date_start TIMESTAMP WITH TIME ZONE NOT NULL,
                     date_end TIMESTAMP WITH TIME ZONE,
@@ -35,6 +37,7 @@ class CellscannerDatabase:
 
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS locationinfo (
+                    id SERIAL PRIMARY KEY,
                     device_id INT NOT NULL REFERENCES device(id),
                     timestamp TIMESTAMP WITH TIME ZONE NOT NULL,
                     provider VARCHAR(200),
@@ -52,6 +55,7 @@ class CellscannerDatabase:
 
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS cellinfo (
+                    id SERIAL PRIMARY KEY,
                     device_id INT NOT NULL REFERENCES device(id),
                     subscription VARCHAR(20) NOT NULL,
                     date_start TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -72,6 +76,7 @@ class CellscannerDatabase:
 
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS call_state (
+                    id SERIAL PRIMARY KEY,
                     device_id INT NOT NULL REFERENCES device(id),
                     date TIMESTAMP WITH TIME ZONE NOT NULL,
                     state VARCHAR(20) NOT NULL
