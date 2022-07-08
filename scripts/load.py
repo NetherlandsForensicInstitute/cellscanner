@@ -26,6 +26,7 @@ def main():
 
     parser = argparse.ArgumentParser(description='Loads cellscanner sqlite data into a postgres database')
     parser.add_argument('--drop-schema', action='store_true', help='drop schema before doing anything else')
+    parser.add_argument('--clean', help='recreate tables', action='store_true')
     parser.add_argument('--schema', help='load into schema', default=cfg.database.schema)
     parser.add_argument('--tag', help='assign tag to device')
     parser.add_argument('-v', help='increases verbosity', action='count', default=0)
@@ -40,7 +41,7 @@ def main():
 
     with pgconnect(credentials=cfg.database.credentials, schema=args.schema, use_wrapper=False) as con:
         db = cellscanner.database.CellscannerDatabase(con)
-        db.create_tables()
+        db.create_tables(drop_first=args.clean)
         for filename in args.files:
             try:
                 load_file(filename, db, args.tag)

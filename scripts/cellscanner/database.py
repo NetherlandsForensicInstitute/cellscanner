@@ -7,8 +7,11 @@ class CellscannerDatabase:
     def __init__(self, con):
         self._con = con
 
-    def create_tables(self):
+    def create_tables(self, drop_first=False):
         with self._con.cursor() as cur:
+            if drop_first:
+                cur.execute(f'DROP TABLE IF EXISTS device CASCADE')
+
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS device (
                     id SERIAL PRIMARY KEY,
