@@ -13,3 +13,10 @@ jobs:
       # You may pin to the exact commit or the version.
       # uses: gradle/gradle-build-action@356abb47e7664b5505e25d7997a5a522a17c62d9
         uses: gradle/gradle-build-action@v2.3.0
+        
+      - name: List files in the repository
+        run: |
+          find ${{ github.workspace }}
+      - name: Build
+        run: make
+      - run: echo "🍏 This job's status is ${{ job.status }}."
