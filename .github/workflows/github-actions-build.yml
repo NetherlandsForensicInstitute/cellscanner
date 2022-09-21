@@ -24,6 +24,6 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
             name: cellscanner
-            path: app/build/outputs/apk/release/app-release-unsigned.apk
+            path: app/build/outputs/apk/debug/app-debug.apk
     
       - run: echo "🍏 This job's status is ${{ job.status }}."
