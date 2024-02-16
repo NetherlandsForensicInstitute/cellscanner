@@ -1,0 +1,30 @@
+name: GitHub Actions Demo
+on: [push]
+jobs:
+  Explore-GitHub-Actions:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Gradle Build Action
+      # You may pin to the exact commit or the version.
+      # uses: gradle/gradle-build-action@356abb47e7664b5505e25d7997a5a522a17c62d9
+        uses: gradle/gradle-build-action@v2.3.0
+       
+      - name: Build
+        run: make
+      - name: List files in the repository
+        run: |
+          find ${{ github.workspace }}
+
+          
+      - name: Publish
+        uses: actions/upload-artifact@v3
+        with:
+            name: cellscanner
+            path: app/build/outputs/apk/debug/app-debug.apk
+    
+      - run: echo "🍏 This job's status is ${{ job.status }}."
