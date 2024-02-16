@@ -1,7 +1,7 @@
-name: GitHub Actions Demo
+name: Build Cell Scanner
 on: [push]
 jobs:
-  Explore-GitHub-Actions:
+  Build-CellScanner-and-publish-Artefact:
     runs-on: ubuntu-latest
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
@@ -16,10 +16,6 @@ jobs:
        
       - name: Build
         run: make
-      - name: List files in the repository
-        run: |
-          find ${{ github.workspace }}
-
           
       - name: Publish
         uses: actions/upload-artifact@v3
